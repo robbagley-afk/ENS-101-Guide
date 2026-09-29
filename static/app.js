@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'ens101-mentor-desk-appointment-1a-v4';
+const { ensurePermanentConversationTag } = window.NoteUtils;
 const ACTIVE_APPT_ID_KEY = 'ens101_active_appt_id';
 
 // Prepare is one step: the mentor enters the email and reads the executive summary.
@@ -94,7 +95,7 @@ const defaultState = () => ({
   },
   guidance: null,
   prepNotes: '',
-  sessionNotes: '',
+  sessionNotes: ensurePermanentConversationTag(''),
   studentNext: '',
   mentorFollow: '',
   checked: {},
@@ -189,7 +190,7 @@ async function loadAppointmentById(appId) {
         assessmentData: a.assessment_data && typeof a.assessment_data === 'object' ? a.assessment_data : defaultState().assessmentData,
         connectStatus: a.ensign_connect_status && typeof a.ensign_connect_status === 'object' ? a.ensign_connect_status : defaultState().connectStatus,
         prepNotes: a.prep_notes || '',
-        sessionNotes: a.session_notes || '',
+        sessionNotes: ensurePermanentConversationTag(a.session_notes || ''),
         studentNext: a.student_next || '',
         mentorFollow: a.mentor_follow || '',
         checked: a.checked_tasks && typeof a.checked_tasks === 'object' ? a.checked_tasks : {},
@@ -233,7 +234,7 @@ function persistState() {
         assessment_data: state.assessmentData,
         ensign_connect_status: state.connectStatus,
         prep_notes: state.prepNotes,
-        session_notes: state.sessionNotes,
+        session_notes: ensurePermanentConversationTag(state.sessionNotes),
         student_next: state.studentNext,
         mentor_follow: state.mentorFollow,
         checked_tasks: state.checked,
@@ -765,6 +766,7 @@ function syncInputsFromState() {
   if ($('#career-confidence')) $('#career-confidence').value = state.student.confidence;
   if ($('#roadmap-status')) $('#roadmap-status').value = state.student.roadmap;
   if ($('#followup-track')) $('#followup-track').value = state.student.followup;
+  state.sessionNotes = ensurePermanentConversationTag(state.sessionNotes);
   if ($('#session-notes')) $('#session-notes').value = state.sessionNotes;
   if ($('#student-next-step')) $('#student-next-step').value = state.studentNext;
 
@@ -847,6 +849,16 @@ function bindSessionFields() {
     const el = $(sel);
     if (!el) return;
     el.addEventListener('input', () => {
+      if (key === 'sessionNotes') {
+        const cursor = el.selectionStart;
+        const normalized = ensurePermanentConversationTag(el.value);
+        if (normalized !== el.value) {
+          const offset = normalized.length - el.value.length;
+          el.value = normalized;
+          const nextCursor = Math.max('#SSTEAM'.length, cursor + offset);
+          el.setSelectionRange(nextCursor, nextCursor);
+        }
+      }
       state[key] = el.value;
       persistState();
     });
@@ -1128,7 +1140,7 @@ ${state.prepNotes || 'None recorded.'}
 
 ` +
     `SESSION CONVERSATION NOTES:
-${state.sessionNotes || 'No notes entered.'}
+${ensurePermanentConversationTag(state.sessionNotes)}
 
 ` +
     `AGREED STUDENT NEXT STEPS:
@@ -1156,7 +1168,7 @@ Career Explorer roadmap: ${state.student.roadmap || 'Not selected'}
 Next appointment: ${state.student.followup || 'Not selected'}
 
 CONVERSATION NOTES
-${state.sessionNotes || 'No notes entered.'}
+${ensurePermanentConversationTag(state.sessionNotes)}
 
 STUDENT NEXT STEP
 ${state.studentNext || 'Not entered.'}
@@ -1797,6 +1809,7 @@ async function init() {
   bindEvents();
   configureTopLinks();
   renderResources();
+  syncInputsFromState();
 
   // 1. Render immediately so sidebar and workspace are NEVER blank while network requests load
   renderStep();
