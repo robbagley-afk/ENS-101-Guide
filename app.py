@@ -67,7 +67,7 @@ if env_path.exists():
 # Optional primary engine: any OpenAI-compatible local or hosted endpoint.
 # It is deliberately disabled by default; configure it in .env when desired.
 LM_STUDIO_URL = os.environ.get("LM_STUDIO_URL", "http://127.0.0.1:1234/v1").strip().rstrip("/")
-QWEN_MODEL = os.environ.get("MODEL_NAME", "qwen3-vl-30b-a3b-instruct-mlx").strip()
+QWEN_MODEL = os.environ.get("MODEL_NAME", "gemma4-26b-qat").strip()
 
 # Fallback Engine: Google Gemini API (optional, used if Qwen is unreachable)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
@@ -1052,6 +1052,10 @@ def query_qwen(message: str, mode: str, history: list[dict[str, str]], parsed_da
         "model": QWEN_MODEL,
         "messages": messages,
         "temperature": 0.3 if is_ce else 0.0,
+        "top_p": 0.95,
+        "top_k": 40,
+        "min_p": 0.05,
+        "repeat_penalty": 1.0,
         "max_tokens": 1200 if is_ce else 1024,
     }
 
@@ -1060,7 +1064,7 @@ def query_qwen(message: str, mode: str, history: list[dict[str, str]], parsed_da
     headers = {"Content-Type": "application/json"}
 
     request = Request(url, data=req_data, headers=headers, method="POST")
-    with urlopen(request, timeout=35, context=ssl.create_default_context()) as resp:
+    with urlopen(request, timeout=90 if is_ce else 35, context=ssl.create_default_context()) as resp:
         data = json.loads(resp.read().decode("utf-8"))
 
     choices = data.get("choices", [])
@@ -1085,6 +1089,10 @@ def query_qwen(message: str, mode: str, history: list[dict[str, str]], parsed_da
         "model": QWEN_MODEL,
         "messages": messages,
         "temperature": 0.0,
+        "top_p": 0.95,
+        "top_k": 40,
+        "min_p": 0.05,
+        "repeat_penalty": 1.0,
         "max_tokens": 1024,
     }
 

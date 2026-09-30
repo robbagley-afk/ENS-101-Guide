@@ -2,7 +2,7 @@
 """AI Fallback Notifier Module.
 
 Alerts Rob Bagley (robbagley@ensign.edu) via email and creates a Mem agent note
-whenever the primary local inference engine (Qwen Local via LM Studio) fails,
+whenever the primary local inference engine (LM Studio Local AI via LM Studio) fails,
 times out, or becomes overwhelmed, and a secondary engine (Google Gemini or
 the offline Python engine) takes over.
 
@@ -108,14 +108,14 @@ def send_email_alert(
     prompt_snippet: str = "",
 ) -> bool:
     """Send alert email to robbagley@ensign.edu using macOS Mail.app via AppleScript."""
-    subject = f"[ALERT] Qwen Local Down -> {fallback_engine} Takeover ({service_name})"
+    subject = f"[ALERT] LM Studio Local AI Down -> {fallback_engine} Takeover ({service_name})"
 
     snippet_block = ""
     if prompt_snippet:
         clean_snippet = prompt_snippet.strip().replace('"', "'")[:200]
         snippet_block = f"\nUser Prompt Excerpt: \"{clean_snippet}\"\n"
 
-    body_text = f"""URGENT: Primary Local AI Engine (Qwen Local) is down or overwhelmed.
+    body_text = f"""URGENT: Primary Local AI Engine (LM Studio Local AI) is down or overwhelmed.
 
 Timestamp: {timestamp_str}
 Affected Service: {service_name}
@@ -126,7 +126,7 @@ Error Encountered:
 System Details:
 - Host Machine: Mac Studio
 - Primary Target: http://127.0.0.1:1234/v1
-- Model: qwen3-vl-30b-a3b-instruct-mlx
+- Model: Configured LM Studio model (Gemma QAT default after cutover)
 
 Actions Taken:
 The service has automatically shifted inference to {fallback_engine} to ensure continuity for students and mentors.
@@ -197,7 +197,7 @@ def create_mem_agent_note(
     prompt_snippet: str = "",
 ) -> bool:
     """Create a Mem agent note documenting the fallback incident."""
-    title = f"# Incident: Qwen Local Fallback to {fallback_engine} on {service_name}"
+    title = f"# Incident: LM Studio Local AI Fallback to {fallback_engine} on {service_name}"
     body = f"""{title}
 Last updated: {timestamp_str[:10]}
 
@@ -212,7 +212,7 @@ Last updated: {timestamp_str[:10]}
 ```
 
 ### System Status
-- Primary LLM: `qwen3-vl-30b-a3b-instruct-mlx`
+- Primary LLM: `Configured LM Studio model (Gemma QAT default after cutover)`
 - Endpoint: `http://127.0.0.1:1234/v1`
 - Impact: Student/mentor traffic successfully rerouted to {fallback_engine}.
 
@@ -235,7 +235,7 @@ curl -s http://127.0.0.1:1234/v1/models
                 str(ODYSSEUS_MEM_OFFLOAD),
                 "create",
                 "--title",
-                f"Incident: Qwen Local Fallback to {fallback_engine} ({service_name})",
+                f"Incident: LM Studio Local AI Fallback to {fallback_engine} ({service_name})",
                 "--body",
                 body,
             ]
@@ -279,7 +279,7 @@ curl -s http://127.0.0.1:1234/v1/models
         with open(mem_body_file, "w", encoding="utf-8") as mbf:
             mbf.write(body)
 
-        safe_subj = f"Incident: Qwen Local Fallback to {fallback_engine} ({service_name})".replace('"', '\\"')
+        safe_subj = f"Incident: LM Studio Local AI Fallback to {fallback_engine} ({service_name})".replace('"', '\\"')
         safe_path = mem_body_file.replace("'", "'\\''")
         as_content = f"""tell application "Mail"
   set bodyText to do shell script "cat '{safe_path}'"
@@ -324,7 +324,7 @@ def notify_qwen_fallback(
     force: bool = False,
 ) -> bool:
     """
-    Main entrypoint called when Qwen Local fails and fallback takes over.
+    Main entrypoint called when LM Studio Local AI fails and fallback takes over.
     Runs asynchronously in a daemon thread so it never adds latency to user requests.
     Throttled by 15-minute cooldown per service unless force=True.
     """
