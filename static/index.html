@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#14283d" />
     <meta name="description" content="A guided workspace for Ensign College ENS 101 mentor appointments." />
-    <title>ENS 101 Mentor Desk v1.0</title>
+    <title>ENS 101 Guide v1.0</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="ces-tokens.css?v=1.1" />
     <link rel="stylesheet" href="ces-components.css?v=1.1" />
@@ -24,9 +24,9 @@
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <a class="brand" href="#" aria-label="ENS 101 Mentor Desk v1.0 home">
+        <a class="brand" href="#" aria-label="ENS 101 Guide v1.0 home">
           <span class="brand-mark" aria-hidden="true">E</span>
-          <span class="brand-copy"><strong>ENS 101 Mentor Desk</strong><span class="ces-version-tag" aria-label="Version 1.0">v1.0</span></span>
+          <span class="brand-copy"><strong>ENS 101 Guide</strong><span class="ces-version-tag" aria-label="Version 1.0">v1.0</span></span>
         </a>
         <nav class="top-nav" aria-label="Main navigation">
           <button class="top-nav-button active" data-view="appointment" type="button">Tasks</button>
@@ -52,7 +52,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             <span>Ensign Internship Expert</span>
           </a>
-          <button id="open-suggestion-modal" class="button nav-header-btn" type="button" title="Suggest how to improve ENS 101 Mentor Desk v1.0">
+          <button id="open-suggestion-modal" class="button nav-header-btn" type="button" title="Suggest how to improve ENS 101 Guide v1.0">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/><path d="M9 21h6"/></svg>
             <span>Suggest Improvement</span>
           </button>
@@ -107,13 +107,13 @@
                   </div>
 
                   <div class="student-fields prep-student-fields">
-                    <label><span>Preferred name</span><input id="prep-student-name" type="text" autocomplete="off" placeholder="e.g., Jordan" maxlength="60" /></label>
+                    <label><span>Preferred name</span><input id="prep-student-name" type="text" autocomplete="off" placeholder="e.g., Student" maxlength="60" /></label>
                     <label>
                       <span class="field-label-wrap">
                         <span>Student @ensign.edu email <span class="required-star">*</span></span>
                         <span id="prep-email-error" class="field-error-msg" hidden>@ensign.edu required</span>
                       </span>
-                      <input id="prep-student-email" type="email" inputmode="email" autocomplete="off" placeholder="student.name@ensign.edu" maxlength="160" required />
+                      <input id="prep-student-email" type="email" inputmode="email" autocomplete="off" placeholder="student@example.com" maxlength="160" required />
                     </label>
                     <label><span>Major or program</span><input id="prep-student-program" type="text" autocomplete="off" placeholder="e.g., Software Engineering" maxlength="100" /></label>
                     <label><span>Career direction</span><input id="prep-career-direction" type="text" autocomplete="off" placeholder="e.g., Full Stack Web Developer" maxlength="100" /></label>
@@ -361,8 +361,8 @@
                   </div>
 
                   <div id="prep-student-recap" class="prep-student-recap">
-                    <span class="recap-item"><strong>Student:</strong> <span id="recap-name">Jordan Taylor</span></span>
-                    <span class="recap-item"><strong>Email:</strong> <span id="recap-email">jordan.taylor@ensign.edu</span></span>
+                    <span class="recap-item"><strong>Student:</strong> <span id="recap-name">Student</span></span>
+                    <span class="recap-item"><strong>Email:</strong> <span id="recap-email">student@example.com</span></span>
                     <span class="recap-item"><strong>Major:</strong> <span id="recap-program">Software Engineering</span></span>
                     <span class="recap-item"><strong>Career:</strong> <span id="recap-career">Full Stack Web Developer</span></span>
                     <span class="recap-item"><strong>Career Explorer:</strong> <span id="recap-pathwayu">Completed</span></span>
@@ -407,7 +407,7 @@
                   <span class="optional-label">Non-sensitive details only</span>
                 </div>
                 <div class="student-fields">
-                  <label><span>Preferred name</span><input id="student-name" type="text" autocomplete="off" placeholder="e.g., Jordan" maxlength="60" /></label>
+                  <label><span>Preferred name</span><input id="student-name" type="text" autocomplete="off" placeholder="e.g., Student" maxlength="60" /></label>
                   <label><span>Major or program</span><input id="student-program" type="text" autocomplete="off" placeholder="e.g., Software Engineering" maxlength="100" /></label>
                   <label><span>Career direction</span><input id="career-direction" type="text" autocomplete="off" placeholder="e.g., UX designer" maxlength="100" /></label>
                   <div class="confidence-field">
@@ -565,7 +565,7 @@
               <div class="dialog-icon suggestion-bulb-icon" aria-hidden="true">💡</div>
               <div>
                 <h2 id="suggestion-dialog-title">Suggest an Improvement</h2>
-                <p class="dialog-subtitle">Share ideas, bug reports, or content updates to improve ENS 101 Mentor Desk v1.0.</p>
+                <p class="dialog-subtitle">Share ideas, bug reports, or content updates to improve ENS 101 Guide v1.0.</p>
               </div>
             </div>
             <button id="close-suggestion-dialog" class="icon-button" type="button" aria-label="Close suggestion modal">×</button>

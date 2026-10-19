@@ -4,7 +4,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP_NAME = "ENS 101 Mentor Desk v1.0"
+APP_NAME = "ENS 101 Guide v1.0"
 
 
 class PageTextParser(HTMLParser):
@@ -56,7 +56,7 @@ class BrandingTests(unittest.TestCase):
         page_source = (ROOT / "static/index.html").read_text(encoding="utf-8")
 
         self.assertIn(
-            '<strong>ENS 101 Mentor Desk</strong>'
+            '<strong>ENS 101 Guide</strong>'
             '<span class="ces-version-tag" aria-label="Version 1.0">v1.0</span>',
             page_source,
         )
