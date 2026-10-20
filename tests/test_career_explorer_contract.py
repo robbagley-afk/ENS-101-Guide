@@ -12,7 +12,8 @@ class Ens101CareerExplorerContractTests(unittest.TestCase):
         }
         output = app.offline_career_explorer_python_engine("Prepare", "prep-guidance", [], data)
         self.assertIn("ENS 101 First-Meeting Preparation", output)
-        self.assertIn("Emotional Sensitivity (HEXACO Emotionality: high)", output)
+        self.assertIn("Emotional Sensitivity: high", output)
+        self.assertNotIn("HEXACO", output)
         self.assertNotIn("Emotional Stability", output)
         guidance = app.generate_career_guidance("", "", "", data)
         self.assertEqual(guidance["holland_code"], "IRC")
@@ -24,8 +25,12 @@ class Ens101CareerExplorerContractTests(unittest.TestCase):
         self.assertNotIn("Human Resources Coordinator", reply)
 
     def test_ens101_prompt_uses_the_canonical_terminology_contract(self):
-        self.assertIn("HEXACO TERMINOLOGY — MANDATORY", app.CAREER_EXPLORER_SYSTEM_PROMPT)
-        self.assertIn("Emotional Sensitivity (HEXACO Emotionality: [score])", app.CAREER_EXPLORER_SYSTEM_PROMPT)
+        prompt = app.CAREER_EXPLORER_SYSTEM_PROMPT
+        self.assertIn("PERSONALITY WORDING — MANDATORY", prompt)
+        self.assertIn("Emotional Sensitivity: [score]", prompt)
+        self.assertIn("Plain Language for Volunteer Coaches", prompt)
+        # The only HEXACO mention allowed is the instruction never to write it.
+        self.assertEqual(prompt.count("HEXACO"), 2)
         self.assertNotIn("Low Emotional Stability", app.CAREER_EXPLORER_SYSTEM_PROMPT)
 
 

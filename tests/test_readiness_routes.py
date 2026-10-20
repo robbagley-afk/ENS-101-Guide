@@ -25,6 +25,17 @@ def raises(error):
 
 
 class BuildResponseTests(unittest.TestCase):
+    def test_vmock_fields_never_reach_the_browser(self):
+        payload = valid_projection()
+        payload["sources"]["vmock"] = {"status": "fresh", "imported_at": None}
+        payload["data"]["vmock"] = {"signed_up": True}
+        status, body = app.build_student_readiness_response(
+            SYNTHETIC_EMAIL, lookup_fn=returns(payload)
+        )
+        self.assertEqual(status, HTTPStatus.OK)
+        self.assertNotIn("vmock", body["sources"])
+        self.assertNotIn("vmock", body["data"])
+
     def test_answers_map_to_http_status(self):
         cases = {
             "complete fresh": (valid_projection(), HTTPStatus.OK),
