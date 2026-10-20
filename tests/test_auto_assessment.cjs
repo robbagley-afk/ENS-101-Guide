@@ -48,8 +48,8 @@ async function main() {
     assert.equal(f.pending.filter(x => x.url.endsWith('/guidance')).length, 1);
     const chat = f.pending.find(x => x.url === '/api/chat');
     assert.equal(chat.body.history.length, 0, 'Previous student conversation is excluded');
-    assert.match(chat.body.message, /Student Summary/);
-    assert.match(chat.body.message, /Career.*Major/);
+    assert.match(chat.body.message, /brief Student Summary/);
+    assert.doesNotMatch(chat.body.message, /Majors|Careers/);
     f.reply(chat, {reply: 'Executive Summary A', engine: 'local'});
     f.reply(f.pending.find(x => x.url.endsWith('/guidance')), {status: 'ok', aligned_careers: ['Synthetic Career']});
     await work;

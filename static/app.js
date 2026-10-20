@@ -1074,7 +1074,7 @@ async function applyReadinessProjection(projection) {
     // Each lookup owns its feedback. Synthesis starts without waiting for recommendations.
     await Promise.all([
       fetchCareerGuidance(),
-      sendPrepChatMessage("Generate a Student Summary of this student's available PathwayU Career Explorer assessments, followed by Majors and Careers to Explore with evidence from the results. Clearly identify incomplete or unavailable assessments without inventing results.", null, { automatic: true })
+      sendPrepChatMessage("Write a brief Student Summary of this student for my upcoming meeting. Note any assessments that are incomplete or unavailable without inventing results.", null, { automatic: true })
     ]);
   }
 }
