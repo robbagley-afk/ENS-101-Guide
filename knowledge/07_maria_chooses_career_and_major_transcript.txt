@@ -24,7 +24,7 @@ Maria calls her parents one evening. Her father gives key guidance:
 4. Completing the 4 Assessments: Within one hour, Maria completes the 4 key assessments:
    - Interests (Holland Code)
    - Values
-   - Personality (HEXACO)
+   - Personality
    - Workplace Preferences
 
 ## 4. Resolution & Outcome

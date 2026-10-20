@@ -25,7 +25,7 @@ class AssessmentPromptTests(unittest.TestCase):
             return Response()
 
         with patch.object(app, 'LM_STUDIO_URL', 'http://127.0.0.1:1234/v1'), patch.object(app, 'urlopen', open_request):
-            app.query_qwen('Generate an Executive Summary and Career & Major recommendations.', 'step2', [], assessment)
+            app.query_qwen('Generate a Student Summary and Majors and Careers to Explore.', 'step2', [], assessment)
         turn = captured[0]['messages'][-1]
         self.assertEqual(turn['role'], 'user')
         self.assertIn('Canonical Assessment Interpretation:', turn['content'])

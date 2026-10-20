@@ -25,7 +25,7 @@ function fixture() {
     $: selector => ids[selector.slice(1)] || null,
     document: {createElement: () => new Element()},
     assessmentDataFromReadiness: ce => ce || {status: 'not_found', completed_count: 0},
-    connectStatusFromReadiness: () => ({}), renderAssessmentCards() {}, renderReadinessFreshness() {}, renderVmockReadiness() {},
+    connectStatusFromReadiness: () => ({}), renderAssessmentCards() {}, renderReadinessFreshness() {},
     readinessGaps: () => [], showLookupFeedback() {}, renderGuidanceDisplay: data => guidance.push(data),
     appendPrepChatMessage: (role, text) => displayed.push({role, text}), console,
     fetch: (url, options) => new Promise(resolve => pending.push({url, body: JSON.parse(options.body), resolve})),
@@ -48,7 +48,7 @@ async function main() {
     assert.equal(f.pending.filter(x => x.url.endsWith('/guidance')).length, 1);
     const chat = f.pending.find(x => x.url === '/api/chat');
     assert.equal(chat.body.history.length, 0, 'Previous student conversation is excluded');
-    assert.match(chat.body.message, /Executive Summary/);
+    assert.match(chat.body.message, /Student Summary/);
     assert.match(chat.body.message, /Career.*Major/);
     f.reply(chat, {reply: 'Executive Summary A', engine: 'local'});
     f.reply(f.pending.find(x => x.url.endsWith('/guidance')), {status: 'ok', aligned_careers: ['Synthetic Career']});
