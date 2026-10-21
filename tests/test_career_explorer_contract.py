@@ -11,9 +11,13 @@ class Ens101CareerExplorerContractTests(unittest.TestCase):
             "primary_values": ["Achievement"],
         }
         output = app.offline_career_explorer_python_engine("Prepare", "prep-guidance", [], data)
-        self.assertIn("ENS 101 First-Meeting Preparation", output)
-        self.assertIn("Emotional Sensitivity: high", output)
-        self.assertNotIn("HEXACO", output)
+        self.assertTrue(output.startswith("## Student Summary"))
+        self.assertIn("caring and empathetic", output)
+        self.assertIn("problem-solving", output)
+        self.assertTrue(output.endswith(app.BRIEF_SUMMARY_CLOSING))
+        # Brief summary never names the scales behind it.
+        for term in ("HEXACO", "Holland", "IRC", "Emotional Stability", "high"):
+            self.assertNotIn(term, output)
         self.assertNotIn("Emotional Stability", output)
         guidance = app.generate_career_guidance("", "", "", data)
         self.assertEqual(guidance["holland_code"], "IRC")

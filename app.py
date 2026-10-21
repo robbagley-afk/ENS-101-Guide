@@ -33,7 +33,7 @@ from career_explorer_engine import (
     parse_career_explorer_pdf, build_briefing, build_career_recommendations,
     generate_guidance_sections, personality_description,
     hexaco_terminology_prompt, normalize_assessment_data, assessment_prompt_context,
-    PROFILE_MENTOR_ENS101,
+    PROFILE_MENTOR_ENS101, interpret_assessment,
     TRAIT_EXPLANATIONS, MAJOR_ALIGNMENTS, CAREER_ALIGNMENTS,
 )
 from urllib.request import Request, urlopen
@@ -726,7 +726,7 @@ PLAIN_LANGUAGE_RULES = """Plain Language for Volunteer Coaches (CRITICAL):
 - Use short sentences and everyday words. Aim for an 8th-grade reading level.
 - Never use these words: HEXACO, Big Five, RIASEC, O*NET, synthesis, metrics, construct, normative, unclassified, prototype, high-yield, executive.
 - The first time you mention an assessment term, explain it in a few plain words. Example: "Holland Code (the student's top three interest areas)".
-- Show personality results as the trait name and score, then one plain sentence on what it means for coaching.
+- When a mentor asks for trait details, show the trait name and score, then one plain sentence on what it means for coaching.
 - Keep answers brief. Lead with what the mentor should say or do."""
 
 CAREER_EXPLORER_SYSTEM_PROMPT = f"""Mentor Career Explorer System Prompt
@@ -833,18 +833,19 @@ Provide key coaching points and advice the mentor can share with the student:
 4. Taking Assessments: Give the mentor the exact steps to explain to the student: take all 4 assessments on [Career Explorer Assessment]({PATHWAYU_URL}) (Interests, Values, Personality, Workplace Preferences), click the DOWNLOAD button next to PRINT on the Assessments page to save their official PDF, and bring it to their mentoring session.
 5. If the student cannot access Ensign Connect or the Roadmap: Send an email to careerservices@ensign.edu or call 801-524-1925.""",
 
-    "step2": """Mode: Step 2 (Student Summary for Mentors).
-Goal: Give the Career Mentor a short, plain-language summary of the student's Career Explorer results to prepare for their 1-on-1 coaching session.
-Base analysis ONLY on the uploaded or provided assessment data. If information is missing, say: 'That information was not visible in the uploaded report.'
-Use the headings 'Student Summary' and 'Majors and Careers to Explore'. Provide the summary first, then 3 career exploration options with aligned Ensign programs and evidence from the supplied assessment.
-Format those two main headings with Markdown ##. Under Student Summary, use separate Markdown ### headings for Personality Profile, Workplace Preferences, Core Values, and Interests & Holland Code. Keep each assessment's bullets beneath its heading, with blank lines between sections. Under Majors and Careers to Explore, list the 3 options directly with no repeated heading. Put Questions to Ask the Student under its own ### heading. Never use assessment section headings as list items. Use each heading only once.
-Name only programs from the Official Degree List. If no program fits, say so.
-Required topics for the mentor:
-1. Personality Profile: For EVERY trait, write the trait, its score, and one plain sentence on what the trait is about, even when the score is a plain number (example: "Agreeableness: 4.2. This is about patience and cooperation with others."). Use the Emotional Sensitivity label. Then give 2-3 coaching tips.
-2. Workplace Preferences: Highlight top organizational preferences and how the mentor can help the student evaluate work environments.
-3. Core Values: Top 3 only; one sentence per value explaining what motivates the student.
-4. Interests & Holland Code: State the Holland Code, say in plain words what each letter means, and name 2-3 related careers.
-5. Questions to Ask the Student: Give 3 simple, open questions the mentor can ask during the session.""",
+    "step2": """Mode: Step 2 (Brief Student Summary for Mentors).
+Goal: Give the Career Mentor a quick picture of the student they are about to meet. For details, the mentor opens the full Career Explorer report.
+When the mentor asks for a Student Summary, summary, or overview of the student, follow these rules. They override any other instruction to show scores or headings.
+- Start with the heading "## Student Summary".
+- Write exactly two short paragraphs, 120-170 words in total. No bullets, no other headings, no scores, no numbers.
+- Paragraph 1: one overall picture of the student's personality: how they come across and how they work with others. Blend the traits together. Do not list them one by one.
+- Paragraph 2: the kind of workplace they thrive in, the values that drive them, and the kinds of work their interests point toward.
+- Never mention the assessments, scales, or codes behind the summary: no trait scores, no Holland Code, no letter codes, no assessment names.
+- If a trait's level is unclassified (a plain number), describe it as a tendency, never as high or low.
+- If part of the report is missing, add one short sentence naming what was not available. Never invent results.
+- End with this exact line: "For a deeper look, open the student's full Career Explorer report."
+- Do not add majors, careers, coaching tips, or questions unless the mentor asks.
+For any other question, answer it directly and briefly in plain language. Base everything only on the supplied assessment data. Name only programs from the Official Degree List.""",
 
     "step3": """Mode: Step 3 (Majors & Careers Alignment for Mentors).
 Goal: Provide the Career Mentor with 3 aligned career recommendations and Ensign College programs based on the student's assessment profile.
@@ -885,6 +886,62 @@ def clean_no_emojis(text: str) -> str:
     cleaned = re.sub(r'https?://calendly\.com/\S+', CAREER_SERVICES_URL, cleaned)
     return cleaned
 
+# Plain phrases for the offline brief summary. Raw numeric scores carry no
+# high/low band, so they get the neutral "about" phrase only.
+_BRIEF_TRAITS = {
+    "Agreeableness": ("patient and cooperative", "direct and willing to speak up", "patience and cooperation"),
+    "Extraversion": ("outgoing and energized by people", "thoughtful and focused", "energy from people"),
+    "Openness to Experience": ("curious about new ideas", "practical and dependable", "curiosity"),
+    "Conscientiousness": ("organized and reliable", "flexible and adaptable", "organization"),
+    "Honesty-Humility": ("sincere and modest", "confident in promoting ideas", "sincerity and fairness"),
+    "Emotionality": ("caring and empathetic", "calm and steady under pressure", "empathy and closeness to others"),
+}
+_BRIEF_INTERESTS = {
+    "R": "hands-on building", "I": "problem-solving", "A": "creating",
+    "S": "helping others", "E": "leading", "C": "organizing details",
+}
+BRIEF_SUMMARY_CLOSING = "For a deeper look, open the student's full Career Explorer report."
+
+
+def _join_plain(items: list[str]) -> str:
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + f", and {items[-1]}"
+
+
+def brief_student_summary(parsed_data: dict | None) -> str:
+    """Two short paragraphs a volunteer mentor can read before the meeting."""
+    facts = interpret_assessment(parsed_data)
+    described, explore = [], []
+    for factor in facts["personality"]:
+        phrases = _BRIEF_TRAITS.get(factor["factor"])
+        if not phrases:
+            continue
+        if factor["level"] == "high":
+            described.append(phrases[0])
+        elif factor["level"] == "low":
+            described.append(phrases[1])
+        else:
+            explore.append(phrases[2])
+    if described:
+        first = f"This student tends to come across as {_join_plain(described)}."
+        if explore:
+            first += f" Their results also touch on {_join_plain(explore)}, so ask how those fit them."
+    elif explore:
+        first = f"This student's personality results touch on {_join_plain(explore)}. Ask how they would describe the way they work with others."
+    else:
+        first = "Personality results were not available in the report."
+    second = []
+    if facts["primary_workplace_preferences"]:
+        second.append(f"They thrive in workplaces that are {_join_plain([p.lower() for p in facts['primary_workplace_preferences']])}.")
+    if facts["primary_values"]:
+        second.append(f"They are driven by {_join_plain([v.lower() for v in facts['primary_values']])}.")
+    kinds = [_BRIEF_INTERESTS[l] for l in facts["holland_letters"] if l in _BRIEF_INTERESTS]
+    if kinds:
+        second.append(f"Their interests point toward work that involves {_join_plain(kinds)}.")
+    if not second:
+        second.append("Workplace, values, and interest results were not available in the report.")
+    return "\n\n".join(["## Student Summary", first, " ".join(second), BRIEF_SUMMARY_CLOSING])
+
+
 def offline_career_explorer_python_engine(message: str, mode: str, history: list[dict[str, str]], parsed_data: dict | None = None) -> str:
     """Offline Python Engine providing high-fidelity coaching briefings based on student assessment data."""
     msg_lower = message.lower()
@@ -922,7 +979,7 @@ Guided by the mission of Ensign College, we help mentors develop students into c
 {FOOTER_TEXT}"""
 
     if mode in ("step2", "prep-guidance"):
-        return build_briefing(parsed_data, profile=PROFILE_MENTOR_ENS101, pathwayu_url=PATHWAYU_URL, footer_text=FOOTER_TEXT)
+        return brief_student_summary(parsed_data)
 
     if mode in ("step3", "prep-notes"):
         return build_career_recommendations(parsed_data, profile=PROFILE_MENTOR_ENS101, footer_text=FOOTER_TEXT)
