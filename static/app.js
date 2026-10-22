@@ -687,16 +687,6 @@ function renderAppointmentWorkspace() {
     });
   }
 
-  const snippet = $('#prep-preview-snippet');
-  const previewText = $('#prep-preview-text');
-  if (state.prepNotes?.trim()) {
-    if (snippet) snippet.textContent = state.prepNotes.slice(0, 60) + (state.prepNotes.length > 60 ? '…' : '');
-    if (previewText) previewText.textContent = state.prepNotes;
-  } else {
-    if (snippet) snippet.textContent = 'No prep notes recorded';
-    if (previewText) previewText.textContent = 'No prep notes recorded in Task 1 for this student.';
-  }
-
   const civitasCard = $('#civitas-card');
   if (civitasCard) {
     civitasCard.hidden = stepIdx !== WORKFLOW.length - 1;
@@ -1716,15 +1706,6 @@ function bindEvents() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       showToast(completedTasks() === totalTasks() ? 'Appointment workflow complete' : 'Review unfinished tasks before logging Civitas');
-    }
-  });
-
-  $('#btn-toggle-prep-preview')?.addEventListener('click', () => {
-    const body = $('#prep-preview-content');
-    const chevron = $('#prep-preview-chevron');
-    if (body) {
-      body.hidden = !body.hidden;
-      if (chevron) chevron.textContent = body.hidden ? '▼' : '▲';
     }
   });
 
