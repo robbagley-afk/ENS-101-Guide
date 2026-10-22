@@ -269,7 +269,12 @@ input.required-incomplete {
 }
 
 /* Ensign Connect Account Section */
-.prep-connect-section { margin-top: 18px; padding: 14px 16px; border: 1px solid #d8e3e9; border-radius: 10px; background: #f8fbfc; }
+/* Ensign Connect status: a compact chip in the Prepare heading row. The last-checked time is a tooltip and screen-reader text. */
+.prep-connect-section { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px 10px; margin: 0; padding: 0; border: 0; background: none; }
+.connect-label { color: var(--ink-muted); font-size: var(--text-caption); font-weight: 600; white-space: nowrap; }
+.prep-connect-section .connect-status-bar { margin-top: 0; justify-content: flex-end; flex-wrap: wrap; }
+.prep-connect-section .connect-status-pill { padding: 2px 10px; }
+.prep-connect-section .task-action { margin-top: 0; }
 .connect-action-group { display: flex; align-items: center; gap: 10px; }
 .timestamp-subtext { color: #64748b; font-size: var(--text-caption); font-weight: 600; }
 .connect-status-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; gap: 12px; }
@@ -674,18 +679,6 @@ input.required-incomplete {
   border: 1px solid #dbe3e8;
   border-radius: 11px;
   background: #f9fbfc;
-}
-.prep-subheading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-.prep-subheading h3 {
-  margin: 0;
-  font-size: var(--text-caption);
-  font-weight: 750;
-  color: var(--navy-950);
 }
 .assessment-cards-grid {
   display: grid;
@@ -1432,8 +1425,6 @@ input.required-incomplete {
   #prep-step-1.prep-card { padding: 17px; }
   #prep-step-1 .section-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
   #prep-step-1 .prep-student-fields { grid-template-columns: minmax(0, 1fr); }
-  #prep-step-1 .prep-connect-section { padding: 13px; }
-  #prep-step-1 .prep-subheading { align-items: flex-start; flex-direction: column; gap: 9px; }
   #prep-step-1 .connect-action-group { flex-wrap: wrap; }
 }
 
@@ -1589,3 +1580,6 @@ input[type="checkbox"], input[type="radio"] { flex: 0 0 var(--touch-min); min-wi
 /* Beats `.prep-chat-msg.assistant a` link styling so the label stays white on ink. */
 .prep-chat-msg.assistant a.prep-open-pathwayu-btn,
 .prep-chat-msg.assistant a.prep-open-pathwayu-btn:hover { color: #fff; text-decoration: none; }
+@media (max-width: 639px) {
+  .prep-connect-section, .prep-connect-section .connect-status-bar { justify-content: flex-start; }
+}
