@@ -1882,7 +1882,17 @@ function appendPrepChatMessage(role, text) {
       reportBtn.className = 'button secondary small prep-open-report-btn';
       reportBtn.textContent = 'Open full Career Explorer report';
       reportBtn.addEventListener('click', openStudentReport);
-      msgDiv.appendChild(reportBtn);
+      // PathwayU has no per-student link, so this opens the portal home for the mentor to search.
+      const pathwayLink = document.createElement('a');
+      pathwayLink.className = 'button small prep-open-pathwayu-btn';
+      pathwayLink.href = 'https://ensign.pathwayu.com/';
+      pathwayLink.target = '_blank';
+      pathwayLink.rel = 'noopener noreferrer';
+      pathwayLink.textContent = 'Open PathwayU';
+      const actions = document.createElement('div');
+      actions.className = 'prep-summary-actions';
+      actions.append(reportBtn, pathwayLink);
+      msgDiv.appendChild(actions);
     }
   }
 
