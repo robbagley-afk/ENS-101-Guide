@@ -130,7 +130,8 @@ function totalTasks() {
 }
 
 function completedTasks() {
-  return Object.values(state.checked).filter(Boolean).length;
+  // Count only tasks that still exist: saved students may carry checks for tasks that were removed.
+  return WORKFLOW.flatMap(step => step.tasks).filter(task => state.checked[task.id]).length;
 }
 
 function stepComplete(step) {
