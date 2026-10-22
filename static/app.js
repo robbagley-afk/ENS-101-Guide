@@ -25,7 +25,6 @@ const WORKFLOW = [
       { id: 'begin-major', title: 'Confirm the student\'s major and desired career', detail: '' },
       { id: 'career-confidence', title: 'Ask the 1–10 confidence question', detail: '' }
     ],
-    prompts: ['What is your major?', 'What type of career do you see yourself doing when you graduate?', 'On a scale of 1–10, how sure are you about this career direction?'],
     copilot: ['Give me a warm opening', 'Explain Appointment 1a', 'Suggest a career question']
   },
   {
@@ -42,7 +41,6 @@ const WORKFLOW = [
       { id: 'career-followup', group: 'Close', inline: 'suggestion', title: 'Choose the next appointment', detail: 'Still exploring: plan a Career Explorer appointment. Confident: plan Create Resume and show Roadmap 2, Steps 1–5.' },
       { id: 'close-selfie', group: 'Close', title: 'Take the appointment selfie', detail: 'Follow the Appointment 1a practice and get the student\'s consent first.' }
     ],
-    prompts: ['How could an internship connect to the career you want?', 'When would you need to begin applying?', 'On a scale of 1–10, how confident do you feel now?', 'What is the first step you will take after today?'],
     copilot: ['Explain the internship timeline', 'Give an international-student caution', 'Recommend the next appointment', 'Draft a follow-up message']
   }
 ];
@@ -671,19 +669,6 @@ function renderAppointmentWorkspace() {
   const countBadge = $('#step-task-count');
   if (countBadge) countBadge.textContent = `${done}/${step.tasks.length} complete`;
 
-  const prompts = $('#conversation-prompts');
-  if (prompts) {
-    prompts.innerHTML = '';
-    step.prompts.forEach(text => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'prompt-button';
-      button.textContent = text;
-      button.addEventListener('click', () => copyText(text, 'Question copied'));
-      prompts.appendChild(button);
-    });
-  }
-
   const civitasCard = $('#civitas-card');
   if (civitasCard) {
     civitasCard.hidden = stepIdx !== WORKFLOW.length - 1;
@@ -782,7 +767,6 @@ function syncInputsFromState() {
   if ($('#followup-track')) $('#followup-track').value = state.student.followup;
   if ($('#session-notes')) $('#session-notes').value = state.sessionNotes;
   if ($('#student-next-step')) $('#student-next-step').value = state.studentNext;
-  if ($('#mentor-follow-up')) $('#mentor-follow-up').value = state.mentorFollow;
 
   updateRecommendation();
   renderAssessmentCards();
@@ -857,8 +841,7 @@ function bindSessionFields() {
 
   const notesPairs = [
     ['#session-notes', 'sessionNotes'],
-    ['#student-next-step', 'studentNext'],
-    ['#mentor-follow-up', 'mentorFollow']
+    ['#student-next-step', 'studentNext']
   ];
   notesPairs.forEach(([sel, key]) => {
     const el = $(sel);
@@ -1152,10 +1135,10 @@ ${state.sessionNotes || 'No notes entered.'}
 ${state.studentNext || 'None recorded.'}
 
 ` +
-    `MENTOR FOLLOW-UP COMMITMENTS:
-${state.mentorFollow || 'None recorded.'}
+    (state.mentorFollow ? `MENTOR FOLLOW-UP COMMITMENTS:
+${state.mentorFollow}
 
-` +
+` : '') +
     `COMPLETED WORKFLOW TASKS:
 ${tasksDone || 'None marked complete.'}
 `;
@@ -1178,10 +1161,10 @@ ${state.sessionNotes || 'No notes entered.'}
 STUDENT NEXT STEP
 ${state.studentNext || 'Not entered.'}
 
-MENTOR FOLLOW-UP
-${state.mentorFollow || 'Not entered.'}
+${state.mentorFollow ? `MENTOR FOLLOW-UP
+${state.mentorFollow}
 
-COMPLETED APPOINTMENT TASKS
+` : ''}COMPLETED APPOINTMENT TASKS
 ${completedLabels || 'None marked complete.'}
 
 Privacy reminder: Keep this summary only in an approved location and follow applicable student-record policies.`;
