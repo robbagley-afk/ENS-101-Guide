@@ -245,7 +245,7 @@ input:focus, select:focus, textarea:focus { outline: var(--focus-ring); outline-
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
-.confidence-career-link:hover { color: var(--gold); }
+.confidence-career-link:hover { color: var(--brand); } /* ECC: gold is identity-only, links hover in brand green */
 .confidence-career-link:focus-visible {
   outline: 3px solid rgba(0,102,69,.35);
   outline-offset: 3px;
