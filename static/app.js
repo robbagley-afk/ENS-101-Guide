@@ -20,10 +20,10 @@ const WORKFLOW = [
     title: 'Begin the appointment',
     description: 'Open warmly, follow the prayer direction in the Appointment 1a guide, learn the student\'s major and career direction, and check confidence.',
     tasks: [
-      { id: 'begin-prayer', title: 'Open with prayer', detail: 'Follow the appointment guideline and your department\'s current practice.' },
-      { id: 'begin-major', title: 'Confirm the student\'s major', detail: 'Enter the major or program above so later guidance is specific.' },
-      { id: 'begin-career', title: 'Ask about the student\'s career direction', detail: 'Capture a short role or field.' },
-      { id: 'career-confidence', title: 'Ask the 1–10 confidence question', detail: 'Update the confidence slider above. 1 = Low confidence, 10 = Very Confident.' }
+      // Begin is three plain checkboxes with no detail line (Rob, 2026-10-22). begin-major now covers the career question too.
+      { id: 'begin-prayer', title: 'Open with prayer', detail: '' },
+      { id: 'begin-major', title: 'Confirm the student\'s major and desired career', detail: '' },
+      { id: 'career-confidence', title: 'Ask the 1–10 confidence question', detail: '' }
     ],
     prompts: ['What is your major?', 'What type of career do you see yourself doing when you graduate?', 'On a scale of 1–10, how sure are you about this career direction?'],
     copilot: ['Give me a warm opening', 'Explain Appointment 1a', 'Suggest a career question']
@@ -656,7 +656,7 @@ function renderAppointmentWorkspace() {
       const checked = Boolean(state.checked[task.id]);
       item.className = `task-item${checked ? ' checked' : ''}`;
       const action = task.action ? `<a class="task-action" href="${resolveSuiteUrl(task.action.url)}" target="_blank" rel="noopener">${task.action.label}<svg viewBox="0 0 24 24"><path d="M14 5h5v5M10 14 19 5"/><path d="M19 13v6H5V5h6"/></svg></a>` : '';
-      item.innerHTML = `<button class="task-check" type="button" aria-label="${checked ? 'Mark incomplete' : 'Mark complete'}: ${task.title}"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><div class="task-copy"><strong>${task.title}</strong><p>${task.detail}</p>${taskInlineControl(task)}${action}</div>`;
+      item.innerHTML = `<button class="task-check" type="button" aria-label="${checked ? 'Mark incomplete' : 'Mark complete'}: ${task.title}"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><div class="task-copy"><strong>${task.title}</strong>${task.detail ? `<p>${task.detail}</p>` : ''}${taskInlineControl(task)}${action}</div>`;
       bindTaskInlineControl(item, task);
       item.querySelector('button.task-check').addEventListener('click', () => {
         state.checked[task.id] = !checked;
