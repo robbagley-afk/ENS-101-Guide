@@ -49,7 +49,7 @@ svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-wi
 
 .button { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 15px; border: 1px solid transparent; border-radius: 9px; cursor: pointer; font-weight: 700; text-decoration: none; transition: transform .16s ease, background .16s ease, border-color .16s ease; }
 .button:hover { transform: translateY(-1px); }
-.button:focus-visible, .icon-button:focus-visible, .top-nav-button:focus-visible, .workflow-button:focus-visible, .task-check:focus-visible, .filter-button:focus-visible, .nav-header-btn:focus-visible, .new-student-btn:focus-visible, button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--ces-focus-ring, #f0c040) !important; outline-offset: 2px !important; }
+.button:focus-visible, .icon-button:focus-visible, .top-nav-button:focus-visible, .workflow-button:focus-visible, .task-check:focus-visible, .filter-button:focus-visible, .nav-header-btn:focus-visible, .new-student-btn:focus-visible, button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: var(--focus-ring) !important; outline-offset: var(--focus-offset) !important; }
 .button svg { width: 16px; height: 16px; }
 .button.primary { color: #fff; background: var(--navy-800); box-shadow: 0 5px 14px rgba(20,40,61,.16); }
 .button.primary:hover { background: var(--navy-700); }
@@ -1384,7 +1384,7 @@ input.required-incomplete {
     outline-offset: 2px !important;
   }
 
-  .ces-version-tag,
+  .ens101-version,
   .brand-mark,
   .engine-indicator-pill,
   .autosave-status {
@@ -1399,7 +1399,7 @@ input.required-incomplete {
 /* ==========================================================================
    ECC v2.2 shared control rules (appended; earlier component rules keep layout)
    ========================================================================== */
-small, .ces-version-tag { font-size: var(--text-caption); }
+small, .ens101-version { font-size: var(--text-caption); }
 
 /* Text fields: one look everywhere (fill, 2px border, 19px text, brand focus ring). */
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
@@ -1552,3 +1552,16 @@ input[type="checkbox"], input[type="radio"] { flex: 0 0 var(--touch-min); min-wi
 .task-card, .task-list, .task-copy { min-width: 0; }
 .task-copy { overflow-wrap: anywhere; }
 .task-action { max-width: 100%; white-space: normal; }
+
+/* ECC: version metadata uses a neutral app-owned label instead of legacy gold decoration. */
+.ens101-version {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink-muted);
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 1px 8px;
+  font-weight: 400;
+  vertical-align: middle;
+}
