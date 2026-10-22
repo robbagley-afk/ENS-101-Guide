@@ -1312,14 +1312,12 @@ function renderResources() {
 
 function openCopilot(prefill = '') {
   $('#copilot-panel').classList.add('open');
-  $('#open-copilot').hidden = true;
   if (prefill) $('#message-input').value = prefill;
   $('#message-input').focus();
 }
 
 function closeCopilot() {
   $('#copilot-panel').classList.remove('open');
-  $('#open-copilot').hidden = false;
 }
 
 function formatAssistantMessage(text) {
@@ -1752,7 +1750,6 @@ function bindEvents() {
     copyText(buildSummary(), 'Appointment summary copied to clipboard');
   });
 
-  $('#open-copilot')?.addEventListener('click', () => openCopilot());
   $('#close-copilot')?.addEventListener('click', closeCopilot);
   $('#chat-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
