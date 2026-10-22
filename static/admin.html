@@ -6,7 +6,14 @@
     <meta name="description" content="Staff review and implementation panel for ENS 101 Guide v1.0 suggestions." />
     <title>ENS 101 Guide v1.0</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="ecc-tokens.css" />
+    <link rel="stylesheet" href="ecc-ces-compat.css" />
+    <link rel="stylesheet" href="ecc-components.base.css" />
+    <link rel="stylesheet" href="ecc-app.css" />
+    <link rel="stylesheet" href="styles.css?v=20261021" />
     <link rel="stylesheet" href="admin.css?v=1" />
     <!-- Vercel Web Analytics -->
     <script>
@@ -40,7 +47,7 @@
         <!-- Sign-in Panel -->
         <section id="login-panel" class="admin-login-card" aria-labelledby="login-title">
           <div class="login-header">
-            <div class="login-icon" aria-hidden="true">🔒</div>
+            <div class="login-icon" aria-hidden="true"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
             <h1 id="login-title">Staff Administration</h1>
             <p class="login-subtext">Sign in with the locally managed ENS 101 Guide v1.0 admin password to review and implement submissions.</p>
           </div>
@@ -126,7 +133,7 @@
                 <option value="Resources & Referrals">Resources & Referrals</option>
                 <option value="Other Idea">Other Idea</option>
               </select>
-              <input id="search-filter" class="search-input" type="search" placeholder="Filter suggestions…" />
+              <input id="search-filter" class="search-input" type="search" aria-label="Filter suggestions" placeholder="Filter suggestions…" />
             </div>
           </div>
 
@@ -138,7 +145,7 @@
           <!-- Change Password Section -->
           <details class="security-accordion">
             <summary class="security-summary">
-              <span class="summary-icon">🔑</span>
+              <span class="summary-icon"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9"/><path d="M16 7l3 3"/></svg></span>
               <span>Change Admin Password</span>
             </summary>
             <form id="change-password-form" class="security-form">

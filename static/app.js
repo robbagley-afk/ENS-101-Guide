@@ -487,7 +487,7 @@ function renderConnectStatus() {
     if (details) details.hidden = true;
   } else if (!c.checked) {
     pill.className = 'connect-status-pill pending';
-    pill.querySelector('.status-icon').textContent = '⚪';
+    pill.querySelector('.status-icon').textContent = '○';
     text.textContent = 'Account not checked yet';
     if (details) details.hidden = true;
   } else if (c.found) {
@@ -1176,7 +1176,7 @@ async function handlePdfUpload(file) {
       persistState();
       showToast('Career Explorer report analyzed!');
     } catch (err) {
-      if (statusEl) statusEl.textContent = `⚠️ ${err.message || 'Error processing PDF.'}`;
+      if (statusEl) statusEl.textContent = `${err.message || 'Error processing PDF.'}`;
     }
   };
   reader.readAsDataURL(file);
@@ -1778,7 +1778,7 @@ function bindEvents() {
           const d = await resp.json();
           msg = d.message || d.error || msg;
         } catch (_) {}
-        showToast(`❌ Download failed: ${msg}`);
+        showToast(`Download failed: ${msg}`);
         return;
       }
       const blob = await resp.blob();
@@ -1797,10 +1797,10 @@ function bindEvents() {
         URL.revokeObjectURL(objectUrl);
         if (document.body.contains(a)) document.body.removeChild(a);
       }, 3000);
-      showToast(`✅ Saved ${filename} (${Math.round(blob.size / 1024)} KB)`);
+      showToast(`Saved ${filename} (${Math.round(blob.size / 1024)} KB)`);
     } catch (err) {
       console.error('Download report error:', err);
-      showToast(`❌ Download error: ${err.message}`);
+      showToast(`Download error: ${err.message}`);
     }
   }
 
@@ -2025,7 +2025,7 @@ function appendPrepChatMessage(role, text) {
     const copyBtn = document.createElement('button');
     copyBtn.type = 'button';
     copyBtn.className = 'prep-copy-notes-btn';
-    copyBtn.innerHTML = '📋 Copy to Step 3 Prep Notes';
+    copyBtn.innerHTML = '<svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 12h6M9 16h6"/></svg> Copy to Step 3 Prep Notes';
     copyBtn.addEventListener('click', () => {
       copyToPrepNotes(text);
     });
