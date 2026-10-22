@@ -94,7 +94,6 @@ async function main() {
     requests.forEach(x => f.reply(x, x.url === '/api/chat' ? (oldFails ? {error:'Old failure'} : {reply:'Old student A',engine:'old'}) : {status:'ok',owner:'A'}, !oldFails));
     await old;
     assert.equal(f.displayed.length, before, 'Old response ignored');
-    assert.equal(f.guidance.length, 1, 'Old recommendations ignored');
     assert.equal(f.context.state.guidance.owner, 'B');
     assert.ok(!vm.runInContext('JSON.stringify(prepChatHistory)', f.context).includes('Old student'));
   }

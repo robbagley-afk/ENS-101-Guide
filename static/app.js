@@ -17,7 +17,7 @@ const PREPARE_STEPS = [
     short: 'Review tailored guidance',
     duration: '3–5 min',
     title: 'Review Personalized Career Guidance',
-    description: 'Explore Holland Code insights, aligned Ensign College majors, top career paths, and tailored discussion strategies based on the assessment results.',
+    description: 'Read the student summary and ask the coach questions to prepare for your meeting.',
     copilot: ['Explain Holland Code SEC', 'Suggest questions for their major', 'Connect Holland traits to careers']
   },
   {
@@ -316,56 +316,9 @@ async function fetchCareerGuidance() {
     if (lookupVersion !== readinessLookupVersion || chatVersion !== prepChatVersion || assessment !== state.assessmentData) return;
     if (res.ok && data.status === 'ok') {
       state.guidance = data;
-      renderGuidanceDisplay(data);
     }
   } catch (err) {
     console.error('Error fetching guidance:', err);
-  }
-}
-
-function renderGuidanceDisplay(data) {
-  const codeEl = $('#guidance-holland-code');
-  if (codeEl) codeEl.textContent = data.holland_code ? `${data.holland_code} Profile` : 'Social-Enterprising-Conventional (SEC)';
-
-  const traitsEl = $('#guidance-traits-list');
-  if (traitsEl && Array.isArray(data.sections)) {
-    const traitSection = data.sections.find(s => s.title.includes('Holland Code'));
-    if (traitSection) {
-      const items = traitSection.content.split('\n• ').map(s => s.replace(/^•\s*/, '').trim()).filter(Boolean);
-      traitsEl.innerHTML = items.map(t => `<span class="trait-tag">${t}</span>`).join('');
-    }
-  }
-
-  const majorsEl = $('#guidance-majors-list');
-  if (majorsEl && Array.isArray(data.aligned_majors)) {
-    majorsEl.innerHTML = data.aligned_majors.map(m => {
-      if (m.includes('Transfer Degree')) {
-        return `<li class="guidance-transfer-item"><span style="display:inline-block;background:#14532d;color:#86efac;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:6px;letter-spacing:0.5px;text-transform:uppercase;">University Transfer</span><strong>${m}</strong></li>`;
-      }
-      if (m.includes('Declared Program') || m.includes('Declared Track')) {
-        return `<li class="guidance-declared-item"><span style="display:inline-block;background:#1e3a8a;color:#93c5fd;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:6px;letter-spacing:0.5px;text-transform:uppercase;">Student Major</span><strong>${m}</strong></li>`;
-      }
-      return `<li><strong>${m}</strong></li>`;
-    }).join('');
-  }
-
-  const careersEl = $('#guidance-careers-list');
-  if (careersEl && Array.isArray(data.aligned_careers)) {
-    careersEl.innerHTML = data.aligned_careers.map(c => {
-      if (c.includes('(Stated Goal)')) {
-        return `<li class="guidance-goal-item"><span style="display:inline-block;background:#312e81;color:#c7d2fe;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:6px;letter-spacing:0.5px;text-transform:uppercase;">Stated Goal</span><strong>${c}</strong></li>`;
-      }
-      return `<li>${c}</li>`;
-    }).join('');
-  }
-
-  const stratEl = $('#guidance-strategy-list');
-  if (stratEl && Array.isArray(data.sections)) {
-    const stratSection = data.sections.find(s => s.title.includes('Discussion Strategy'));
-    if (stratSection) {
-      const items = stratSection.content.split('\n• ').map(s => s.replace(/^•\s*/, '').trim()).filter(Boolean);
-      stratEl.innerHTML = items.map(s => `<li>${s}</li>`).join('');
-    }
   }
 }
 
@@ -699,9 +652,6 @@ function renderPrepareWorkspace() {
     renderAssessmentCards();
     validatePrepStep1(false);
   } else if (stepIdx === 1) {
-    if (state.guidance) {
-      renderGuidanceDisplay(state.guidance);
-    }
     fetchCareerGuidance();
   } else if (stepIdx === 2) {
     if ($('#recap-name')) $('#recap-name').textContent = state.student.name || 'Unnamed';
@@ -1807,25 +1757,12 @@ function bindEvents() {
   $('#btn-download-student-report')?.addEventListener('click', downloadStudentReport);
 
   $('#btn-copy-guidance-notes')?.addEventListener('click', () => {
-    if (!state.guidance) return;
-    const g = state.guidance;
-    const summaryText = `
---- CAREER EXPLORER INSIGHTS ---
-` +
-      `Holland Code: ${g.holland_code || 'SEC'}
-` +
-      `Aligned Majors: ${(g.aligned_majors || []).join(', ')}
-` +
-      `Top Careers: ${(g.aligned_careers || []).join(', ')}
-` +
-      `Discussion Strategy:
-${(g.sections?.find(s => s.title.includes('Discussion Strategy'))?.content || '')}
-`;
-
-    state.prepNotes = (state.prepNotes ? state.prepNotes.trim() + '\n' : '') + summaryText;
-    if ($('#prep-notes-textarea')) $('#prep-notes-textarea').value = state.prepNotes;
-    persistState();
-    showToast('Guidance summary appended to Prep Notes!');
+    const latestReply = [...prepChatHistory].reverse().find(message => message.role === 'assistant');
+    if (!latestReply) {
+      showToast('Get a coach response before copying to Prep Notes.');
+      return;
+    }
+    copyToPrepNotes(latestReply.content);
   });
 
   $$('.prompt-chip').forEach(btn => {
@@ -1984,11 +1921,6 @@ function resetPrepChat() {
   $('#prep-chat-messages')?.replaceChildren();
   const engineLabel = $('#prep-chat-engine-label');
   if (engineLabel) engineLabel.textContent = 'Ready for assessment';
-  ['guidance-traits-list', 'guidance-majors-list', 'guidance-careers-list', 'guidance-strategy-list'].forEach(id => {
-    $(`#${id}`)?.replaceChildren();
-  });
-  const code = $('#guidance-holland-code');
-  if (code) code.textContent = 'Awaiting assessment';
 }
 
 function formatPrepAssistantMessage(text) {
