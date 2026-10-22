@@ -1590,3 +1590,6 @@ input[type="checkbox"], input[type="radio"] { flex: 0 0 var(--touch-min); min-wi
 /* ECC: neutral ink fill sets the external portal apart from the green in-app action. */
 .prep-open-pathwayu-btn { display: inline-flex; align-items: center; width: auto; min-height: 44px; background: var(--ink, #0f172a); border: 2px solid var(--ink, #0f172a); color: #fff; text-decoration: none; }
 .prep-open-pathwayu-btn:hover { background: var(--ink-muted, #475569); border-color: var(--ink-muted, #475569); color: #fff; }
+/* Beats `.prep-chat-msg.assistant a` link styling so the label stays white on ink. */
+.prep-chat-msg.assistant a.prep-open-pathwayu-btn,
+.prep-chat-msg.assistant a.prep-open-pathwayu-btn:hover { color: #fff; text-decoration: none; }
