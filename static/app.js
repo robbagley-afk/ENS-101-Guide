@@ -20,12 +20,11 @@ const WORKFLOW = [
     title: 'Begin the appointment',
     description: 'Open warmly, follow the prayer direction in the Appointment 1a guide, learn the student\'s major and career direction, and check confidence.',
     tasks: [
-      { id: 'begin-prayer', title: 'Open with prayer', detail: 'Follow the appointment guideline and your department\'s current practice.' },
-      { id: 'begin-major', title: 'Confirm the student\'s major', detail: 'Enter the major or program above so later guidance is specific.' },
-      { id: 'begin-career', title: 'Ask about the student\'s career direction', detail: 'Capture a short role or field.' },
-      { id: 'career-confidence', title: 'Ask the 1–10 confidence question', detail: 'Update the confidence slider above. 1 = Low confidence, 10 = Very Confident.' }
+      // Begin is three plain checkboxes with no detail line (Rob, 2026-10-22). begin-major now covers the career question too.
+      { id: 'begin-prayer', title: 'Open with prayer', detail: '' },
+      { id: 'begin-major', title: 'Confirm the student\'s major and desired career', detail: '' },
+      { id: 'career-confidence', title: 'Ask the 1–10 confidence question', detail: '' }
     ],
-    prompts: ['What is your major?', 'What type of career do you see yourself doing when you graduate?', 'On a scale of 1–10, how sure are you about this career direction?'],
     copilot: ['Give me a warm opening', 'Explain Appointment 1a', 'Suggest a career question']
   },
   {
@@ -42,7 +41,6 @@ const WORKFLOW = [
       { id: 'career-followup', group: 'Close', inline: 'suggestion', title: 'Choose the next appointment', detail: 'Still exploring: plan a Career Explorer appointment. Confident: plan Create Resume and show Roadmap 2, Steps 1–5.' },
       { id: 'close-selfie', group: 'Close', title: 'Take the appointment selfie', detail: 'Follow the Appointment 1a practice and get the student\'s consent first.' }
     ],
-    prompts: ['How could an internship connect to the career you want?', 'When would you need to begin applying?', 'On a scale of 1–10, how confident do you feel now?', 'What is the first step you will take after today?'],
     copilot: ['Explain the internship timeline', 'Give an international-student caution', 'Recommend the next appointment', 'Draft a follow-up message']
   }
 ];
@@ -656,7 +654,7 @@ function renderAppointmentWorkspace() {
       const checked = Boolean(state.checked[task.id]);
       item.className = `task-item${checked ? ' checked' : ''}`;
       const action = task.action ? `<a class="task-action" href="${resolveSuiteUrl(task.action.url)}" target="_blank" rel="noopener">${task.action.label}<svg viewBox="0 0 24 24"><path d="M14 5h5v5M10 14 19 5"/><path d="M19 13v6H5V5h6"/></svg></a>` : '';
-      item.innerHTML = `<button class="task-check" type="button" aria-label="${checked ? 'Mark incomplete' : 'Mark complete'}: ${task.title}"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><div class="task-copy"><strong>${task.title}</strong><p>${task.detail}</p>${taskInlineControl(task)}${action}</div>`;
+      item.innerHTML = `<button class="task-check" type="button" aria-label="${checked ? 'Mark incomplete' : 'Mark complete'}: ${task.title}"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><div class="task-copy"><strong>${task.title}</strong>${task.detail ? `<p>${task.detail}</p>` : ''}${taskInlineControl(task)}${action}</div>`;
       bindTaskInlineControl(item, task);
       item.querySelector('button.task-check').addEventListener('click', () => {
         state.checked[task.id] = !checked;
@@ -670,19 +668,6 @@ function renderAppointmentWorkspace() {
   const done = step.tasks.filter(task => state.checked[task.id]).length;
   const countBadge = $('#step-task-count');
   if (countBadge) countBadge.textContent = `${done}/${step.tasks.length} complete`;
-
-  const prompts = $('#conversation-prompts');
-  if (prompts) {
-    prompts.innerHTML = '';
-    step.prompts.forEach(text => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'prompt-button';
-      button.textContent = text;
-      button.addEventListener('click', () => copyText(text, 'Question copied'));
-      prompts.appendChild(button);
-    });
-  }
 
   const civitasCard = $('#civitas-card');
   if (civitasCard) {
@@ -782,7 +767,6 @@ function syncInputsFromState() {
   if ($('#followup-track')) $('#followup-track').value = state.student.followup;
   if ($('#session-notes')) $('#session-notes').value = state.sessionNotes;
   if ($('#student-next-step')) $('#student-next-step').value = state.studentNext;
-  if ($('#mentor-follow-up')) $('#mentor-follow-up').value = state.mentorFollow;
 
   updateRecommendation();
   renderAssessmentCards();
@@ -857,8 +841,7 @@ function bindSessionFields() {
 
   const notesPairs = [
     ['#session-notes', 'sessionNotes'],
-    ['#student-next-step', 'studentNext'],
-    ['#mentor-follow-up', 'mentorFollow']
+    ['#student-next-step', 'studentNext']
   ];
   notesPairs.forEach(([sel, key]) => {
     const el = $(sel);
@@ -1152,10 +1135,10 @@ ${state.sessionNotes || 'No notes entered.'}
 ${state.studentNext || 'None recorded.'}
 
 ` +
-    `MENTOR FOLLOW-UP COMMITMENTS:
-${state.mentorFollow || 'None recorded.'}
+    (state.mentorFollow ? `MENTOR FOLLOW-UP COMMITMENTS:
+${state.mentorFollow}
 
-` +
+` : '') +
     `COMPLETED WORKFLOW TASKS:
 ${tasksDone || 'None marked complete.'}
 `;
@@ -1178,10 +1161,10 @@ ${state.sessionNotes || 'No notes entered.'}
 STUDENT NEXT STEP
 ${state.studentNext || 'Not entered.'}
 
-MENTOR FOLLOW-UP
-${state.mentorFollow || 'Not entered.'}
+${state.mentorFollow ? `MENTOR FOLLOW-UP
+${state.mentorFollow}
 
-COMPLETED APPOINTMENT TASKS
+` : ''}COMPLETED APPOINTMENT TASKS
 ${completedLabels || 'None marked complete.'}
 
 Privacy reminder: Keep this summary only in an approved location and follow applicable student-record policies.`;
