@@ -1585,4 +1585,8 @@ input[type="checkbox"], input[type="radio"] { flex: 0 0 var(--touch-min); min-wi
   .prep-chat-header { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
 /* Report button closes the executive summary. */
-.prep-open-report-btn { margin-top: 12px; display: inline-flex; width: auto; justify-self: start; align-self: flex-start; min-height: 44px; }
+.prep-summary-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.prep-open-report-btn { display: inline-flex; width: auto; min-height: 44px; }
+/* ECC: neutral ink fill sets the external portal apart from the green in-app action. */
+.prep-open-pathwayu-btn { display: inline-flex; align-items: center; width: auto; min-height: 44px; background: var(--ink, #0f172a); border: 2px solid var(--ink, #0f172a); color: #fff; text-decoration: none; }
+.prep-open-pathwayu-btn:hover { background: var(--ink-muted, #475569); border-color: var(--ink-muted, #475569); color: #fff; }
