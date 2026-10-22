@@ -22,7 +22,7 @@ const WORKFLOW = [
     tasks: [
       { id: 'begin-prayer', title: 'Open with prayer', detail: 'Follow the appointment guideline and your department\'s current practice.' },
       { id: 'begin-major', title: 'Confirm the student\'s major', detail: 'Enter the major or program above so later guidance is specific.' },
-      { id: 'begin-career', title: 'Ask about the student\'s career direction', detail: 'Capture a short role or field—not sensitive personal information.' },
+      { id: 'begin-career', title: 'Ask about the student\'s career direction', detail: 'Capture a short role or field.' },
       { id: 'career-confidence', title: 'Ask the 1–10 confidence question', detail: 'Update the confidence slider above. 1 = Low confidence, 10 = Very Confident.' }
     ],
     prompts: ['What is your major?', 'What type of career do you see yourself doing when you graduate?', 'On a scale of 1–10, how sure are you about this career direction?'],
@@ -39,7 +39,6 @@ const WORKFLOW = [
       { id: 'internship-pbwe', title: 'Explain the PBWE option carefully', detail: 'For on-campus students, CAR 398 PBWE provides real-world project experience and résumé value.' },
       { id: 'internship-certificates', title: 'Connect certificates to opportunities', detail: 'Explain how certificate courses can strengthen preparation for internships and employment.' },
       { id: 'internship-timeline', title: 'Discuss application timing', detail: 'Large-company internships may recruit 6–9 months ahead; encourage early research.' },
-      { id: 'internship-international', title: 'Flag international-student planning', detail: 'Do not give immigration advice. Help international students verify current vacation-semester and work-authorization rules with the International Student Office.', action: { label: 'International Student Office', url: 'https://www.ensign.edu/international-students' } },
       { id: 'internship-car201', title: 'Encourage early CAR 201 preparation', detail: 'The Internship guide recommends taking CAR 201 as soon as appropriate so the student is ready when internships open.' }
     ],
     prompts: ['How could an internship connect to the career you want?', 'When would you need to begin applying?', 'What experience would help you feel ready?'],
@@ -48,13 +47,11 @@ const WORKFLOW = [
   {
     id: 'complete', label: 'Wrap-up', short: 'Confidence, next appt, and selfie', duration: '6–8 min',
     title: 'Wrap up the appointment',
-    description: 'Reassess the student\'s career confidence, choose the next appointment, confirm agreed actions, take the appointment selfie, and record notes.',
+    description: 'Reassess the student\'s career confidence, choose the next appointment, take the appointment selfie, and record the agreed actions in the appointment record.',
     tasks: [
       { id: 'close-confidence', title: 'Re-check career confidence (1–10)', detail: 'Ask the student to update their confidence level after today\'s conversation. Adjust the slider if needed.' },
       { id: 'career-followup', title: 'Choose the next appointment type', detail: 'If the student is still exploring, plan a Career Explorer appointment. If confident, plan a Create Resume appointment.' },
       { id: 'career-roadmap2', title: 'If scheduling Create Resume, show Roadmap 2, Steps 1–5', detail: 'Make sure the student knows what to complete before the next appointment.' },
-      { id: 'career-action', title: 'Record a specific student action', detail: 'Add the agreed action and time frame in the appointment record below.' },
-      { id: 'close-nextsteps', title: 'Confirm both next steps', detail: 'Read back the student action and mentor follow-up recorded below.' },
       { id: 'close-selfie', title: 'Take the appointment selfie', detail: 'Follow the Appointment 1a practice and obtain the student\'s consent before taking or using a photo.' }
     ],
     prompts: ['On a scale of 1–10, how confident do you feel now compared to when we started?', 'Which next appointment would serve you best?', 'What will you complete before our next appointment?', 'What is the first step you will take after today?'],
@@ -1271,14 +1268,6 @@ function showView(viewName) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function renderQuickTools() {
-  const tools = RESOURCES.filter(r => ['connect', 'pathwayu', 'office', 'community'].includes(r.id));
-  const el = $('#quick-tool-list');
-  if (el) {
-    el.innerHTML = tools.map(r => `<a class="quick-tool" href="${resolveSuiteUrl(r.url)}" target="_blank" rel="noopener"><span class="quick-tool-icon">${r.initials}</span><strong>${r.name}</strong></a>`).join('');
-  }
-}
-
 function renderResources() {
   const filterRow = $('#resource-filters');
   if (!filterRow) return;
@@ -1804,7 +1793,6 @@ async function init() {
   bindSessionFields();
   bindEvents();
   configureTopLinks();
-  renderQuickTools();
   renderResources();
 
   // 1. Render immediately so sidebar and workspace are NEVER blank while network requests load

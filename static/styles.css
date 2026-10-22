@@ -326,7 +326,7 @@ input.required-incomplete {
 .step-actions-end { justify-content: flex-end; }
 .step-actions .button { min-width: 102px; }
 .support-column { display: grid; gap: 20px; }
-.prompt-card, .quick-tools { padding: 19px; }
+.prompt-card { padding: 19px; }
 .sparkle { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: #9b7020; background: var(--gold-soft); }
 .prompt-list { display: grid; gap: 8px; }
 .prompt-button { width: 100%; padding: 10px 11px; border: 1px solid #e0e6ea; border-radius: 8px; color: #3d4c59; background: #fbfcfd; text-align: left; cursor: pointer; font-size: var(--text-caption); line-height: 1.45; }
@@ -334,11 +334,6 @@ input.required-incomplete {
 .prompt-button::before { content: "“"; margin-right: 4px; color: var(--gold); font-size: var(--text-caption); }
 .text-button { padding: 3px; border: 0; color: var(--navy-700); background: transparent; cursor: pointer; font-size: var(--text-caption); font-weight: 800; }
 .text-button:hover { text-decoration: underline; }
-.quick-tool-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.quick-tool { min-height: 65px; display: grid; align-content: center; gap: 5px; padding: 10px; border: 1px solid #e0e6ea; border-radius: 9px; color: var(--ink); background: #fff; text-decoration: none; }
-.quick-tool:hover { border-color: #afbdc6; background: var(--blue-50); }
-.quick-tool-icon { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 7px; color: var(--navy-700); background: var(--blue-100); font-size: var(--text-caption); font-weight: 900; }
-.quick-tool strong { font-size: var(--text-caption); }
 .notes-card { padding: 22px; margin-top: 20px; }
 .notes-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .notes-grid { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 14px; }
