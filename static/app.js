@@ -408,6 +408,8 @@ function renderConnectStatus() {
       timestamp.textContent = 'Not checked';
     }
   }
+  const connectBar = $('#connect-status-bar');
+  if (connectBar && timestamp) connectBar.title = timestamp.textContent;
 
   if (recapConnect) {
     recapConnect.textContent = c.checked ? (c.found ? 'Account Active' : 'No Profile Created') : 'Not checked';
