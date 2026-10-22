@@ -29,33 +29,21 @@ const WORKFLOW = [
     copilot: ['Give me a warm opening', 'Explain Appointment 1a', 'Suggest a career question']
   },
   {
-    id: 'internship', label: 'Internship plan', short: 'Requirements and timing', duration: '8–10 min',
-    title: 'Build an internship plan',
-    description: 'Give the student a clear overview of the degree internship requirement, preparation timeline, course pairing, and where to verify special circumstances.',
+    // Internship planning and wrap-up share one screen. Task ids are reused where the meaning is the same,
+    // so check marks saved before the merge still count.
+    id: 'plan', label: 'Plan and wrap up', short: 'Internship plan, next appt, selfie', duration: '12–15 min',
+    title: 'Plan and wrap up',
+    description: 'Build the internship plan, choose the next appointment, and close the appointment.',
     tasks: [
-      { id: 'internship-requirement', title: 'Explain the degree internship requirement', detail: 'The internship should relate to the student\'s major; review the current internship information together.', action: { label: 'Open Internship Expert', url: '/internship/' } },
-      { id: 'internship-course', title: 'Explain the accompanying internship course', detail: 'The student will enroll in the appropriate internship class at the same time. Verify the current course with the student\'s program.' },
-      { id: 'internship-international', title: 'Flag international-student planning', detail: 'Do not give immigration advice. Help international students verify current vacation-semester and work-authorization rules with the International Student Office.', action: { label: 'International Student Office', url: 'https://www.ensign.edu/international-students' } },
-      { id: 'internship-pbwe', title: 'Explain the PBWE option carefully', detail: 'For on-campus students, CAR 398 PBWE provides real-world project experience and résumé value.' },
-      { id: 'internship-certificates', title: 'Connect certificates to opportunities', detail: 'Explain how certificate courses can strengthen preparation for internships and employment.' },
-      { id: 'internship-timeline', title: 'Discuss application timing', detail: 'Large-company internships may recruit 6–9 months ahead; encourage early research.' },
-      { id: 'internship-car201', title: 'Encourage early CAR 201 preparation', detail: 'The Internship guide recommends taking CAR 201 as soon as appropriate so the student is ready when internships open.' }
+      { id: 'internship-requirement', group: 'Internship plan', title: 'Explain the internship requirement', detail: 'The internship should relate to the student\'s major, with the paired internship course taken at the same time. Encourage taking CAR 201 early.', action: { label: 'Open Internship Expert', url: '/internship/' } },
+      { id: 'internship-timeline', group: 'Internship plan', title: 'Talk timing and options', detail: 'Large companies recruit 6–9 months ahead. For on-campus students, CAR 398 PBWE gives project experience; certificates strengthen readiness.' },
+      { id: 'internship-international', group: 'Internship plan', title: 'International students only: verify the rules', detail: 'Do not give immigration advice. Help the student verify vacation-semester and work-authorization rules.', action: { label: 'International Student Office', url: 'https://www.ensign.edu/international-students' } },
+      { id: 'close-confidence', group: 'Close', inline: 'confidence', title: 'Re-check career confidence (1–10)', detail: 'Ask how confident the student feels now and move the slider.' },
+      { id: 'career-followup', group: 'Close', inline: 'suggestion', title: 'Choose the next appointment', detail: 'Still exploring: plan a Career Explorer appointment. Confident: plan Create Resume and show Roadmap 2, Steps 1–5.' },
+      { id: 'close-selfie', group: 'Close', title: 'Take the appointment selfie', detail: 'Follow the Appointment 1a practice and get the student\'s consent first.' }
     ],
-    prompts: ['How could an internship connect to the career you want?', 'When would you need to begin applying?', 'What experience would help you feel ready?'],
-    copilot: ['Explain the internship timeline', 'Compare CAR 398, 399, and 499', 'Give an international-student caution']
-  },
-  {
-    id: 'complete', label: 'Wrap-up', short: 'Confidence, next appt, and selfie', duration: '6–8 min',
-    title: 'Wrap up the appointment',
-    description: 'Reassess the student\'s career confidence, choose the next appointment, take the appointment selfie, and record the agreed actions in the appointment record.',
-    tasks: [
-      { id: 'close-confidence', title: 'Re-check career confidence (1–10)', detail: 'Ask the student to update their confidence level after today\'s conversation. Adjust the slider if needed.' },
-      { id: 'career-followup', title: 'Choose the next appointment type', detail: 'If the student is still exploring, plan a Career Explorer appointment. If confident, plan a Create Resume appointment.' },
-      { id: 'career-roadmap2', title: 'If scheduling Create Resume, show Roadmap 2, Steps 1–5', detail: 'Make sure the student knows what to complete before the next appointment.' },
-      { id: 'close-selfie', title: 'Take the appointment selfie', detail: 'Follow the Appointment 1a practice and obtain the student\'s consent before taking or using a photo.' }
-    ],
-    prompts: ['On a scale of 1–10, how confident do you feel now compared to when we started?', 'Which next appointment would serve you best?', 'What will you complete before our next appointment?', 'What is the first step you will take after today?'],
-    copilot: ['Recommend the next appointment', 'Summarize next steps', 'Draft a follow-up message', 'Give me a closing question']
+    prompts: ['How could an internship connect to the career you want?', 'When would you need to begin applying?', 'On a scale of 1–10, how confident do you feel now?', 'What is the first step you will take after today?'],
+    copilot: ['Explain the internship timeline', 'Give an international-student caution', 'Recommend the next appointment', 'Draft a follow-up message']
   }
 ];
 
@@ -626,7 +614,7 @@ function renderAppointmentWorkspace() {
   const stepIdx = state.currentStep;
   const step = WORKFLOW[stepIdx] || WORKFLOW[0];
 
-  const showSessionDetails = stepIdx === 0 || stepIdx === WORKFLOW.length - 1;
+  const showSessionDetails = stepIdx === 0;
   const sessionCard = $('#session-details-card');
   if (sessionCard) sessionCard.hidden = !showSessionDetails;
   renderStatusBadges();
@@ -655,13 +643,22 @@ function renderAppointmentWorkspace() {
   const list = $('#task-list');
   if (list) {
     list.innerHTML = '';
+    let currentGroup = null;
     step.tasks.forEach(task => {
+      if (task.group && task.group !== currentGroup) {
+        currentGroup = task.group;
+        const groupHeading = document.createElement('p');
+        groupHeading.className = 'task-group-heading';
+        groupHeading.textContent = task.group;
+        list.appendChild(groupHeading);
+      }
       const item = document.createElement('div');
       const checked = Boolean(state.checked[task.id]);
       item.className = `task-item${checked ? ' checked' : ''}`;
       const action = task.action ? `<a class="task-action" href="${resolveSuiteUrl(task.action.url)}" target="_blank" rel="noopener">${task.action.label}<svg viewBox="0 0 24 24"><path d="M14 5h5v5M10 14 19 5"/><path d="M19 13v6H5V5h6"/></svg></a>` : '';
-      item.innerHTML = `<button class="task-check" type="button" aria-label="${checked ? 'Mark incomplete' : 'Mark complete'}: ${task.title}"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><div class="task-copy"><strong>${task.title}</strong><p>${task.detail}</p>${action}</div>`;
-      item.querySelector('button').addEventListener('click', () => {
+      item.innerHTML = `<button class="task-check" type="button" aria-label="${checked ? 'Mark incomplete' : 'Mark complete'}: ${task.title}"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><div class="task-copy"><strong>${task.title}</strong><p>${task.detail}</p>${taskInlineControl(task)}${action}</div>`;
+      bindTaskInlineControl(item, task);
+      item.querySelector('button.task-check').addEventListener('click', () => {
         state.checked[task.id] = !checked;
         persistState();
         renderStep();
@@ -699,7 +696,46 @@ function renderAppointmentWorkspace() {
   updateRecommendation();
 }
 
+// Inline controls for tasks on the merged Plan and wrap up step.
+function taskInlineControl(task) {
+  if (task.inline === 'confidence') {
+    const value = state.student.confidence !== '' ? state.student.confidence : '5';
+    const shown = state.student.confidenceEngaged && state.student.confidence !== '' ? `${state.student.confidence}/10` : 'Not set';
+    return `<label class="task-confidence"><span>Confidence now: <output class="task-confidence-output">${shown}</output></span><input class="task-confidence-input" type="range" min="1" max="10" step="1" value="${value}" aria-label="Career confidence from 1 to 10"></label>`;
+  }
+  if (task.inline === 'suggestion') {
+    return `<p class="task-suggestion" aria-live="polite">${confidenceSuggestion()}</p>`;
+  }
+  return '';
+}
+
+function bindTaskInlineControl(item, task) {
+  if (task.inline !== 'confidence') return;
+  const input = item.querySelector('.task-confidence-input');
+  if (!input) return;
+  // Update in place while dragging; re-rendering the list would end the drag.
+  input.addEventListener('input', () => {
+    state.student.confidence = input.value;
+    state.student.confidenceEngaged = true;
+    const out = item.querySelector('.task-confidence-output');
+    if (out) out.textContent = `${input.value}/10`;
+    const sessionSlider = $('#career-confidence');
+    if (sessionSlider) sessionSlider.value = input.value;
+    updateRecommendation();
+    persistState();
+  });
+}
+
+function confidenceSuggestion() {
+  const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
+  if (!engaged) return 'Set confidence above to see a suggestion. You and the student decide.';
+  const c = Number(state.student.confidence);
+  const pick = c <= 5 ? 'Career Explorer appointment' : c <= 7 ? 'discuss both options' : 'Create Resume appointment';
+  return `Suggested: ${pick}. You and the student decide.`;
+}
+
 function updateRecommendation() {
+  $$('.task-suggestion').forEach(el => { el.textContent = confidenceSuggestion(); });
   const recommendationElement = $('#followup-recommendation');
   if (!recommendationElement) return;
 

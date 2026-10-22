@@ -1540,3 +1540,23 @@ input[type="checkbox"], input[type="radio"] { flex: 0 0 var(--touch-min); min-wi
 @media (max-width: 639px) {
   .prep-connect-section, .prep-connect-section .connect-status-bar { justify-content: flex-start; }
 }
+
+/* Plan and wrap up: group headings and inline controls inside tasks. */
+.task-group-heading { margin: 10px 0 0; color: var(--brand); font-size: var(--text-caption); font-weight: 700; }
+.task-group-heading:first-child { margin-top: 0; }
+.task-confidence { display: grid; gap: 6px; margin-top: 10px; max-width: 420px; font-size: var(--text-caption); color: var(--ink); }
+.task-confidence-output { font-weight: 700; }
+.task-confidence-input { width: 100%; min-height: var(--touch-min); accent-color: var(--brand); }
+.task-suggestion { margin: 8px 0 0; padding: 8px 12px; border-left: 3px solid var(--brand); border-radius: 6px; background: var(--brand-tint); color: var(--ink); font-size: var(--text-caption); }
+/* ECC: 44px touch target for task checkboxes. The button is the target; ::before draws the 23px box. */
+.task-item { grid-template-columns: 44px minmax(0, 1fr); gap: 4px; }
+.task-check { position: relative; width: var(--touch-min); height: var(--touch-min); margin: -10px 0 -10px -10px; border: 0; border-radius: var(--radius-md); background: transparent; }
+.task-check::before { content: ""; position: absolute; left: 10px; top: 10px; width: 23px; height: 23px; border: 1.5px solid #aebac3; border-radius: 7px; background: #fff; box-sizing: border-box; }
+.task-check svg { position: absolute; z-index: 1; left: 14.5px; top: 14.5px; margin: 0; }
+.task-item.checked .task-check { background: transparent; }
+.task-item.checked .task-check::before { border-color: var(--green); background: var(--green); }
+.task-check:hover::before { border-color: var(--brand); }
+/* Let the task card shrink to narrow screens. */
+.task-card, .task-list, .task-copy { min-width: 0; }
+.task-copy { overflow-wrap: anywhere; }
+.task-action { max-width: 100%; white-space: normal; }
