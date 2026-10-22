@@ -947,49 +947,6 @@ input.required-incomplete {
   background: #1f6448 !important;
 }
 
-/* Task 2 Prep Notes Preview */
-.prep-notes-preview-wrap {
-  margin-top: 18px;
-  padding: 0;
-  overflow: hidden;
-}
-.prep-preview-toggle {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 12px 18px;
-  background: #fbfcfd;
-  border: 0;
-  cursor: pointer;
-  text-align: left;
-  font-size: var(--text-caption);
-  color: var(--navy-900);
-}
-.prep-preview-toggle:hover {
-  background: var(--blue-50);
-}
-.toggle-icon {
-  font-size: var(--text-caption);
-}
-.chevron-down {
-  font-size: var(--text-caption);
-  color: var(--muted);
-  transition: transform 0.2s ease;
-}
-.prep-preview-body {
-  padding: 14px 18px;
-  border-top: 1px solid var(--line);
-  background: #fff;
-}
-.prep-preview-text {
-  font-size: var(--text-caption);
-  line-height: 1.6;
-  white-space: pre-wrap;
-  color: #2d3b48;
-}
-
 /* Civitas Completion Card */
 .civitas-card {
   margin-top: 22px;
