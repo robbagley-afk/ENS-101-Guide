@@ -1558,3 +1558,31 @@ input[type="checkbox"], input[type="radio"] { flex: 0 0 var(--touch-min); min-wi
 .civitas-title-group { min-width: 0; }
 .student-select { min-width: 220px; max-width: 340px; }
 @media (max-width: 899px) { .student-select { min-width: 0; max-width: none; } }
+
+/* Prepare is one row: email field fills the width, the lookup button sits beside it. */
+.prep-email-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: end;
+  margin-block: 16px;
+}
+.prep-email-row label {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.prep-email-row .prep-check-btn {
+  min-height: 44px;
+}
+@media (max-width: 640px) {
+  .prep-email-row { grid-template-columns: minmax(0, 1fr); }
+}
+.page-heading[hidden] { display: none; }
+/* No empty feed box before the summary arrives. */
+.prep-chat-messages:empty { display: none; }
+@media (max-width: 640px) {
+  .prep-chat-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+/* Report button closes the executive summary. */
+.prep-open-report-btn { margin-top: 12px; display: inline-flex; width: auto; justify-self: start; align-self: flex-start; min-height: 44px; }

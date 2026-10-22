@@ -1,33 +1,16 @@
 const STORAGE_KEY = 'ens101-mentor-desk-appointment-1a-v4';
 const ACTIVE_APPT_ID_KEY = 'ens101_active_appt_id';
 
+// Prepare is one step: the mentor enters the email and reads the executive summary.
 const PREPARE_STEPS = [
   {
-    id: 'prep-assessment',
-    label: 'Assessment',
-    short: 'Determine Career Explorer completion',
+    id: 'prep-summary',
+    label: 'Prepare',
+    short: 'Look up student and read summary',
     duration: '3–5 min',
-    title: 'Determine Career Explorer Assessment Completion',
-    description: 'Enter the student’s @ensign.edu email to check completion across the four Career Explorer assessments, or upload their PDF report.',
+    title: 'Look up your student',
+    description: '',
     copilot: ['How do I explain Career Explorer?', 'What if a student hasn’t taken the assessments?', 'Explain the 4 Career Explorer assessments']
-  },
-  {
-    id: 'prep-guidance',
-    label: 'Guidance',
-    short: 'Review tailored guidance',
-    duration: '3–5 min',
-    title: 'Review Personalized Career Guidance',
-    description: 'Read the student summary and ask the coach questions to prepare for your meeting.',
-    copilot: ['Explain Holland Code SEC', 'Suggest questions for their major', 'Connect Holland traits to careers']
-  },
-  {
-    id: 'prep-notes',
-    label: 'Prep Notes',
-    short: 'Type appointment notes',
-    duration: '3–5 min',
-    title: 'Appointment Preparation Notes',
-    description: 'Capture your thoughts, talking points, and specific items to bring up during the appointment. These notes persist with the student record and will be available during Task 2.',
-    copilot: ['Help me draft prep notes', 'Suggest key talking points', 'What should I prioritize for Appointment 1a?']
   }
 ];
 
@@ -361,9 +344,8 @@ function renderAssessmentCards() {
   const feedback = $('#prep-lookup-feedback');
   if (feedback) {
     if (count === 4 || data.status === 'complete') {
-      feedback.className = 'lookup-feedback-banner success';
-      feedback.textContent = '✓ All 4 Career Explorer assessments are complete! Student is ready for personalized guidance.';
-      feedback.hidden = false;
+      // Complete needs no banner: the summary below says it. Only gaps and errors show.
+      feedback.hidden = true;
     } else if (count > 0) {
       feedback.className = 'lookup-feedback-banner warning';
       const missing = Array.isArray(data.missing) && data.missing.length ? ` Still needed: ${data.missing.join(', ')}.` : '';
@@ -515,7 +497,7 @@ function renderStatusBadges() {
 function validatePrepStep1(showError = false) {
   const emailInput = $('#prep-student-email');
   const errorMsg = $('#prep-email-error');
-  const btnStep2 = $('#btn-prep-to-step2');
+  const btnStep2 = $('#btn-start-task2');
   const emailVal = emailInput?.value.trim() || '';
   const isValid = Boolean(emailVal) && /^[^@\s]+@ensign\.edu$/i.test(emailVal);
 
@@ -556,9 +538,7 @@ function renderWorkflow() {
   PREPARE_STEPS.forEach((step, idx) => {
     const btn = document.createElement('button');
     const isActive = state.currentTask === 'prepare' && state.currentStep === idx;
-    const isDone = (idx === 0 && (state.assessmentData?.completed_count > 0 || state.assessmentData?.status === 'complete'))
-      || (idx === 1 && state.guidance !== null)
-      || (idx === 2 && Boolean(state.prepNotes?.trim()));
+    const isDone = state.assessmentData?.completed_count > 0 || state.assessmentData?.status === 'complete';
 
     btn.type = 'button';
     btn.className = `workflow-button${isActive ? ' active' : ''}${isDone ? ' complete' : ''}`;
@@ -632,39 +612,17 @@ function renderStep() {
 }
 
 function renderPrepareWorkspace() {
-  const stepIdx = state.currentStep;
-  const currentStepDef = PREPARE_STEPS[stepIdx] || PREPARE_STEPS[0];
-
-  const eyebrow = $('#step-eyebrow');
-  if (eyebrow) eyebrow.textContent = `TASK 1: PREPARE · STEP ${stepIdx + 1} OF 3`;
-  const title = $('#step-title');
-  if (title) title.textContent = currentStepDef.title;
-  const desc = $('#step-description');
-  if (desc) desc.textContent = currentStepDef.description;
-  const dur = $('#step-duration');
-  if (dur) dur.textContent = `Suggested time · ${currentStepDef.duration}`;
-
-  if ($('#prep-step-1')) $('#prep-step-1').hidden = stepIdx !== 0;
-  if ($('#prep-step-2')) $('#prep-step-2').hidden = stepIdx !== 1;
-  if ($('#prep-step-3')) $('#prep-step-3').hidden = stepIdx !== 2;
-
-  if (stepIdx === 0) {
-    renderAssessmentCards();
-    validatePrepStep1(false);
-  } else if (stepIdx === 1) {
-    fetchCareerGuidance();
-  } else if (stepIdx === 2) {
-    if ($('#recap-name')) $('#recap-name').textContent = state.student.name || 'Unnamed';
-    if ($('#recap-email')) $('#recap-email').textContent = state.student.email || 'No email';
-    if ($('#recap-program')) $('#recap-program').textContent = state.student.program || 'Not selected';
-    if ($('#recap-career')) $('#recap-career').textContent = state.student.career || 'Not selected';
-    if ($('#recap-pathwayu')) $('#recap-pathwayu').textContent = state.assessmentData.status === 'complete' ? 'Completed' : `${state.assessmentData.completed_count || 0}/4 complete`;
-    if ($('#recap-connect')) $('#recap-connect').textContent = state.connectStatus?.checked ? (state.connectStatus.found ? 'Account Active' : 'No Account') : 'Not checked';
-    if ($('#prep-notes-textarea')) $('#prep-notes-textarea').value = state.prepNotes || '';
-  }
+  // The prepare card carries its own heading, so the page heading stays hidden here.
+  const heading = $('.page-heading');
+  if (heading) heading.hidden = true;
+  renderAssessmentCards();
+  validatePrepStep1(false);
 }
 
 function renderAppointmentWorkspace() {
+  const heading = $('.page-heading');
+  if (heading) heading.hidden = false;
+  if ($('#student-email')) $('#student-email').value = state.student.email || '';
   const stepIdx = state.currentStep;
   const step = WORKFLOW[stepIdx] || WORKFLOW[0];
 
@@ -1013,7 +971,7 @@ async function applyReadinessProjection(projection) {
   if (projection.record_status === 'not_found') {
     showLookupFeedback(
       'warning',
-      'No retrieved Student Readiness record is available for this student. If the student has a Career Explorer PDF, use the manual fallback below.'
+      'No Career Explorer results are on file for this student yet.'
     );
   } else if (projection.record_status === 'incomplete') {
     const gaps = readinessGaps(projection);
@@ -1063,7 +1021,7 @@ async function performStudentLookup(email) {
     await applyReadinessProjection(data);
     if (lookupVersion !== readinessLookupVersion) return;
     if (data.record_status === 'complete') {
-      showLookupFeedback('success', '✓ Student Readiness record is complete.');
+      $('#prep-lookup-feedback').hidden = true;
       showToast('✓ Student Readiness checked');
     }
   } else if (response?.status === 400) {
@@ -1675,40 +1633,6 @@ function bindEvents() {
     });
   }
 
-  $('#btn-prep-to-step2')?.addEventListener('click', async () => {
-    // B6: Block advancement past incomplete required email
-    if (!validatePrepStep1(true)) {
-      showToast('Please enter a valid student @ensign.edu email before continuing.');
-      return;
-    }
-    state.currentStep = 1;
-    persistState();
-    renderStep();
-    await fetchCareerGuidance();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-
-  $('#btn-guidance-back')?.addEventListener('click', () => {
-    state.currentStep = 0;
-    persistState();
-    renderStep();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-
-  $('#btn-guidance-to-step3')?.addEventListener('click', () => {
-    state.currentStep = 2;
-    persistState();
-    renderStep();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-
-  $('#btn-notes-back')?.addEventListener('click', () => {
-    state.currentStep = 1;
-    persistState();
-    renderStep();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-
   async function downloadStudentReport() {
     const email = state.student?.email || '';
     const name = state.student?.name || (email ? email.split('@')[0] : 'Student');
@@ -1945,28 +1869,54 @@ function appendPrepChatMessage(role, text) {
   if (role === 'user') {
     msgDiv.textContent = text;
   } else {
+    // The first assistant reply is the executive summary; it ends with the report button.
+    const isSummary = !container.querySelector('.prep-chat-msg.assistant:not(.typing-indicator)');
     // Format assistant text with markdown formatting
     const formatted = formatPrepAssistantMessage(text);
     const contentDiv = document.createElement('div');
     contentDiv.innerHTML = formatted;
     msgDiv.appendChild(contentDiv);
-
-    // Add Copy to Prep Notes action button
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'prep-chat-msg-actions';
-    const copyBtn = document.createElement('button');
-    copyBtn.type = 'button';
-    copyBtn.className = 'prep-copy-notes-btn';
-    copyBtn.innerHTML = '<svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 12h6M9 16h6"/></svg> Copy to Step 3 Prep Notes';
-    copyBtn.addEventListener('click', () => {
-      copyToPrepNotes(text);
-    });
-    actionsDiv.appendChild(copyBtn);
-    msgDiv.appendChild(actionsDiv);
+    if (isSummary && state.assessmentData?.completed_count > 0) {
+      const reportBtn = document.createElement('button');
+      reportBtn.type = 'button';
+      reportBtn.className = 'button secondary small prep-open-report-btn';
+      reportBtn.textContent = 'Open full Career Explorer report';
+      reportBtn.addEventListener('click', openStudentReport);
+      msgDiv.appendChild(reportBtn);
+    }
   }
 
   container.appendChild(msgDiv);
   container.scrollTop = container.scrollHeight;
+}
+
+// The email travels in a POST body, never the URL. The server returns only a PDF
+// stored for that exact email, so the mentor never sees another student's report.
+async function openStudentReport() {
+  const email = state.student?.email || '';
+  // Open the tab inside the click so popup blockers allow it, then fill it.
+  const tab = window.open('', '_blank');
+  try {
+    const resp = await fetch('/api/student-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const type = resp.headers.get('content-type') || '';
+    if (!resp.ok || !type.includes('application/pdf')) {
+      tab?.close();
+      const data = await resp.json().catch(() => ({}));
+      showToast(data.message || 'No stored Career Explorer report was found for this student.');
+      return;
+    }
+    const objectUrl = URL.createObjectURL(await resp.blob());
+    if (tab) tab.location.href = objectUrl;
+    else window.location.assign(objectUrl);
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  } catch {
+    tab?.close();
+    showToast('The report could not be opened. Try again in a moment.');
+  }
 }
 
 function copyToPrepNotes(text) {

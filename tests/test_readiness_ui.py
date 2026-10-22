@@ -38,7 +38,7 @@ class ReadinessUiTests(unittest.TestCase):
     def test_single_student_readiness_action(self):
         self.assertIn("/api/student-readiness/lookup", self.js)
         self.assertEqual(self.js.count("/api/student-readiness/lookup"), 1)
-        self.assertIn("Check Student Readiness", self.html)
+        self.assertIn("Get summary", self.html)
         self.assertIn("Checking previously retrieved readiness data…", self.js)
 
     def test_freshness_states_are_rendered(self):
@@ -47,14 +47,20 @@ class ReadinessUiTests(unittest.TestCase):
             "Student Readiness data is older than 36 hours.",
             "Showing the last successful import from",
             "Student Readiness is temporarily unavailable",
-            "No retrieved Student Readiness record",
+            "No Career Explorer results are on file",
             "unsupported data version",
         ):
             with self.subTest(copy=copy):
                 self.assertIn(copy, self.js)
 
-    def test_manual_pdf_fallback_is_labeled_and_separate(self):
-        self.assertIn("Manual fallback: use a student-provided Career Explorer PDF", self.html)
+    def test_prepare_asks_only_for_email(self):
+        # Prepare is one step: email in, executive summary out. No PDF fallback, no name/major fields.
+        for removed in ("prep-pdf-dropzone", "prep-student-name", "prep-student-program", "prep-step-2", "prep-step-3"):
+            with self.subTest(removed=removed):
+                self.assertNotIn(removed, self.html)
+        self.assertIn('id="student-email"', self.html)
+
+    def test_pdf_upload_handler_stays_separate_from_readiness(self):
         upload = re.search(r"async function handlePdfUpload\(file\) \{.*?\n\}", self.js, re.S)
         self.assertIsNotNone(upload)
         self.assertNotIn("student-readiness", upload.group(0))

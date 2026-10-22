@@ -1533,15 +1533,6 @@ class CoachHandler(SimpleHTTPRequestHandler):
                     target_file = matching[0]
                     break
 
-        if target_file is None:
-            candidates = []
-            for sdir in search_dirs:
-                if sdir.exists():
-                    candidates.extend([f for f in sdir.glob("*.pdf") if f.is_file() and f.stat().st_size > 1000])
-            if candidates:
-                candidates.sort(key=lambda f: f.stat().st_mtime, reverse=True)
-                target_file = candidates[0]
-
         if target_file is None or not target_file.exists():
             self._json({"error": "Student report PDF not found."}, HTTPStatus.NOT_FOUND, head_only=head_only)
             return
@@ -1572,6 +1563,51 @@ class CoachHandler(SimpleHTTPRequestHandler):
             self._json({"error": f"Failed to download report PDF: {exc}"}, HTTPStatus.INTERNAL_SERVER_ERROR, head_only=head_only)
             return
 
+    def _handle_student_report(self):
+        """Serve the newest stored Career Explorer PDF for one exact email, inline.
+
+        Reads only reports already saved on this machine; no source is contacted.
+        Unlike the legacy download route, it never falls back to another student's file.
+        """
+        if not self._career_lookup_is_local():
+            self._json({"status": "local_only", "message": "Reports open only on the mentor workstation."}, HTTPStatus.FORBIDDEN)
+            return
+        client_ip = self.headers.get("X-Forwarded-For", self.client_address[0]).split(",")[0].strip()
+        if not RATE_LIMITER.is_allowed(client_ip):
+            self._json({"status": "rate_limited", "message": "Please wait a moment and try again."}, HTTPStatus.TOO_MANY_REQUESTS)
+            return
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            email = str(json.loads(self.rfile.read(length) or b"{}").get("email", "")).strip().lower()
+        except (ValueError, json.JSONDecodeError):
+            email = ""
+        if not ENSIGN_EMAIL_PATTERN.fullmatch(email):
+            self._json({"status": "invalid_email", "message": "Enter the student's @ensign.edu email address."}, HTTPStatus.BAD_REQUEST)
+            return
+
+        clean_email = re.sub(r"[^a-zA-Z0-9_.-]", "_", email)
+        # Sibling apps share report downloads; ENS101_APPS_DIR points a worktree at them.
+        apps_dir = Path(os.environ.get("ENS101_APPS_DIR") or ROOT_DIR.parent)
+        search_dirs = [
+            ROOT_DIR / "downloads",
+            apps_dir / "mentor-career-explorer-coach-ai" / "downloads",
+            apps_dir / "AI AGENTS LOCAL LLM" / "shared" / "downloads",
+        ]
+        matches = [f for d in search_dirs if d.exists() for f in d.glob(f"{clean_email}_*.pdf") if f.is_file()]
+        for report in sorted(matches, key=lambda f: f.stat().st_mtime, reverse=True):
+            pdf_bytes = report.read_bytes()
+            if len(pdf_bytes) < 500 or not pdf_bytes.startswith(b"%PDF-"):
+                continue
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "application/pdf")
+            self.send_header("Content-Disposition", 'inline; filename="Career_Explorer_Report.pdf"')
+            self.send_header("Content-Length", str(len(pdf_bytes)))
+            self.send_header("Cache-Control", "private, no-store")
+            self.end_headers()
+            self.wfile.write(pdf_bytes)
+            return
+        self._json({"status": "not_found", "message": "No stored Career Explorer report was found for this student."}, HTTPStatus.NOT_FOUND)
+
     def do_POST(self):
         # Keep routing consistent with GET: query parameters must not turn a
         # valid API endpoint into a static-file 404.
@@ -1584,6 +1620,10 @@ class CoachHandler(SimpleHTTPRequestHandler):
         # ----------------------------------------------------------------------
         # Student Readiness lookup (Student Readiness Hub ens101.v1 only)
         # ----------------------------------------------------------------------
+        if clean_path == "/api/student-report":
+            self._handle_student_report()
+            return
+
         if clean_path == "/api/student-readiness/lookup":
             if not self._career_lookup_is_local():
                 self._json({
