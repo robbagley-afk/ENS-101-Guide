@@ -3,13 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#14283d" />
+    <meta name="theme-color" content="#006645" />
     <meta name="description" content="A guided workspace for Ensign College ENS 101 mentor appointments." />
     <title>ENS 101 Guide v1.0</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="ces-tokens.css?v=1.1" />
     <link rel="stylesheet" href="ces-components.css?v=1.1" />
-    <link rel="stylesheet" href="styles.css?v=16" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="ecc-tokens.css" />
+    <link rel="stylesheet" href="ecc-ces-compat.css" />
+    <link rel="stylesheet" href="ecc-components.base.css" />
+    <link rel="stylesheet" href="ecc-app.css" />
+    <link rel="stylesheet" href="styles.css?v=20261021" />
     <!-- Vercel Web Analytics -->
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -107,16 +114,16 @@
                   </div>
 
                   <div class="student-fields prep-student-fields">
-                    <label><span>Preferred name</span><input id="prep-student-name" type="text" autocomplete="off" placeholder="e.g., Student" maxlength="60" /></label>
-                    <label>
+                    <label for="prep-student-name"><span>Preferred name</span><input id="prep-student-name" type="text" autocomplete="off" placeholder="e.g., Student" maxlength="60" /></label>
+                    <label for="prep-student-email">
                       <span class="field-label-wrap">
                         <span>Student @ensign.edu email <span class="required-star">*</span></span>
                         <span id="prep-email-error" class="field-error-msg" hidden>@ensign.edu required</span>
                       </span>
                       <input id="prep-student-email" type="email" inputmode="email" autocomplete="off" placeholder="student@example.com" maxlength="160" required />
                     </label>
-                    <label><span>Major or program</span><input id="prep-student-program" type="text" autocomplete="off" placeholder="e.g., Software Engineering" maxlength="100" /></label>
-                    <label><span>Career direction</span><input id="prep-career-direction" type="text" autocomplete="off" placeholder="e.g., Full Stack Web Developer" maxlength="100" /></label>
+                    <label for="prep-student-program"><span>Major or program</span><input id="prep-student-program" type="text" autocomplete="off" placeholder="e.g., Software Engineering" maxlength="100" /></label>
+                    <label for="prep-career-direction"><span>Career direction</span><input id="prep-career-direction" type="text" autocomplete="off" placeholder="e.g., Full Stack Web Developer" maxlength="100" /></label>
                   </div>
 
                   <div class="prep-lookup-bar">
@@ -140,7 +147,7 @@
                     </div>
                     <div class="connect-status-bar" id="connect-status-bar">
                       <div class="connect-status-pill pending" id="connect-status-pill">
-                        <span class="status-icon">⚪</span>
+                        <span class="status-icon">○</span>
                         <span class="status-text" id="connect-status-text">Account not checked yet</span>
                       </div>
                       <div class="connect-details" id="connect-details" hidden>
@@ -159,7 +166,7 @@
                     <div class="assessment-cards-grid">
                       <div id="card-interests" class="assessment-module-card">
                         <div class="module-header">
-                          <span class="module-icon">🎯</span>
+                          <span class="module-icon"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>
                           <strong>Interests</strong>
                         </div>
                         <span class="module-status-badge pending">Not checked</span>
@@ -168,7 +175,7 @@
                       </div>
                       <div id="card-values" class="assessment-module-card">
                         <div class="module-header">
-                          <span class="module-icon">⚖️</span>
+                          <span class="module-icon"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7l-3 7a3 3 0 0 0 6 0z"/><path d="M19 7l-3 7a3 3 0 0 0 6 0z"/><path d="M8 21h8"/></svg></span>
                           <strong>Values</strong>
                         </div>
                         <span class="module-status-badge pending">Not checked</span>
@@ -177,7 +184,7 @@
                       </div>
                       <div id="card-personality" class="assessment-module-card">
                         <div class="module-header">
-                          <span class="module-icon">💡</span>
+                          <span class="module-icon"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></span>
                           <strong>Personality</strong>
                         </div>
                         <span class="module-status-badge pending">Not checked</span>
@@ -186,7 +193,7 @@
                       </div>
                       <div id="card-workplace" class="assessment-module-card">
                         <div class="module-header">
-                          <span class="module-icon">🏢</span>
+                          <span class="module-icon"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/></svg></span>
                           <strong>Workplace Preferences</strong>
                         </div>
                         <span class="module-status-badge pending">Not checked</span>
@@ -204,7 +211,7 @@
                         <strong>Manual fallback: use a student-provided Career Explorer PDF</strong>
                         <span>Drop the downloaded Career Explorer PDF report, or <label for="prep-pdf-input" class="browse-link">browse file</label></span>
                       </div>
-                      <input type="file" id="prep-pdf-input" accept="application/pdf" class="sr-only" />
+                      <input type="file" id="prep-pdf-input" accept="application/pdf" class="file-input-hidden" />
                     </div>
                     <div id="prep-pdf-status" class="prep-pdf-status" hidden></div>
                   </div>
@@ -239,7 +246,7 @@
                   <div class="prep-chat-section" id="prep-chat-section">
                     <div class="prep-chat-header">
                       <div class="prep-chat-title-group">
-                        <span class="prep-chat-sparkle" aria-hidden="true">✦</span>
+                        <span class="prep-chat-sparkle" aria-hidden="true"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span>
                         <div>
                           <h3 class="prep-chat-title">Career Explorer Mentor Coach AI</h3>
                           <p class="prep-chat-subtitle">Ask questions, understand personality results, explore majors, and get coaching ideas for this student.</p>
@@ -253,11 +260,11 @@
 
                     <!-- Quick Starters Carousel -->
                     <div class="prep-chat-starters" id="prep-chat-starters">
-                      <button type="button" class="prep-starter-btn" data-prompt="Write a brief Student Summary of this student for my upcoming meeting.">✦ Student Summary</button>
-                      <button type="button" class="prep-starter-btn" data-prompt="What questions should I ask this student about their interests and top values?">✦ 3 Questions to Ask</button>
-                      <button type="button" class="prep-starter-btn" data-prompt="Which Ensign College majors and certificates fit this student's assessment results?">✦ Matching Ensign Programs</button>
-                      <button type="button" class="prep-starter-btn" data-prompt="How do I help this student sketch three possible five-year plans (Odyssey Plans)?">✦ Three Possible Paths</button>
-                      <button type="button" class="prep-starter-btn" data-prompt="How can I share Elder Keith B. McMullin's teachings on career as mission and financial success as an enabling factor?">✦ Elder McMullin: Career as Calling</button>
+                      <button type="button" class="prep-starter-btn" data-prompt="Write a brief Student Summary of this student for my upcoming meeting."><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg> Student Summary</button>
+                      <button type="button" class="prep-starter-btn" data-prompt="What questions should I ask this student about their interests and top values?"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg> 3 Questions to Ask</button>
+                      <button type="button" class="prep-starter-btn" data-prompt="Which Ensign College majors and certificates fit this student's assessment results?"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg> Matching Ensign Programs</button>
+                      <button type="button" class="prep-starter-btn" data-prompt="How do I help this student sketch three possible five-year plans (Odyssey Plans)?"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg> Three Possible Paths</button>
+                      <button type="button" class="prep-starter-btn" data-prompt="How can I share Elder Keith B. McMullin's teachings on career as mission and financial success as an enabling factor?"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg> Elder McMullin: Career as Calling</button>
                     </div>
 
                     <!-- Message Feed -->
@@ -277,7 +284,7 @@
                         </button>
                       </div>
                       <div class="prep-chat-footer-note">
-                        <span>🔒 Local AI on Mac Studio • Private student results • Based on Ensign College programs</span>
+                        <span><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Local AI on Mac Studio • Private student results • Based on Ensign College programs</span>
                       </div>
                     </form>
                   </div>
@@ -318,7 +325,7 @@
 
                   <div class="prep-prompts-card">
                     <div class="prep-prompts-title">
-                      <span>✦</span>
+                      <span><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span>
                       <strong>Quick Talking Points (click to add to notes):</strong>
                     </div>
                     <div id="prep-quick-prompts" class="prep-prompts-list">
@@ -347,9 +354,9 @@
                   <span class="optional-label">Non-sensitive details only</span>
                 </div>
                 <div class="student-fields">
-                  <label><span>Preferred name</span><input id="student-name" type="text" autocomplete="off" placeholder="e.g., Student" maxlength="60" /></label>
-                  <label><span>Major or program</span><input id="student-program" type="text" autocomplete="off" placeholder="e.g., Software Engineering" maxlength="100" /></label>
-                  <label><span>Career direction</span><input id="career-direction" type="text" autocomplete="off" placeholder="e.g., UX designer" maxlength="100" /></label>
+                  <label for="student-name"><span>Preferred name</span><input id="student-name" type="text" autocomplete="off" placeholder="e.g., Student" maxlength="60" /></label>
+                  <label for="student-program"><span>Major or program</span><input id="student-program" type="text" autocomplete="off" placeholder="e.g., Software Engineering" maxlength="100" /></label>
+                  <label for="career-direction"><span>Career direction</span><input id="career-direction" type="text" autocomplete="off" placeholder="e.g., UX designer" maxlength="100" /></label>
                   <div class="confidence-field">
                     <label for="career-confidence"><span>Career confidence 1/10 <small class="confidence-hint">(1=Low, 10=Very Confident)</small>: <output id="confidence-output" for="career-confidence">Not set</output></span><input id="career-confidence" type="range" min="1" max="10" value="5" /></label>
                     <a
@@ -360,7 +367,7 @@
                       rel="noopener noreferrer"
                     >Open Career Explorer <span aria-hidden="true">↗</span></a>
                   </div>
-                  <label><span>Career Explorer roadmap</span><select id="roadmap-status"><option value="">Choose status</option><option>Not started</option><option>In progress</option><option>Completed</option><option>Not sure</option></select></label>
+                  <label for="roadmap-status"><span>Career Explorer roadmap</span><select id="roadmap-status"><option value="">Choose status</option><option>Not started</option><option>In progress</option><option>Completed</option><option>Not sure</option></select></label>
                 </div>
                 <!-- Status Badges Row (Career Explorer & Ensign Connect) -->
                 <div class="status-badges-row" id="session-status-badges">
@@ -388,7 +395,7 @@
 
                 <aside class="support-column">
                   <section class="prompt-card card">
-                    <div class="section-heading compact"><div><p class="eyebrow">Conversation support</p><h2>Try asking</h2></div><span class="sparkle" aria-hidden="true">✦</span></div>
+                    <div class="section-heading compact"><div><p class="eyebrow">Conversation support</p><h2>Try asking</h2></div><span class="sparkle" aria-hidden="true"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span></div>
                     <div id="conversation-prompts" class="prompt-list"></div>
                   </section>
                   <section class="quick-tools card">
@@ -401,7 +408,7 @@
               <!-- Prep Notes Accordion (Accessible in Task 2) -->
               <div class="prep-notes-preview-wrap card">
                 <button id="btn-toggle-prep-preview" class="prep-preview-toggle" type="button">
-                  <span class="toggle-icon">📋</span>
+                  <span class="toggle-icon"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 12h6M9 16h6"/></svg></span>
                   <span><strong>Reference Task 1 Prep Notes:</strong> <small id="prep-preview-snippet">Click to expand notes prepared for this student</small></span>
                   <span id="prep-preview-chevron" class="chevron-down">▼</span>
                 </button>
@@ -416,9 +423,9 @@
                   <div class="notes-actions"><button id="copy-summary" class="button secondary small" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Copy summary</button></div>
                 </div>
                 <div class="notes-grid">
-                  <label><span>Conversation notes</span><textarea id="session-notes" rows="5" placeholder="Capture useful, non-sensitive themes from the conversation."></textarea></label>
-                  <label><span>Student’s next step</span><textarea id="student-next-step" rows="5" placeholder="What will the student do, and by when?"></textarea></label>
-                  <label><span>Mentor follow-up</span><textarea id="mentor-follow-up" rows="5" placeholder="What will you send, check, or follow up on?"></textarea></label>
+                  <label for="session-notes"><span>Conversation notes</span><textarea id="session-notes" rows="5" placeholder="Capture useful, non-sensitive themes from the conversation."></textarea></label>
+                  <label for="student-next-step"><span>Student’s next step</span><textarea id="student-next-step" rows="5" placeholder="What will the student do, and by when?"></textarea></label>
+                  <label for="mentor-follow-up"><span>Mentor follow-up</span><textarea id="mentor-follow-up" rows="5" placeholder="What will you send, check, or follow up on?"></textarea></label>
                 </div>
               </section>
 
@@ -438,7 +445,7 @@
                   </button>
                 </div>
                 <div class="civitas-confirmation-box">
-                  <label class="civitas-checkbox-label">
+                  <label class="civitas-checkbox-label" for="civitas-confirm-checkbox">
                     <input type="checkbox" id="civitas-confirm-checkbox" />
                     <span><strong>I confirm this appointment has been recorded in Civitas</strong> — The student's information and session notes can now be safely deleted from this workstation.</span>
                   </label>
@@ -454,7 +461,7 @@
           <section id="resources-view" class="view" aria-label="Resource library">
             <div class="page-heading resource-heading">
               <div><p class="eyebrow">Resource library</p><h1>Everything you may need, one click away</h1><p class="page-description">Open official Ensign College tools and choose the right referral for the student’s next step.</p></div>
-              <label class="resource-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="resource-search" type="search" placeholder="Search resources" /></label>
+              <label class="resource-search" for="resource-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="resource-search" type="search" placeholder="Search resources" /></label>
             </div>
             <div id="resource-filters" class="filter-row" aria-label="Resource categories"></div>
             <div id="resource-grid" class="resource-grid"></div>
@@ -475,7 +482,7 @@
 
         <aside id="copilot-panel" class="copilot-panel" aria-label="Mentor AI Help">
           <div class="copilot-header">
-            <div class="copilot-title"><span class="copilot-icon" aria-hidden="true">✦</span><div><strong>Mentor AI Help</strong><small id="service-status">Ready</small></div></div>
+            <div class="copilot-title"><span class="copilot-icon" aria-hidden="true"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><div><strong>Mentor AI Help</strong><small id="service-status">Ready</small></div></div>
             <button id="close-copilot" class="icon-button" type="button" aria-label="Close Mentor AI Help">×</button>
           </div>
           <div id="messages" class="messages" aria-live="polite"></div>
@@ -489,7 +496,7 @@
         </aside>
       </div>
 
-      <button id="open-copilot" class="copilot-fab" type="button" aria-label="Open Mentor AI Help"><span aria-hidden="true">✦</span><span>Mentor AI Help</span></button>
+      <button id="open-copilot" class="copilot-fab" type="button" aria-label="Open Mentor AI Help"><span aria-hidden="true"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><span>Mentor AI Help</span></button>
 
       <div id="confirm-dialog" class="dialog-backdrop" hidden>
         <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
@@ -502,7 +509,7 @@
         <div class="dialog suggestion-dialog-box" role="dialog" aria-modal="true" aria-labelledby="suggestion-dialog-title">
           <div class="suggestion-dialog-header">
             <div class="suggestion-title-group">
-              <div class="dialog-icon suggestion-bulb-icon" aria-hidden="true">💡</div>
+              <div class="dialog-icon suggestion-bulb-icon" aria-hidden="true"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></div>
               <div>
                 <h2 id="suggestion-dialog-title">Suggest an Improvement</h2>
                 <p class="dialog-subtitle">Share ideas, bug reports, or content updates to improve ENS 101 Guide v1.0.</p>

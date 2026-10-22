@@ -187,8 +187,8 @@
 
   function formatStatusBadge(status) {
     const labels = {
-      pending: '⏳ Pending',
-      in_progress: '⚡ In Progress',
+      pending: 'Pending',
+      in_progress: 'In progress',
       implemented: '✓ Implemented',
       dismissed: '✕ Dismissed',
     };
