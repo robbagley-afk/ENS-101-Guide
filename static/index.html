@@ -274,6 +274,23 @@
                     </div>
                     <p class="notes-autosave-hint">Notes save automatically to your local browser record.</p>
                   </section>
+
+                  <section class="civitas-note-card card" id="civitas-note-card" aria-labelledby="civitas-note-heading">
+                    <div class="section-heading">
+                      <div><p class="eyebrow">Civitas record</p><h2 id="civitas-note-heading">Civitas Advising Note</h2></div>
+                      <div class="civitas-note-actions">
+                        <span id="civitas-copied-badge" class="civitas-copied-badge" role="status" aria-live="polite" hidden>✓ Note copied to the clipboard</span>
+                        <button id="btn-copy-preview-note" class="button secondary small" type="button" title="Copy note to clipboard">
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+                          <span>Copy note</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="civitas-note-body">
+                      <textarea id="civitas-note-text" class="civitas-note-textarea" rows="11" aria-label="Generated Civitas Advising Note" placeholder="Select &quot;Prepare Civitas Note&quot; to generate your Advising Record here and copy it to the clipboard."></textarea>
+                    </div>
+                    <p class="notes-autosave-hint">Paste this note directly into Civitas, then confirm recording below.</p>
+                  </section>
                 </div>
               </div>
             </div>
@@ -374,6 +391,6 @@
     </div>
     <script src="ces-motion.js"></script>
     <script src="note-utils.js"></script>
-    <script src="app.js?v=21"></script>
+    <script src="app.js?v=22"></script>
   </body>
 </html>

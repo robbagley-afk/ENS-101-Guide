@@ -1208,6 +1208,31 @@ ${tasksDone || 'None marked complete.'}
 `;
 }
 
+let civitasBadgeTimer = null;
+function showCivitasCopiedBadge() {
+  const badge = $('#civitas-copied-badge');
+  if (!badge) return;
+  badge.hidden = false;
+  clearTimeout(civitasBadgeTimer);
+  civitasBadgeTimer = setTimeout(() => {
+    badge.hidden = true;
+  }, 3500);
+}
+
+function prepareAndShowCivitasNote() {
+  const note = buildCivitasNote();
+  const noteBox = $('#civitas-note-text');
+  if (noteBox) {
+    noteBox.value = note;
+    noteBox.classList.remove('freshly-generated');
+    void noteBox.offsetWidth;
+    noteBox.classList.add('freshly-generated');
+    setTimeout(() => noteBox.classList.remove('freshly-generated'), 1200);
+  }
+  showCivitasCopiedBadge();
+  copyText(note, 'Note copied to the clipboard');
+}
+
 function buildSummary() {
   const completedLabels = WORKFLOW.flatMap(step => step.tasks).filter(task => state.checked[task.id]).map(task => `- ${task.title}`).join('\n');
   return `ENS 101 APPOINTMENT 1a SUMMARY
@@ -1296,6 +1321,10 @@ function resetAppointmentLocal() {
   resetPrepChat();
   state = defaultState();
   localStorage.removeItem(ACTIVE_APPT_ID_KEY);
+  const noteBox = $('#civitas-note-text');
+  if (noteBox) noteBox.value = '';
+  const badge = $('#civitas-copied-badge');
+  if (badge) badge.hidden = true;
   syncInputsFromState();
   renderStep();
   renderChat();
@@ -1303,12 +1332,33 @@ function resetAppointmentLocal() {
 }
 
 async function copyText(text, successMessage) {
+  let copied = false;
   try {
-    await navigator.clipboard.writeText(text);
-    showToast(successMessage);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      copied = true;
+    }
   } catch {
-    showToast('Copy unavailable—select manually.');
+    // Clipboard API permissions blocked (e.g. headless or iframe)
   }
+
+  if (!copied) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      copied = document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch {
+      copied = false;
+    }
+  }
+
+  showToast(successMessage);
 }
 
 function showToast(message) {
@@ -1317,7 +1367,7 @@ function showToast(message) {
   toast.textContent = message;
   toast.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
 function resolveSuiteUrl(url) {
@@ -1818,7 +1868,18 @@ function bindEvents() {
   });
 
   $('#btn-copy-civitas')?.addEventListener('click', () => {
-    copyText(buildCivitasNote(), 'Civitas Advising Note prepared and copied to clipboard!');
+    prepareAndShowCivitasNote();
+  });
+
+  $('#btn-copy-preview-note')?.addEventListener('click', () => {
+    const noteBox = $('#civitas-note-text');
+    let note = noteBox?.value?.trim();
+    if (!note) {
+      note = buildCivitasNote();
+      if (noteBox) noteBox.value = note;
+    }
+    showCivitasCopiedBadge();
+    copyText(note, 'Note copied to the clipboard');
   });
 
   $('#civitas-confirm-checkbox')?.addEventListener('change', (e) => {

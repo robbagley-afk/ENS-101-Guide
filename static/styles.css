@@ -514,8 +514,50 @@ input.required-incomplete {
 .recommendation-high .recommendation-content { border-color: #86efac; border-left-color: #16a34a; background: #f0fdf4; color: #0f172a; }
 .appointment-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr); gap: 24px; align-items: start; }
 .appointment-col-tasks { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
-.appointment-col-notes { display: flex; flex-direction: column; min-width: 0; }
-.appointment-col-notes .notes-card { margin-top: 0; position: sticky; top: 88px; }
+.appointment-col-notes { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.appointment-col-notes .notes-card { margin-top: 0; }
+.civitas-note-card { padding: 22px; margin-top: 0; }
+.civitas-note-actions { display: flex; align-items: center; gap: 10px; }
+.civitas-copied-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+.civitas-note-body {
+  margin-top: 14px;
+}
+.civitas-note-textarea {
+  width: 100%;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--input-fill);
+  border: 2px solid var(--input-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  resize: vertical;
+  min-height: 230px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.civitas-note-textarea:focus {
+  background: var(--surface);
+  border-color: var(--input-border);
+  box-shadow: var(--shadow-focus);
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.civitas-note-textarea.freshly-generated {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 167, 44, 0.25);
+}
 .notes-autosave-hint { margin: 12px 0 0; font-size: var(--text-caption); color: var(--ink-muted); line-height: 1.4; }
 .task-workflow-group-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 4px 6px; border-bottom: 2px solid var(--border); margin-top: 12px; margin-bottom: 6px; }
 .task-workflow-group-header:first-child { margin-top: 0; padding-top: 0; }

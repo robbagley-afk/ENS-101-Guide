@@ -72,6 +72,14 @@ class ConversationNoteTagTests(unittest.TestCase):
             self.assertIn("Prepare Civitas Note", page.locator("#btn-copy-civitas").inner_text())
             self.assertIn("Civitas Note Entered. Close this Appointment", page.locator("#btn-complete-delete-record").inner_text())
 
+            # Clicking "Prepare Civitas Note" displays the generated note and announces copy to clipboard
+            self.assertEqual("", page.locator("#civitas-note-text").input_value())
+            page.click("#btn-copy-civitas")
+            self.assertIn("Discussed internship timing and career goals.\n\n#SSTEAM", page.locator("#civitas-note-text").input_value())
+            page.wait_for_selector("#toast.show")
+            self.assertEqual("Note copied to the clipboard", page.locator("#toast").inner_text())
+            self.assertTrue(page.locator("#civitas-copied-badge").is_visible())
+
             browser.close()
 
 
