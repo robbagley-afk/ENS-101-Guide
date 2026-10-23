@@ -350,8 +350,9 @@ input.required-incomplete {
 .text-button:hover { text-decoration: underline; }
 .notes-card { padding: 22px; margin-top: 20px; }
 .notes-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
-.notes-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
-.notes-grid textarea { min-height: 116px; }
+.notes-grid { display: flex; flex-direction: column; gap: 16px; }
+.notes-grid label { width: 100%; }
+.notes-grid textarea { width: 100%; min-height: 120px; }
 
 .resource-heading { align-items: flex-end; }
 .resource-search { position: relative; flex: 0 0 260px; }

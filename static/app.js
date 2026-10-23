@@ -35,11 +35,11 @@ const WORKFLOW = [
     title: 'Plan and wrap up',
     description: 'Build the internship plan, choose the next appointment, and close the appointment.',
     tasks: [
-      { id: 'internship-requirement', group: 'Internship plan', title: 'Explain the internship requirement', detail: 'The internship should relate to the student\'s major, with the paired internship course taken at the same time. Encourage taking CAR 201 early.' },
-      { id: 'internship-timeline', group: 'Internship plan', title: 'Talk timing and options', detail: 'Large companies recruit 6–9 months ahead. For on-campus students, CAR 398 PBWE gives project experience; certificates strengthen readiness.' },
-      { id: 'internship-international', group: 'Internship plan', title: 'International students only: verify the rules', detail: 'Do not give immigration advice. Help the student verify vacation-semester and work-authorization rules.' },
-      { id: 'career-followup', group: 'Close', inline: 'suggestion', title: 'Choose the next appointment', detail: 'Still exploring: plan a Career Explorer appointment. Confident: plan Create Resume and show Roadmap 2, Steps 1–5.' },
-      { id: 'close-selfie', group: 'Close', title: 'Take the appointment selfie', detail: 'Follow the Appointment 1a practice and get the student\'s consent first.' }
+      { id: 'internship-requirement', title: 'Explain Internship (Any job related to Major, etc.)', detail: '' },
+      { id: 'internship-timeline', title: 'Use Student Journey Map - Explain Internship Timing', detail: '' },
+      { id: 'internship-international', title: 'International Students: Save your Vacation Semester for your Internship so you can apply to fulltime jobs', detail: '' },
+      { id: 'career-followup', inline: 'suggestion', title: 'Choose the next appointment', detail: '' },
+      { id: 'close-selfie', title: 'Take the appointment selfie', detail: '' }
     ],
     copilot: ['Explain the internship timeline', 'Give an international-student caution', 'Recommend the next appointment', 'Draft a follow-up message']
   }
@@ -651,12 +651,13 @@ function renderAppointmentWorkspace() {
   const nextBtn = $('#next-step');
   if (nextBtn) {
     nextBtn.textContent = 'Log Civitas & Complete';
+    nextBtn.disabled = !state.civitasRecorded;
+    nextBtn.title = state.civitasRecorded ? 'Complete appointment and delete local student record' : 'Confirm Civitas recording below before completing';
   }
 
   const list = $('#task-list');
   if (list) {
     list.innerHTML = '';
-    let currentGroup = null;
     WORKFLOW.forEach((step, sIdx) => {
       const groupHeading = document.createElement('div');
       groupHeading.className = 'task-workflow-group-header';
@@ -664,13 +665,6 @@ function renderAppointmentWorkspace() {
       list.appendChild(groupHeading);
 
       step.tasks.forEach(task => {
-        if (task.group && task.group !== currentGroup) {
-          currentGroup = task.group;
-          const subHeading = document.createElement('p');
-          subHeading.className = 'task-group-heading';
-          subHeading.textContent = task.group;
-          list.appendChild(subHeading);
-        }
         const item = document.createElement('div');
         const checked = Boolean(state.checked[task.id]);
         item.className = `task-item${checked ? ' checked' : ''}`;
@@ -1221,6 +1215,11 @@ async function handleCivitasConfirmation(checked) {
   state.civitasRecorded = checked;
   const delBtn = $('#btn-complete-delete-record');
   if (delBtn) delBtn.disabled = !checked;
+  const nextBtn = $('#next-step');
+  if (nextBtn) {
+    nextBtn.disabled = !checked;
+    nextBtn.title = checked ? 'Complete appointment and delete local student record' : 'Confirm Civitas recording below before completing';
+  }
 
   if (state.appointmentId) {
     if (checked) {
@@ -1784,11 +1783,15 @@ function bindEvents() {
   });
 
   $('#next-step')?.addEventListener('click', () => {
-    const civitas = $('#civitas-card');
-    if (civitas) {
-      civitas.scrollIntoView({ behavior: 'smooth' });
+    if (!state.civitasRecorded) {
+      const civitas = $('#civitas-card');
+      if (civitas) {
+        civitas.scrollIntoView({ behavior: 'smooth' });
+      }
+      showToast('Please check "I confirm this appointment has been recorded in Civitas" first.');
+      return;
     }
-    showToast(completedTasks() === totalTasks() ? 'All tasks checked! Confirm Civitas below.' : 'Review remaining tasks and record in Civitas below');
+    handleDeleteRecordAfterCivitas();
   });
 
   $('#btn-copy-civitas')?.addEventListener('click', () => {
