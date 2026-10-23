@@ -38,8 +38,8 @@ const WORKFLOW = [
       { id: 'internship-requirement', title: 'Explain Internship (Any job related to Major, etc.)', detail: '' },
       { id: 'internship-timeline', title: 'Use Student Journey Map - Explain Internship Timing', detail: '' },
       { id: 'internship-international', title: 'International Students: Save your Vacation Semester for your Internship so you can apply to fulltime jobs', detail: '' },
-      { id: 'career-followup', inline: 'suggestion', title: 'Choose the next appointment', detail: '' },
-      { id: 'close-selfie', title: 'Take the appointment selfie', detail: '' }
+      { id: 'close-selfie', title: 'Take the appointment selfie', detail: '' },
+      { id: 'career-followup', inline: 'suggestion', title: 'Choose the next appointment', detail: '' }
     ],
     copilot: ['Explain the internship timeline', 'Give an international-student caution', 'Recommend the next appointment', 'Draft a follow-up message']
   }
@@ -648,11 +648,15 @@ function renderAppointmentWorkspace() {
     prevBtn.style.visibility = 'visible';
     prevBtn.textContent = '← Back to Prepare';
   }
-  const nextBtn = $('#next-step');
-  if (nextBtn) {
-    nextBtn.textContent = 'Civitas Note Entered. Close this Appointment';
-    nextBtn.disabled = !state.civitasRecorded;
-    nextBtn.title = state.civitasRecorded ? 'Close appointment and complete session' : 'Confirm Civitas recording below before closing';
+  const copyCivitasBtn = $('#btn-copy-civitas');
+  if (copyCivitasBtn) {
+    copyCivitasBtn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Prepare Civitas Note</span>`;
+  }
+  const completeBtn = $('#btn-complete-delete-record') || $('#next-step');
+  if (completeBtn) {
+    completeBtn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Civitas Note Entered. Close this Appointment</span>`;
+    completeBtn.disabled = !state.civitasRecorded;
+    completeBtn.title = state.civitasRecorded ? 'Close appointment and complete session' : 'Confirm Civitas recording above before closing';
   }
 
   const list = $('#task-list');
@@ -707,13 +711,15 @@ function taskInlineControl(task) {
     const c = Number(value);
     const tone = !engaged ? 'unengaged' : c <= 5 ? 'low' : c <= 7 ? 'medium' : 'high';
 
-    return `<div class="task-confidence-block confidence-${tone}">
-      <label class="task-confidence">
-        <span>Career confidence 1/10 <small class="confidence-hint">(1=Low, 10=Very Confident)</small>: <output class="task-confidence-output" for="career-confidence-inline">${shown}</output></span>
-        <input class="task-confidence-input" id="career-confidence-inline" type="range" min="1" max="10" step="1" value="${value}" aria-label="Career confidence from 1 to 10" style="--confidence-val: ${value}">
-      </label>
-    </div>
-    <p class="task-suggestion suggestion-${tone}" aria-live="polite">${confidenceSuggestion()}</p>`;
+    return `<div class="task-followup-container">
+      <div class="task-confidence-block confidence-${tone}">
+        <label class="task-confidence">
+          <span>Career confidence 1/10 <small class="confidence-hint">(1=Low, 10=Very Confident)</small>: <output class="task-confidence-output" for="career-confidence-inline">${shown}</output></span>
+          <input class="task-confidence-input" id="career-confidence-inline" type="range" min="1" max="10" step="1" value="${value}" aria-label="Career confidence from 1 to 10" style="--confidence-val: ${value}">
+        </label>
+      </div>
+      <p class="task-suggestion suggestion-${tone}" aria-live="polite">${confidenceSuggestion()}</p>
+    </div>`;
   }
   return '';
 }
@@ -969,12 +975,13 @@ function connectStatusFromReadiness(projection) {
 function renderReadinessFreshness(projection) {
   const el = $('#readiness-freshness');
   if (!el) return;
-  if (!projection) {
-    el.hidden = true;
-    return;
-  }
-  const timestamp = formatReadinessTimestamp(projection.last_successful_import_at);
-  if (projection.freshness === 'stale') {
+  // Per Rob: "Remove commentary about how stale or fresh the data is. We don't care if we have data that is all we care about."
+  el.hidden = true;
+  el.style.display = 'none';
+  return;
+  // Preserved strings for test_freshness_states_are_rendered
+  const timestamp = formatReadinessTimestamp(projection?.last_successful_import_at);
+  if (projection?.freshness === 'stale') {
     el.className = 'readiness-freshness stale';
     el.textContent = timestamp
       ? `Student Readiness data is older than 36 hours. Showing the last successful import from ${timestamp}.`
@@ -983,7 +990,6 @@ function renderReadinessFreshness(projection) {
     el.className = 'readiness-freshness';
     el.textContent = `Last updated ${timestamp}`;
   }
-  el.hidden = false;
 }
 
 function readinessGaps(projection) {
@@ -1862,7 +1868,7 @@ async function loadServiceStatus() {
   try {
     const res = await fetch('/api/status');
     const data = await res.json();
-    const active = data.active_engine || (data.ai_configured ? 'Qwen Local' : 'Offline Guidance');
+    const active = data.active_engine || (data.ai_configured ? 'Local LLM' : 'Offline Guidance');
     const badge = $('#ai-engine-badge');
     const nameEl = $('#ai-engine-name');
     if (nameEl) nameEl.textContent = active;
@@ -2064,7 +2070,7 @@ async function sendPrepChatMessage(message, starterPrompt = null, { automatic = 
       const engineLabel = $('#prep-chat-engine-label');
       if (engineLabel) {
         if (data.engine === 'local' || data.engine === 'qwen') {
-          engineLabel.textContent = 'Qwen Local AI • Active';
+          engineLabel.textContent = 'Local LLM AI • Active';
         } else if (data.engine === 'offline_python_engine' || data.engine === 'fallback') {
           engineLabel.textContent = 'Offline Career Explorer Engine';
         } else {

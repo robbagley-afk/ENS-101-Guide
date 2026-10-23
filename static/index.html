@@ -59,7 +59,7 @@
           <div class="topbar-status-box" title="AI inference engine and autosave status">
             <div id="ai-engine-badge" class="engine-indicator-pill engine-qwen">
               <span class="engine-indicator-dot"></span>
-              <span id="ai-engine-name">Qwen Local</span>
+              <span id="ai-engine-name">Local LLM</span>
             </div>
             <div class="autosave-status">
               <span class="status-dot"></span>
@@ -141,13 +141,6 @@
                       <span id="badge-ensign-connect" class="status-pill yellow">Not checked</span>
                     </div>
                     <div class="status-badge-links">
-                      <a
-                        id="career-explorer-direct-link"
-                        class="confidence-career-link"
-                        href="https://ensign.pathwayu.com/login?next=%2Fresults"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >Open Career Explorer <span aria-hidden="true">↗</span></a>
                       <button id="btn-download-student-report" class="task-action download-report-btn" type="button" hidden>
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         <span id="label-download-student-report">Download Report (.PDF)</span>
@@ -238,7 +231,10 @@
                     <div id="task-list" class="task-list"></div>
                     <div class="step-actions">
                       <button id="previous-step" class="button secondary" type="button">← Back to Prepare</button>
-                      <button id="next-step" class="button primary" type="button" disabled>Civitas Note Entered. Close this Appointment</button>
+                      <button id="btn-copy-civitas" class="button primary btn-copy-civitas" type="button">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+                        <span>Prepare Civitas Note</span>
+                      </button>
                     </div>
                   </section>
 
@@ -251,19 +247,15 @@
                           <h2>Log Appointment &amp; Complete Session</h2>
                         </div>
                       </div>
-                      <button id="btn-copy-civitas" class="button secondary small" type="button">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
-                        <span>Prepare Civitas Note</span>
-                      </button>
                     </div>
                     <div class="civitas-confirmation-box">
                       <label class="civitas-checkbox-label" for="civitas-confirm-checkbox">
                         <input type="checkbox" id="civitas-confirm-checkbox" />
                         <span><strong>I confirm this appointment has been recorded in Civitas</strong> — The student's information and session notes can now be safely deleted from this workstation.</span>
                       </label>
-                      <button id="btn-complete-delete-record" class="button danger" type="button" disabled>
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        <span>Complete &amp; Delete Student Record</span>
+                      <button id="btn-complete-delete-record" class="button primary" type="button" disabled>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Civitas Note Entered. Close this Appointment</span>
                       </button>
                     </div>
                   </section>

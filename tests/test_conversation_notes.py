@@ -70,7 +70,7 @@ class ConversationNoteTagTests(unittest.TestCase):
 
             # Button labels match requirement
             self.assertIn("Prepare Civitas Note", page.locator("#btn-copy-civitas").inner_text())
-            self.assertIn("Civitas Note Entered. Close this Appointment", page.locator("#next-step").inner_text())
+            self.assertIn("Civitas Note Entered. Close this Appointment", page.locator("#btn-complete-delete-record").inner_text())
 
             browser.close()
 
