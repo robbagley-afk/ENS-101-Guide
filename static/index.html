@@ -92,7 +92,7 @@
           <section id="prepare-view" class="view active" aria-label="Prepare workspace">
             <div class="page-heading">
               <div>
-                <p class="eyebrow appointment-label">SCREEN 1: PREPARE</p>
+                <p class="eyebrow appointment-label">1. PREPARE</p>
                 <h1 id="prep-heading-title">Prepare for Appointment</h1>
                 <p class="page-description">Look up your student before the appointment to review their Career Explorer assessment results, Ensign Connect profile, and AI summary.</p>
               </div>
@@ -108,19 +108,11 @@
                       <p class="eyebrow">Task 1: Prepare</p>
                       <h2>Look up your student</h2>
                     </div>
-                    <!-- Ensign Connect account status: a small chip in the heading row (was a full-width box under the email). -->
-                    <div class="prep-connect-section" role="group" aria-label="Ensign Connect account status">
-                      <span class="connect-label">Ensign Connect</span>
-                      <div class="connect-status-bar" id="connect-status-bar">
-                        <div class="connect-status-pill pending" id="connect-status-pill">
-                          <span class="status-icon">○</span>
-                          <span class="status-text" id="connect-status-text">Account not checked yet</span>
-                        </div>
-                        <div class="connect-details" id="connect-details" hidden>
-                          <a id="connect-profile-link" class="task-action" href="#" target="_blank" rel="noopener" aria-label="View Profile in Ensign Connect (opens in a new tab)" hidden>View profile</a>
-                        </div>
-                      </div>
-                      <span id="connect-last-checked" class="sr-only">Not checked</span>
+                    <!-- Hidden container to retain elements for legacy helpers if queried -->
+                    <div id="connect-status-bar" style="display:none;" aria-hidden="true">
+                      <span id="connect-status-pill"><span class="status-icon"></span><span id="connect-status-text"></span></span>
+                      <a id="connect-profile-link" href="#"></a>
+                      <span id="connect-last-checked"></span>
                     </div>
                   </div>
 
@@ -136,6 +128,31 @@
                       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
                       <span>Get summary</span>
                     </button>
+                  </div>
+
+                  <!-- Status Badges Row (Career Explorer & Ensign Connect) represented only on Prepare step -->
+                  <div class="status-badges-row top-status-badges" id="session-status-badges">
+                    <div class="status-badge-item">
+                      <span class="badge-label">Career Explorer:</span>
+                      <span id="badge-career-explorer" class="status-pill gray">Not checked</span>
+                    </div>
+                    <div class="status-badge-item">
+                      <span class="badge-label">Ensign Connect:</span>
+                      <span id="badge-ensign-connect" class="status-pill yellow">Not checked</span>
+                    </div>
+                    <div class="status-badge-links">
+                      <a
+                        id="career-explorer-direct-link"
+                        class="confidence-career-link"
+                        href="https://ensign.pathwayu.com/login?next=%2Fresults"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >Open Career Explorer <span aria-hidden="true">↗</span></a>
+                      <button id="btn-download-student-report" class="task-action download-report-btn" type="button" hidden>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span id="label-download-student-report">Download Report (.PDF)</span>
+                      </button>
+                    </div>
                   </div>
 
                   <div id="prep-lookup-feedback" class="lookup-feedback-banner" role="status" hidden></div>
@@ -162,7 +179,7 @@
 
                   <div class="step-actions step-actions-end">
                     <button id="btn-start-task2" class="button primary start-appt-btn" type="button" disabled title="Enter a valid student @ensign.edu email to continue">
-                      <span>Begin Screen 2: Appointment →</span>
+                      <span>Begin 2: Appointment →</span>
                     </button>
                   </div>
                 </div>
@@ -175,7 +192,7 @@
             <div class="page-heading">
               <div class="heading-content-with-action">
                 <div>
-                  <p id="step-eyebrow" class="eyebrow appointment-label">SCREEN 2: APPOINTMENT</p>
+                  <p id="step-eyebrow" class="eyebrow appointment-label">2: APPOINTMENT</p>
                   <h1 id="step-title">Student Appointment Workspace</h1>
                   <p id="step-description" class="page-description">Welcome the student, confirm major and career direction, discuss internship requirements, and record session notes.</p>
                 </div>
@@ -193,31 +210,6 @@
                 <div class="section-heading compact">
                   <div><p class="eyebrow">Session details</p><h2 id="student-heading">Who are you meeting?</h2></div>
                   <span class="optional-label">Non-sensitive details only</span>
-                </div>
-
-                <!-- Status Badges Row (Career Explorer & Ensign Connect) MOVED TO THE TOP -->
-                <div class="status-badges-row top-status-badges" id="session-status-badges">
-                  <div class="status-badge-item">
-                    <span class="badge-label">Career Explorer:</span>
-                    <span id="badge-career-explorer" class="status-pill gray">Not checked</span>
-                  </div>
-                  <div class="status-badge-item">
-                    <span class="badge-label">Ensign Connect:</span>
-                    <span id="badge-ensign-connect" class="status-pill yellow">Not checked</span>
-                  </div>
-                  <div class="status-badge-links">
-                    <a
-                      id="career-explorer-direct-link"
-                      class="confidence-career-link"
-                      href="https://ensign.pathwayu.com/login?next=%2Fresults"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >Open Career Explorer <span aria-hidden="true">↗</span></a>
-                    <button id="btn-download-student-report" class="task-action download-report-btn" type="button" hidden>
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                      <span id="label-download-student-report">Download Report (.PDF)</span>
-                    </button>
-                  </div>
                 </div>
 
                 <!-- Suggested Action Recommendation Banner -->

@@ -35,10 +35,9 @@ const WORKFLOW = [
     title: 'Plan and wrap up',
     description: 'Build the internship plan, choose the next appointment, and close the appointment.',
     tasks: [
-      { id: 'internship-requirement', group: 'Internship plan', title: 'Explain the internship requirement', detail: 'The internship should relate to the student\'s major, with the paired internship course taken at the same time. Encourage taking CAR 201 early.', action: { label: 'Open Internship Expert', url: '/internship/' } },
+      { id: 'internship-requirement', group: 'Internship plan', title: 'Explain the internship requirement', detail: 'The internship should relate to the student\'s major, with the paired internship course taken at the same time. Encourage taking CAR 201 early.' },
       { id: 'internship-timeline', group: 'Internship plan', title: 'Talk timing and options', detail: 'Large companies recruit 6–9 months ahead. For on-campus students, CAR 398 PBWE gives project experience; certificates strengthen readiness.' },
-      { id: 'internship-international', group: 'Internship plan', title: 'International students only: verify the rules', detail: 'Do not give immigration advice. Help the student verify vacation-semester and work-authorization rules.', action: { label: 'International Student Office', url: 'https://www.ensign.edu/international-students' } },
-      { id: 'close-confidence', group: 'Close', inline: 'confidence', title: 'Re-check career confidence (1–10)', detail: 'Ask how confident the student feels now and move the slider.' },
+      { id: 'internship-international', group: 'Internship plan', title: 'International students only: verify the rules', detail: 'Do not give immigration advice. Help the student verify vacation-semester and work-authorization rules.' },
       { id: 'career-followup', group: 'Close', inline: 'suggestion', title: 'Choose the next appointment', detail: 'Still exploring: plan a Career Explorer appointment. Confident: plan Create Resume and show Roadmap 2, Steps 1–5.' },
       { id: 'close-selfie', group: 'Close', title: 'Take the appointment selfie', detail: 'Follow the Appointment 1a practice and get the student\'s consent first.' }
     ],
@@ -537,7 +536,7 @@ function renderWorkflow() {
 
   const task1Header = document.createElement('div');
   task1Header.className = 'sidebar-task-title';
-  task1Header.innerHTML = `<span>Screen 1: PREPARE</span><small>${state.currentTask === 'prepare' ? 'Active' : ''}</small>`;
+  task1Header.innerHTML = '<span>1. PREPARE</span>';
   nav.appendChild(task1Header);
 
   PREPARE_STEPS.forEach((step, idx) => {
@@ -557,7 +556,7 @@ function renderWorkflow() {
 
   const task2Header = document.createElement('div');
   task2Header.className = 'sidebar-task-title';
-  task2Header.innerHTML = `<span>Screen 2: APPOINTMENT</span><small>${state.currentTask === 'appointment' ? 'Active' : ''}</small>`;
+  task2Header.innerHTML = '<span>2: APPOINTMENT</span>';
   nav.appendChild(task2Header);
 
   const btn = document.createElement('button');
@@ -633,7 +632,7 @@ function renderAppointmentWorkspace() {
   renderStatusBadges();
 
   const eyebrow = $('#step-eyebrow');
-  if (eyebrow) eyebrow.textContent = 'SCREEN 2: APPOINTMENT';
+  if (eyebrow) eyebrow.textContent = '2: APPOINTMENT';
   const title = $('#step-title');
   if (title) title.textContent = 'Student Appointment Workspace';
   const desc = $('#step-description');
@@ -737,19 +736,30 @@ function bindTaskInlineControl(item, task) {
 
 function confidenceSuggestion() {
   const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
-  if (!engaged) return 'Set confidence above to see a suggestion. You and the student decide.';
+  if (!engaged) return 'Set career confidence (1–10) using the slider above to see recommendation. You and the student decide.';
   const c = Number(state.student.confidence);
-  const pick = c <= 5 ? 'Career Explorer appointment' : c <= 7 ? 'discuss both options' : 'Create Resume appointment';
-  return `Suggested: ${pick}. You and the student decide.`;
+  if (c <= 5) {
+    return `<strong>Suggested Next Appointment: Career Explorer</strong> (Confidence ${c}/10 — Still exploring). You and the student decide.`;
+  } else if (c <= 7) {
+    return `<strong>Suggested Next Appointment: Discuss both options</strong> (Confidence ${c}/10 — Clarify direction, then choose Career Explorer or Create Resume). You and the student decide.`;
+  } else {
+    return `<strong>Suggested Next Appointment: Create Resume</strong> (Confidence ${c}/10 — Confident, show Roadmap 2 Steps 1–5). You and the student decide.`;
+  }
 }
 
 function updateRecommendation() {
-  $$('.task-suggestion').forEach(el => { el.textContent = confidenceSuggestion(); });
+  const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
+  const confidence = Number(state.student.confidence);
+
+  $$('.task-suggestion').forEach(el => {
+    el.innerHTML = confidenceSuggestion();
+    el.className = 'task-suggestion ' + (!engaged ? 'suggestion-unengaged' : confidence <= 5 ? 'suggestion-low' : confidence <= 7 ? 'suggestion-medium' : 'suggestion-high');
+  });
+
   const recommendationElement = $('#followup-recommendation');
   if (!recommendationElement) return;
 
   const out = $('#confidence-output');
-  const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
 
   if (!engaged) {
     if (out) out.textContent = 'Not set';
@@ -758,7 +768,6 @@ function updateRecommendation() {
     return;
   }
 
-  const confidence = Number(state.student.confidence);
   if (out) out.textContent = `${confidence}/10`;
 
   const recommendationTone = confidence <= 5
@@ -766,10 +775,10 @@ function updateRecommendation() {
     : confidence <= 7 ? 'recommendation-medium' : 'recommendation-high';
 
   const recommendation = confidence <= 5
-    ? 'The student may benefit from a Career Explorer follow-up after completing the Career Explorer roadmap.'
+    ? '<strong>Career Explorer:</strong> Help the student explore career options and complete their Career Explorer assessments.'
     : confidence <= 7
       ? '<strong>Discuss both options:</strong> Clarify the student’s career direction, then choose Career Explorer or Create Resume together.'
-      : 'If the student remains confident after discussion, consider a Create Resume appointment.';
+      : '<strong>Create Resume:</strong> If the student remains confident after discussion, plan a Create Resume appointment.';
 
   recommendationElement.className = `recommendation ${recommendationTone}`;
   recommendationElement.innerHTML = `<div class="recommendation-label">Suggested Action:</div><div class="recommendation-content"><div class="recommendation-guidance">${recommendation}</div><span class="recommendation-note">The mentor makes the final decision with the student.</span></div>`;
@@ -831,13 +840,15 @@ function bindSessionFields() {
 
   const confSlider = $('#career-confidence');
   if (confSlider) {
-    confSlider.addEventListener('change', () => {
+    const handleSlider = () => {
       state.student.confidence = confSlider.value;
       state.student.confidenceEngaged = true;
       updateRecommendation();
       renderWorkflow();
       persistState();
-    });
+    };
+    confSlider.addEventListener('input', handleSlider);
+    confSlider.addEventListener('change', handleSlider);
   }
 
   const roadmapSel = $('#roadmap-status');
@@ -1011,6 +1022,7 @@ async function applyReadinessProjection(projection) {
 
   renderAssessmentCards();
   renderReadinessFreshness(projection);
+  if (typeof renderStatusBadges === 'function') renderStatusBadges();
 
   if (projection.record_status === 'not_found') {
     showLookupFeedback(

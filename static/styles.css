@@ -1555,7 +1555,10 @@ input[type="checkbox"], input[type="radio"] { flex: 0 0 var(--touch-min); min-wi
 .task-confidence { display: grid; gap: 6px; margin-top: 10px; max-width: 420px; font-size: var(--text-caption); color: var(--ink); }
 .task-confidence-output { font-weight: 700; }
 .task-confidence-input { width: 100%; min-height: var(--touch-min); accent-color: var(--brand); }
-.task-suggestion { margin: 8px 0 0; padding: 8px 12px; border-left: 3px solid var(--brand); border-radius: 6px; background: var(--brand-tint); color: var(--ink); font-size: var(--text-caption); }
+.task-suggestion { margin: 8px 0 0; padding: 8px 12px; border-left: 3px solid var(--brand); border-radius: 6px; background: var(--brand-tint); color: var(--ink); font-size: var(--text-caption); transition: border-color 0.2s ease, background 0.2s ease; }
+.task-suggestion.suggestion-low { border-left-color: #d97706; background: #fef3c7; color: #78350f; }
+.task-suggestion.suggestion-medium { border-left-color: #2563eb; background: #eff6ff; color: #1e3a8a; }
+.task-suggestion.suggestion-high { border-left-color: #16a34a; background: #dcfce7; color: #14532d; }
 /* ECC: 44px touch target for task checkboxes. The button is the target; ::before draws the 23px box. */
 .task-item { grid-template-columns: 44px minmax(0, 1fr); gap: 4px; }
 .task-check { position: relative; width: var(--touch-min); height: var(--touch-min); margin: -10px 0 -10px -10px; border: 0; border-radius: var(--radius-md); background: transparent; }
