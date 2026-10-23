@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'ens101-mentor-desk-appointment-1a-v4';
-const { ensurePermanentConversationTag } = window.NoteUtils;
+const { ensurePermanentConversationTag, appendConversationTag = ensurePermanentConversationTag } = window.NoteUtils;
 const ACTIVE_APPT_ID_KEY = 'ens101_active_appt_id';
 
 // Prepare is one step: the mentor enters the email and reads the executive summary.
@@ -94,7 +94,7 @@ const defaultState = () => ({
   },
   guidance: null,
   prepNotes: '',
-  sessionNotes: ensurePermanentConversationTag(''),
+  sessionNotes: '',
   studentNext: '',
   mentorFollow: '',
   checked: {},
@@ -189,7 +189,7 @@ async function loadAppointmentById(appId) {
         assessmentData: a.assessment_data && typeof a.assessment_data === 'object' ? a.assessment_data : defaultState().assessmentData,
         connectStatus: a.ensign_connect_status && typeof a.ensign_connect_status === 'object' ? a.ensign_connect_status : defaultState().connectStatus,
         prepNotes: a.prep_notes || '',
-        sessionNotes: ensurePermanentConversationTag(a.session_notes || ''),
+        sessionNotes: (a.session_notes || '').replace(/^#SSTEAM\s*\n?/i, ''),
         studentNext: a.student_next || '',
         mentorFollow: a.mentor_follow || '',
         checked: a.checked_tasks && typeof a.checked_tasks === 'object' ? a.checked_tasks : {},
@@ -233,7 +233,7 @@ function persistState() {
         assessment_data: state.assessmentData,
         ensign_connect_status: state.connectStatus,
         prep_notes: state.prepNotes,
-        session_notes: ensurePermanentConversationTag(state.sessionNotes),
+        session_notes: state.sessionNotes || '',
         student_next: state.studentNext,
         mentor_follow: state.mentorFollow,
         checked_tasks: state.checked,
@@ -650,9 +650,9 @@ function renderAppointmentWorkspace() {
   }
   const nextBtn = $('#next-step');
   if (nextBtn) {
-    nextBtn.textContent = 'Log Civitas & Complete';
+    nextBtn.textContent = 'Civitas Note Entered. Close this Appointment';
     nextBtn.disabled = !state.civitasRecorded;
-    nextBtn.title = state.civitasRecorded ? 'Complete appointment and delete local student record' : 'Confirm Civitas recording below before completing';
+    nextBtn.title = state.civitasRecorded ? 'Close appointment and complete session' : 'Confirm Civitas recording below before closing';
   }
 
   const list = $('#task-list');
@@ -700,37 +700,45 @@ function renderAppointmentWorkspace() {
 
 // Inline controls for tasks on the merged Plan and wrap up step.
 function taskInlineControl(task) {
-  if (task.inline === 'confidence') {
+  if (task.inline === 'confidence' || task.inline === 'suggestion' || task.id === 'career-followup') {
     const value = state.student.confidence !== '' ? state.student.confidence : '5';
     const shown = state.student.confidenceEngaged && state.student.confidence !== '' ? `${state.student.confidence}/10` : 'Not set';
-    return `<label class="task-confidence"><span>Confidence now: <output class="task-confidence-output">${shown}</output></span><input class="task-confidence-input" type="range" min="1" max="10" step="1" value="${value}" aria-label="Career confidence from 1 to 10"></label>`;
-  }
-  if (task.inline === 'suggestion') {
-    return `<p class="task-suggestion" aria-live="polite">${confidenceSuggestion()}</p>`;
+    const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
+    const c = Number(value);
+    const tone = !engaged ? 'unengaged' : c <= 5 ? 'low' : c <= 7 ? 'medium' : 'high';
+
+    return `<div class="task-confidence-block confidence-${tone}">
+      <label class="task-confidence">
+        <span>Career confidence 1/10 <small class="confidence-hint">(1=Low, 10=Very Confident)</small>: <output class="task-confidence-output" for="career-confidence-inline">${shown}</output></span>
+        <input class="task-confidence-input" id="career-confidence-inline" type="range" min="1" max="10" step="1" value="${value}" aria-label="Career confidence from 1 to 10" style="--confidence-val: ${value}">
+      </label>
+    </div>
+    <p class="task-suggestion suggestion-${tone}" aria-live="polite">${confidenceSuggestion()}</p>`;
   }
   return '';
 }
 
 function bindTaskInlineControl(item, task) {
-  if (task.inline !== 'confidence') return;
+  if (task.inline !== 'confidence' && task.inline !== 'suggestion' && task.id !== 'career-followup') return;
   const input = item.querySelector('.task-confidence-input');
   if (!input) return;
-  // Update in place while dragging; re-rendering the list would end the drag.
-  input.addEventListener('input', () => {
+  const syncInlineSlider = () => {
     state.student.confidence = input.value;
     state.student.confidenceEngaged = true;
-    const out = item.querySelector('.task-confidence-output');
-    if (out) out.textContent = `${input.value}/10`;
     const sessionSlider = $('#career-confidence');
-    if (sessionSlider) sessionSlider.value = input.value;
+    if (sessionSlider && sessionSlider.value !== input.value) {
+      sessionSlider.value = input.value;
+    }
     updateRecommendation();
     persistState();
-  });
+  };
+  input.addEventListener('input', syncInlineSlider);
+  input.addEventListener('change', syncInlineSlider);
 }
 
 function confidenceSuggestion() {
   const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
-  if (!engaged) return 'Set career confidence (1–10) using the slider above to see recommendation. You and the student decide.';
+  if (!engaged) return 'Set career confidence (1–10) using either slider to see recommendation. You and the student decide.';
   const c = Number(state.student.confidence);
   if (c <= 5) {
     return `<strong>Suggested Next Appointment: Career Explorer</strong> (Confidence ${c}/10 — Still exploring). You and the student decide.`;
@@ -743,39 +751,62 @@ function confidenceSuggestion() {
 
 function updateRecommendation() {
   const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
-  const confidence = Number(state.student.confidence);
+  const confidence = Number(state.student.confidence !== '' ? state.student.confidence : 5);
+  const tone = !engaged ? 'unengaged' : confidence <= 5 ? 'low' : confidence <= 7 ? 'medium' : 'high';
 
+  // 1. Update suggestion text and synchronized styling
   $$('.task-suggestion').forEach(el => {
     el.innerHTML = confidenceSuggestion();
-    el.className = 'task-suggestion ' + (!engaged ? 'suggestion-unengaged' : confidence <= 5 ? 'suggestion-low' : confidence <= 7 ? 'suggestion-medium' : 'suggestion-high');
+    el.className = `task-suggestion suggestion-${tone}`;
   });
 
-  const recommendationElement = $('#followup-recommendation');
-  if (!recommendationElement) return;
+  // 2. Synchronize top slider output, style, and value
+  const topOut = $('#confidence-output');
+  if (topOut) topOut.textContent = engaged ? `${confidence}/10` : 'Not set';
 
-  const out = $('#confidence-output');
-
-  if (!engaged) {
-    if (out) out.textContent = 'Not set';
-    recommendationElement.className = 'recommendation recommendation-unengaged';
-    recommendationElement.innerHTML = `<div class="recommendation-label">Suggested Action:</div><div class="recommendation-content"><div class="recommendation-guidance">Assess the student’s career confidence (1–10) using the slider above to determine the recommended action.</div><span class="recommendation-note">The mentor makes the final decision with the student.</span></div>`;
-    return;
+  const confField = $('.confidence-field');
+  if (confField) {
+    confField.classList.remove('confidence-unengaged', 'confidence-low', 'confidence-medium', 'confidence-high');
+    confField.classList.add(`confidence-${tone}`);
+  }
+  const topSlider = $('#career-confidence');
+  if (topSlider) {
+    if (topSlider.value !== String(confidence)) topSlider.value = String(confidence);
+    topSlider.style.setProperty('--confidence-val', String(confidence));
   }
 
-  if (out) out.textContent = `${confidence}/10`;
+  // 3. Synchronize mirrored inline slider output, style, and value
+  $$('.task-confidence-block').forEach(block => {
+    block.classList.remove('confidence-unengaged', 'confidence-low', 'confidence-medium', 'confidence-high');
+    block.classList.add(`confidence-${tone}`);
+  });
+  $$('.task-confidence-output').forEach(output => {
+    output.textContent = engaged ? `${confidence}/10` : 'Not set';
+  });
+  const inlineSlider = $('#career-confidence-inline');
+  if (inlineSlider) {
+    if (inlineSlider.value !== String(confidence)) inlineSlider.value = String(confidence);
+    inlineSlider.style.setProperty('--confidence-val', String(confidence));
+  }
 
-  const recommendationTone = confidence <= 5
-    ? 'recommendation-low'
-    : confidence <= 7 ? 'recommendation-medium' : 'recommendation-high';
+  // 4. Update top recommendation banner if present
+  const recommendationElement = $('#followup-recommendation');
+  if (recommendationElement) {
+    if (!engaged) {
+      recommendationElement.className = 'recommendation recommendation-unengaged';
+      recommendationElement.innerHTML = `<div class="recommendation-label">Suggested Action:</div><div class="recommendation-content"><div class="recommendation-guidance">Assess the student’s career confidence (1–10) using either slider to determine the recommended action.</div><span class="recommendation-note">The mentor makes the final decision with the student.</span></div>`;
+      return;
+    }
 
-  const recommendation = confidence <= 5
-    ? '<strong>Career Explorer:</strong> Help the student explore career options and complete their Career Explorer assessments.'
-    : confidence <= 7
-      ? '<strong>Discuss both options:</strong> Clarify the student’s career direction, then choose Career Explorer or Create Resume together.'
-      : '<strong>Create Resume:</strong> If the student remains confident after discussion, plan a Create Resume appointment.';
+    const recommendation = confidence <= 5
+      ? '<strong>Career Explorer:</strong> Help the student explore career options and complete their Career Explorer assessments.'
+      : confidence <= 7
+        ? '<strong>Discuss both options:</strong> Clarify the student’s career direction, then choose Career Explorer or Create Resume together.'
+        : '<strong>Create Resume:</strong> If the student remains confident after discussion, plan a Create Resume appointment.';
 
-  recommendationElement.className = `recommendation ${recommendationTone}`;
-  recommendationElement.innerHTML = `<div class="recommendation-label">Suggested Action:</div><div class="recommendation-content"><div class="recommendation-guidance">${recommendation}</div><span class="recommendation-note">The mentor makes the final decision with the student.</span></div>`;
+    recommendationElement.className = `recommendation recommendation-${tone}`;
+    recommendationElement.innerHTML = `<div class="recommendation-label">Suggested Action:</div><div class="recommendation-content"><div class="recommendation-guidance">${recommendation}</div><span class="recommendation-note">The mentor makes the final decision with the student.</span></div>`;
+  }
 }
 
 function syncInputsFromState() {
@@ -792,8 +823,7 @@ function syncInputsFromState() {
   if ($('#career-confidence')) $('#career-confidence').value = state.student.confidence;
   if ($('#roadmap-status')) $('#roadmap-status').value = state.student.roadmap;
   if ($('#followup-track')) $('#followup-track').value = state.student.followup;
-  state.sessionNotes = ensurePermanentConversationTag(state.sessionNotes);
-  if ($('#session-notes')) $('#session-notes').value = state.sessionNotes;
+  if ($('#session-notes')) $('#session-notes').value = state.sessionNotes || '';
   if ($('#student-next-step')) $('#student-next-step').value = state.studentNext;
 
   updateRecommendation();
@@ -805,8 +835,7 @@ function bindSessionFields() {
     [['#prep-student-name', '#student-name'], 'name'],
     [['#prep-student-email'], 'email'],
     [['#prep-student-program', '#student-program'], 'program'],
-    [['#prep-career-direction', '#career-direction'], 'career'],
-    [['#career-confidence'], 'confidence']
+    [['#prep-career-direction', '#career-direction'], 'career']
   ];
 
   syncPairs.forEach(([selectors, key]) => {
@@ -822,11 +851,6 @@ function bindSessionFields() {
           const otherEl = $(otherSel);
           if (otherEl && otherEl !== el) otherEl.value = el.value;
         });
-        if (key === 'confidence') {
-          state.student.confidenceEngaged = true;
-          updateRecommendation();
-          renderWorkflow();
-        }
         persistState();
       });
     });
@@ -837,8 +861,11 @@ function bindSessionFields() {
     const handleSlider = () => {
       state.student.confidence = confSlider.value;
       state.student.confidenceEngaged = true;
+      const inlineSlider = $('#career-confidence-inline');
+      if (inlineSlider && inlineSlider.value !== confSlider.value) {
+        inlineSlider.value = confSlider.value;
+      }
       updateRecommendation();
-      renderWorkflow();
       persistState();
     };
     confSlider.addEventListener('input', handleSlider);
@@ -877,16 +904,6 @@ function bindSessionFields() {
     const el = $(sel);
     if (!el) return;
     el.addEventListener('input', () => {
-      if (key === 'sessionNotes') {
-        const cursor = el.selectionStart;
-        const normalized = ensurePermanentConversationTag(el.value);
-        if (normalized !== el.value) {
-          const offset = normalized.length - el.value.length;
-          el.value = normalized;
-          const nextCursor = Math.max('#SSTEAM'.length, cursor + offset);
-          el.setSelectionRange(nextCursor, nextCursor);
-        }
-      }
       state[key] = el.value;
       persistState();
     });
@@ -1795,7 +1812,7 @@ function bindEvents() {
   });
 
   $('#btn-copy-civitas')?.addEventListener('click', () => {
-    copyText(buildCivitasNote(), 'Civitas Advising Note copied to clipboard!');
+    copyText(buildCivitasNote(), 'Civitas Advising Note prepared and copied to clipboard!');
   });
 
   $('#civitas-confirm-checkbox')?.addEventListener('change', (e) => {

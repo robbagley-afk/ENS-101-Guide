@@ -190,18 +190,20 @@
           <!-- SCREEN 2: APPOINTMENT SCREEN -->
           <section id="appointment-view" class="view" aria-label="Appointment workspace">
             <div class="page-heading">
-              <div class="heading-content-with-action">
-                <div>
-                  <p id="step-eyebrow" class="eyebrow appointment-label">2: APPOINTMENT</p>
+              <div class="heading-content">
+                <p id="step-eyebrow" class="eyebrow appointment-label">2: APPOINTMENT</p>
+                <div class="step-title-row">
                   <h1 id="step-title">Student Appointment Workspace</h1>
                   <p id="step-description" class="page-description">Welcome the student, confirm major and career direction, discuss internship requirements, and record session notes.</p>
                 </div>
+              </div>
+              <div class="heading-actions">
                 <button id="btn-back-to-prep" class="button secondary view-prep-btn" type="button">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
                   <span>Review Prepare Summary</span>
                 </button>
+                <span id="step-duration" class="duration-chip">Suggested time · 15–20 min</span>
               </div>
-              <span id="step-duration" class="duration-chip">Suggested time · 15–20 min</span>
             </div>
 
             <!-- TASK 2: APPOINTMENT WORKSPACE -->
@@ -236,7 +238,7 @@
                     <div id="task-list" class="task-list"></div>
                     <div class="step-actions">
                       <button id="previous-step" class="button secondary" type="button">← Back to Prepare</button>
-                      <button id="next-step" class="button primary" type="button">Log Civitas &amp; Complete</button>
+                      <button id="next-step" class="button primary" type="button" disabled>Civitas Note Entered. Close this Appointment</button>
                     </div>
                   </section>
 
@@ -251,7 +253,7 @@
                       </div>
                       <button id="btn-copy-civitas" class="button secondary small" type="button">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
-                        <span>Copy Civitas Note</span>
+                        <span>Prepare Civitas Note</span>
                       </button>
                     </div>
                     <div class="civitas-confirmation-box">

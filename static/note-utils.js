@@ -5,16 +5,20 @@
 })(typeof window !== 'undefined' ? window : globalThis, () => {
   const CONVERSATION_NOTE_TAG = '#SSTEAM';
 
-  function ensurePermanentConversationTag(value = '') {
-    const body = String(value ?? '')
-      .replace(/\r\n/g, '\n')
+  function appendConversationTag(value = '') {
+    const raw = String(value ?? '').replace(/\r\n/g, '\n');
+    const body = raw
       .split('\n')
       .filter(line => line.trim() !== CONVERSATION_NOTE_TAG)
       .join('\n')
-      .replace(/^\n+|\n+$/g, '');
+      .trim();
 
-    return body ? `${CONVERSATION_NOTE_TAG}\n${body}` : CONVERSATION_NOTE_TAG;
+    return body ? `${body}\n\n${CONVERSATION_NOTE_TAG}` : CONVERSATION_NOTE_TAG;
   }
 
-  return { CONVERSATION_NOTE_TAG, ensurePermanentConversationTag };
+  return {
+    CONVERSATION_NOTE_TAG,
+    appendConversationTag,
+    ensurePermanentConversationTag: appendConversationTag
+  };
 });

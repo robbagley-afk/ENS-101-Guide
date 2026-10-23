@@ -209,6 +209,9 @@ svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-wi
 .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 23px; }
 .page-heading h1 { margin: 0; color: var(--navy-950); font-size: clamp(28px, 3vw, 38px); line-height: 1.16; font-weight: 650; letter-spacing: -.02em; }
 .page-description { max-width: 730px; margin: 9px 0 0; color: var(--muted); line-height: 1.6; }
+.heading-content { min-width: 0; flex: 1; }
+.heading-actions { display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0; }
+#appointment-view .page-heading h1 { font-size: clamp(22px, 2.2vw, 28px); white-space: nowrap; }
 .duration-chip { flex: 0 0 auto; display: inline-flex; align-items: center; padding: 7px 11px; border: 1px solid #d8e0e5; border-radius: 20px; color: var(--muted); background: #fff; font-size: var(--text-caption); font-weight: 700; }
 .card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
 .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
@@ -224,11 +227,177 @@ input, select { height: 42px; padding: 0 11px; }
 textarea { padding: 11px 12px; resize: vertical; line-height: 1.5; }
 input::placeholder, textarea::placeholder { color: #9aa5ae; }
 input:focus, select:focus, textarea:focus { outline: var(--focus-ring); outline-offset: var(--focus-offset); border-color: var(--navy-700); box-shadow: 0 0 0 3px rgba(0,102,69,.25); }
-.confidence-field input { padding: 0; accent-color: var(--navy-700); cursor: pointer; appearance: none; -webkit-appearance: none; height: 6px; border-radius: 3px; border: none; background: linear-gradient(to right, #ef4444, #eab308, #22c55e); outline: none; }
-.confidence-field input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--navy-700); cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
-.confidence-field input::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--navy-700); cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
-.confidence-field input::-webkit-slider-runnable-track { background: linear-gradient(to right, #ef4444, #eab308, #22c55e); border-radius: 3px; height: 6px; }
-.confidence-field input::-moz-range-track { background: linear-gradient(to right, #ef4444, #eab308, #22c55e); border-radius: 3px; height: 6px; border: none; }
+/* Header Title Row: places description alongside Student Appointment Workspace */
+.step-title-row { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-top: 4px; }
+.step-title-row .page-description { margin: 0; font-size: var(--text-body, 14px); color: var(--ink-muted); line-height: 1.4; flex: 1 1 320px; }
+
+/* Confidence Slider & Mirrored Inline Slider (Synchronized with appointment recommendations) */
+.confidence-field input[type="range"],
+.task-confidence-block input[type="range"] {
+  padding: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  border: none;
+  background: #cbd5e1;
+  outline: none;
+  min-height: var(--touch-min);
+  transition: background 0.2s ease;
+}
+
+.confidence-field input[type="range"]::-webkit-slider-thumb,
+.task-confidence-block input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--navy-700);
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  margin-top: -7px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.confidence-field input[type="range"]::-moz-range-thumb,
+.task-confidence-block input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--navy-700);
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  transition: background 0.2s ease;
+}
+
+.confidence-field input[type="range"]::-webkit-slider-runnable-track,
+.task-confidence-block input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: #cbd5e1;
+  transition: background 0.2s ease;
+}
+.confidence-field input[type="range"]::-moz-range-track,
+.task-confidence-block input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  border: none;
+  background: #cbd5e1;
+  transition: background 0.2s ease;
+}
+
+/* Synchronized Color: Low (1–5 Amber: Career Explorer) */
+.confidence-field.confidence-low input[type="range"],
+.task-confidence-block.confidence-low input[type="range"] {
+  accent-color: #d97706;
+}
+.confidence-field.confidence-low input[type="range"]::-webkit-slider-runnable-track,
+.task-confidence-block.confidence-low input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #d97706 0%, #d97706 calc((var(--confidence-val, 5) - 1) * 11.11%), #fde68a calc((var(--confidence-val, 5) - 1) * 11.11%), #fde68a 100%);
+}
+.confidence-field.confidence-low input[type="range"]::-moz-range-track,
+.task-confidence-block.confidence-low input[type="range"]::-moz-range-track {
+  background: linear-gradient(to right, #d97706 0%, #d97706 calc((var(--confidence-val, 5) - 1) * 11.11%), #fde68a calc((var(--confidence-val, 5) - 1) * 11.11%), #fde68a 100%);
+}
+.confidence-field.confidence-low input[type="range"]::-webkit-slider-thumb,
+.task-confidence-block.confidence-low input[type="range"]::-webkit-slider-thumb {
+  background: #d97706;
+}
+.confidence-field.confidence-low input[type="range"]::-moz-range-thumb,
+.task-confidence-block.confidence-low input[type="range"]::-moz-range-thumb {
+  background: #d97706;
+}
+.confidence-field.confidence-low output,
+.task-confidence-block.confidence-low .task-confidence-output {
+  color: #b45309;
+}
+
+/* Synchronized Color: Medium (6–7 Blue: Discuss both options) */
+.confidence-field.confidence-medium input[type="range"],
+.task-confidence-block.confidence-medium input[type="range"] {
+  accent-color: #2563eb;
+}
+.confidence-field.confidence-medium input[type="range"]::-webkit-slider-runnable-track,
+.task-confidence-block.confidence-medium input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #2563eb 0%, #2563eb calc((var(--confidence-val, 6) - 1) * 11.11%), #bfdbfe calc((var(--confidence-val, 6) - 1) * 11.11%), #bfdbfe 100%);
+}
+.confidence-field.confidence-medium input[type="range"]::-moz-range-track,
+.task-confidence-block.confidence-medium input[type="range"]::-moz-range-track {
+  background: linear-gradient(to right, #2563eb 0%, #2563eb calc((var(--confidence-val, 6) - 1) * 11.11%), #bfdbfe calc((var(--confidence-val, 6) - 1) * 11.11%), #bfdbfe 100%);
+}
+.confidence-field.confidence-medium input[type="range"]::-webkit-slider-thumb,
+.task-confidence-block.confidence-medium input[type="range"]::-webkit-slider-thumb {
+  background: #2563eb;
+}
+.confidence-field.confidence-medium input[type="range"]::-moz-range-thumb,
+.task-confidence-block.confidence-medium input[type="range"]::-moz-range-thumb {
+  background: #2563eb;
+}
+.confidence-field.confidence-medium output,
+.task-confidence-block.confidence-medium .task-confidence-output {
+  color: #1d4ed8;
+}
+
+/* Synchronized Color: High (8–10 Green: Create Resume) */
+.confidence-field.confidence-high input[type="range"],
+.task-confidence-block.confidence-high input[type="range"] {
+  accent-color: #16a34a;
+}
+.confidence-field.confidence-high input[type="range"]::-webkit-slider-runnable-track,
+.task-confidence-block.confidence-high input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #16a34a 0%, #16a34a calc((var(--confidence-val, 8) - 1) * 11.11%), #bbf7d0 calc((var(--confidence-val, 8) - 1) * 11.11%), #bbf7d0 100%);
+}
+.confidence-field.confidence-high input[type="range"]::-moz-range-track,
+.task-confidence-block.confidence-high input[type="range"]::-moz-range-track {
+  background: linear-gradient(to right, #16a34a 0%, #16a34a calc((var(--confidence-val, 8) - 1) * 11.11%), #bbf7d0 calc((var(--confidence-val, 8) - 1) * 11.11%), #bbf7d0 100%);
+}
+.confidence-field.confidence-high input[type="range"]::-webkit-slider-thumb,
+.task-confidence-block.confidence-high input[type="range"]::-webkit-slider-thumb {
+  background: #16a34a;
+}
+.confidence-field.confidence-high input[type="range"]::-moz-range-thumb,
+.task-confidence-block.confidence-high input[type="range"]::-moz-range-thumb {
+  background: #16a34a;
+}
+.confidence-field.confidence-high output,
+.task-confidence-block.confidence-high .task-confidence-output {
+  color: #15803d;
+}
+
+/* Mirrored Slider Block inside Choose the next appointment */
+.task-confidence-block {
+  margin: 10px 0 6px;
+  padding: 10px 14px;
+  background: var(--surface-hover, #f8fafc);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.task-confidence-block.confidence-low {
+  border-color: #fcd34d;
+  background: #fffbeb;
+}
+.task-confidence-block.confidence-medium {
+  border-color: #93c5fd;
+  background: #f0f7ff;
+}
+.task-confidence-block.confidence-high {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+.task-confidence-block .task-confidence {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  max-width: 100%;
+}
+.task-confidence-block .task-confidence-output {
+  font-weight: 750;
+}
+
 .confidence-field output { color: var(--navy-800); font-weight: 850; }
 .confidence-hint { font-size: var(--text-caption); font-weight: 400; color: var(--navy-400, #6b7a8d); margin-left: 2px; }
 .confidence-career-link {
