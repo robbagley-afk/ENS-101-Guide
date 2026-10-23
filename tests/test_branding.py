@@ -57,7 +57,7 @@ class BrandingTests(unittest.TestCase):
 
         self.assertIn(
             '<strong>ENS 101 Guide</strong>'
-            '<span class="ces-version-tag" aria-label="Version 1.0">v1.0</span>',
+            '<span class="ens101-version" aria-label="Version 1.0">v1.0</span>',
             page_source,
         )
         self.assertNotIn("ENS 101 App", page_source)

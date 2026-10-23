@@ -481,6 +481,22 @@ function renderStatusBadges() {
   }
 }
 
+function scrollToTop() {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: reduceMotion ? 'instant' : 'smooth' });
+}
+
+function setEmailError(input, shown) {
+  if (!input) return;
+  if (shown) {
+    input.setAttribute('aria-invalid', 'true');
+    input.setAttribute('aria-describedby', 'prep-email-error');
+  } else {
+    input.removeAttribute('aria-invalid');
+    input.removeAttribute('aria-describedby');
+  }
+}
+
 function validatePrepStep1(showError = false) {
   const emailInput = $('#prep-student-email');
   const errorMsg = $('#prep-email-error');
@@ -503,6 +519,8 @@ function validatePrepStep1(showError = false) {
     if (emailInput) emailInput.classList.remove('required-incomplete');
     if (errorMsg) errorMsg.hidden = true;
   }
+
+  setEmailError(emailInput, Boolean(errorMsg) && !errorMsg.hidden);
 
   if (btnStep2) {
     btnStep2.disabled = !isValid;
@@ -529,13 +547,14 @@ function renderWorkflow() {
 
     btn.type = 'button';
     btn.className = `workflow-button${isActive ? ' active' : ''}${isDone ? ' complete' : ''}`;
+    if (isActive) btn.setAttribute('aria-current', 'step');
     btn.innerHTML = `<span class="workflow-num">${isDone ? '✓' : idx + 1}</span><span class="workflow-label"><strong>${step.label}</strong><small>${step.short}</small></span>${isDone ? '<span class="workflow-check">✓</span>' : ''}`;
     btn.addEventListener('click', () => {
       state.currentTask = 'prepare';
       state.currentStep = idx;
       persistState();
       renderStep();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     });
     nav.appendChild(btn);
   });
@@ -554,13 +573,14 @@ function renderWorkflow() {
 
     btn.type = 'button';
     btn.className = `workflow-button${isActive ? ' active' : ''}${isDone ? ' complete' : ''}${idx === 0 ? ` ${confidenceTone}` : ''}`;
+    if (isActive) btn.setAttribute('aria-current', 'step');
     btn.innerHTML = `<span class="workflow-num">${isDone ? '✓' : idx + 1}</span><span class="workflow-label"><strong>${step.label}</strong><small>${step.short}</small></span>${isDone ? '<span class="workflow-check">✓</span>' : ''}`;
     btn.addEventListener('click', () => {
       state.currentTask = 'appointment';
       state.currentStep = idx;
       persistState();
       renderStep();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     });
     nav.appendChild(btn);
   });
@@ -1288,8 +1308,13 @@ function configureTopLinks() {
 
 function showView(viewName) {
   $$('.view').forEach(view => view.classList.toggle('active', view.id === `${viewName}-view`));
-  $$('.top-nav-button').forEach(button => button.classList.toggle('active', button.dataset.view === viewName));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  $$('.top-nav-button').forEach(button => {
+    const isActive = button.dataset.view === viewName;
+    button.classList.toggle('active', isActive);
+    if (isActive) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  });
+  scrollToTop();
 }
 
 function renderResources() {
@@ -1716,7 +1741,7 @@ function bindEvents() {
     state.currentStep = 0;
     persistState();
     renderStep();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
     showToast('Task 2: Begin Appointment started!');
   });
 
@@ -1725,7 +1750,7 @@ function bindEvents() {
       state.currentStep--;
       persistState();
       renderStep();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     }
   });
 
@@ -1734,7 +1759,7 @@ function bindEvents() {
       state.currentStep++;
       persistState();
       renderStep();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     } else {
       showToast(completedTasks() === totalTasks() ? 'Appointment workflow complete' : 'Review unfinished tasks before logging Civitas');
     }
