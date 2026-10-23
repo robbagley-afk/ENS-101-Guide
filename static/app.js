@@ -537,53 +537,43 @@ function renderWorkflow() {
 
   const task1Header = document.createElement('div');
   task1Header.className = 'sidebar-task-title';
-  task1Header.innerHTML = `<span>Task 1: PREPARE</span><small>${state.currentTask === 'prepare' ? 'Active' : ''}</small>`;
+  task1Header.innerHTML = `<span>Screen 1: PREPARE</span><small>${state.currentTask === 'prepare' ? 'Active' : ''}</small>`;
   nav.appendChild(task1Header);
 
   PREPARE_STEPS.forEach((step, idx) => {
     const btn = document.createElement('button');
-    const isActive = state.currentTask === 'prepare' && state.currentStep === idx;
-    const isDone = state.assessmentData?.completed_count > 0 || state.assessmentData?.status === 'complete';
+    const isActive = state.currentTask === 'prepare';
+    const isDone = Boolean(state.student.email && (state.assessmentData?.completed_count > 0 || state.assessmentData?.status === 'complete'));
 
     btn.type = 'button';
     btn.className = `workflow-button${isActive ? ' active' : ''}${isDone ? ' complete' : ''}`;
     if (isActive) btn.setAttribute('aria-current', 'step');
-    btn.innerHTML = `<span class="workflow-num">${isDone ? '✓' : idx + 1}</span><span class="workflow-label"><strong>${step.label}</strong><small>${step.short}</small></span>${isDone ? '<span class="workflow-check">✓</span>' : ''}`;
+    btn.innerHTML = `<span class="workflow-num">${isDone ? '✓' : '1'}</span><span class="workflow-label"><strong>${step.label}</strong><small>${step.short}</small></span>${isDone ? '<span class="workflow-check">✓</span>' : ''}`;
     btn.addEventListener('click', () => {
-      state.currentTask = 'prepare';
-      state.currentStep = idx;
-      persistState();
-      renderStep();
-      scrollToTop();
+      showView('prepare');
     });
     nav.appendChild(btn);
   });
 
   const task2Header = document.createElement('div');
   task2Header.className = 'sidebar-task-title';
-  task2Header.innerHTML = `<span>Task 2: APPOINTMENT</span><small>${state.currentTask === 'appointment' ? 'Active' : ''}</small>`;
+  task2Header.innerHTML = `<span>Screen 2: APPOINTMENT</span><small>${state.currentTask === 'appointment' ? 'Active' : ''}</small>`;
   nav.appendChild(task2Header);
 
-  WORKFLOW.forEach((step, idx) => {
-    const btn = document.createElement('button');
-    const isActive = state.currentTask === 'appointment' && state.currentStep === idx;
-    const isDone = stepComplete(step);
-    const confidence = Number(state.student.confidence || 5);
-    const confidenceTone = confidence <= 5 ? 'confidence-low' : confidence <= 7 ? 'confidence-medium' : 'confidence-high';
+  const btn = document.createElement('button');
+  const isActive = state.currentTask === 'appointment';
+  const isDone = completedTasks() === totalTasks() && totalTasks() > 0;
+  const confidence = Number(state.student.confidence || 5);
+  const confidenceTone = confidence <= 5 ? 'confidence-low' : confidence <= 7 ? 'confidence-medium' : 'confidence-high';
 
-    btn.type = 'button';
-    btn.className = `workflow-button${isActive ? ' active' : ''}${isDone ? ' complete' : ''}${idx === 0 ? ` ${confidenceTone}` : ''}`;
-    if (isActive) btn.setAttribute('aria-current', 'step');
-    btn.innerHTML = `<span class="workflow-num">${isDone ? '✓' : idx + 1}</span><span class="workflow-label"><strong>${step.label}</strong><small>${step.short}</small></span>${isDone ? '<span class="workflow-check">✓</span>' : ''}`;
-    btn.addEventListener('click', () => {
-      state.currentTask = 'appointment';
-      state.currentStep = idx;
-      persistState();
-      renderStep();
-      scrollToTop();
-    });
-    nav.appendChild(btn);
+  btn.type = 'button';
+  btn.className = `workflow-button${isActive ? ' active' : ''}${isDone ? ' complete' : ''} ${confidenceTone}`;
+  if (isActive) btn.setAttribute('aria-current', 'step');
+  btn.innerHTML = `<span class="workflow-num">${isDone ? '✓' : '2'}</span><span class="workflow-label"><strong>Appointment</strong><small>${completedTasks()} of ${totalTasks()} complete</small></span>${isDone ? '<span class="workflow-check">✓</span>' : ''}`;
+  btn.addEventListener('click', () => {
+    showView('appointment');
   });
+  nav.appendChild(btn);
 
   renderProgress();
 }
@@ -591,7 +581,7 @@ function renderWorkflow() {
 function renderProgress() {
   const complete = completedTasks();
   const total = totalTasks();
-  const percentage = Math.round((complete / total) * 100);
+  const percentage = total > 0 ? Math.round((complete / total) * 100) : 0;
   const label = $('#progress-label');
   const count = $('#progress-count');
   const bar = $('#progress-bar');
@@ -602,11 +592,22 @@ function renderProgress() {
 
 function renderStep() {
   const isPrepare = state.currentTask === 'prepare';
+  const prepView = $('#prepare-view');
+  const apptView = $('#appointment-view');
   const prepWorkspace = $('#task1-prepare-workspace');
   const apptWorkspace = $('#task2-appointment-workspace');
 
+  if (prepView) prepView.classList.toggle('active', isPrepare);
+  if (apptView) apptView.classList.toggle('active', !isPrepare);
   if (prepWorkspace) prepWorkspace.hidden = !isPrepare;
   if (apptWorkspace) apptWorkspace.hidden = isPrepare;
+
+  $$('.top-nav-button').forEach(btn => {
+    const isCurrent = (isPrepare && btn.dataset.view === 'prepare') || (!isPrepare && btn.dataset.view === 'appointment');
+    btn.classList.toggle('active', isCurrent);
+    if (isCurrent) btn.setAttribute('aria-current', 'page');
+    else btn.removeAttribute('aria-current');
+  });
 
   if (isPrepare) {
     renderPrepareWorkspace();
@@ -619,80 +620,82 @@ function renderStep() {
 }
 
 function renderPrepareWorkspace() {
-  // The prepare card carries its own heading, so the page heading stays hidden here.
-  const heading = $('.page-heading');
-  if (heading) heading.hidden = true;
   renderAssessmentCards();
   validatePrepStep1(false);
+  renderStatusBadges();
 }
 
 function renderAppointmentWorkspace() {
-  const heading = $('.page-heading');
-  if (heading) heading.hidden = false;
   if ($('#student-email')) $('#student-email').value = state.student.email || '';
-  const stepIdx = state.currentStep;
-  const step = WORKFLOW[stepIdx] || WORKFLOW[0];
 
-  const showSessionDetails = stepIdx === 0;
   const sessionCard = $('#session-details-card');
-  if (sessionCard) sessionCard.hidden = !showSessionDetails;
+  if (sessionCard) sessionCard.hidden = false;
   renderStatusBadges();
 
   const eyebrow = $('#step-eyebrow');
-  if (eyebrow) eyebrow.textContent = `TASK 2: APPOINTMENT · STEP ${stepIdx + 1} OF ${WORKFLOW.length}`;
+  if (eyebrow) eyebrow.textContent = 'SCREEN 2: APPOINTMENT';
   const title = $('#step-title');
-  if (title) title.textContent = step.title;
+  if (title) title.textContent = 'Student Appointment Workspace';
   const desc = $('#step-description');
-  if (desc) desc.textContent = step.description;
+  if (desc) desc.textContent = 'Welcome the student, confirm major and career direction, discuss internship requirements, and record session notes.';
   const dur = $('#step-duration');
-  if (dur) dur.textContent = `Suggested time · ${step.duration}`;
+  if (dur) dur.textContent = 'Suggested time · 15–20 min';
   const kicker = $('#step-kicker');
-  if (kicker) kicker.textContent = `Step ${stepIdx + 1} of ${WORKFLOW.length}`;
+  if (kicker) kicker.textContent = 'Appointment Checklist';
 
   const prevBtn = $('#previous-step');
   if (prevBtn) {
-    prevBtn.disabled = stepIdx === 0;
-    prevBtn.style.visibility = stepIdx === 0 ? 'hidden' : 'visible';
+    prevBtn.disabled = false;
+    prevBtn.style.visibility = 'visible';
+    prevBtn.textContent = '← Back to Prepare';
   }
   const nextBtn = $('#next-step');
   if (nextBtn) {
-    nextBtn.textContent = stepIdx === WORKFLOW.length - 1 ? 'Finish appointment' : 'Continue';
+    nextBtn.textContent = 'Log Civitas & Complete';
   }
 
   const list = $('#task-list');
   if (list) {
     list.innerHTML = '';
     let currentGroup = null;
-    step.tasks.forEach(task => {
-      if (task.group && task.group !== currentGroup) {
-        currentGroup = task.group;
-        const groupHeading = document.createElement('p');
-        groupHeading.className = 'task-group-heading';
-        groupHeading.textContent = task.group;
-        list.appendChild(groupHeading);
-      }
-      const item = document.createElement('div');
-      const checked = Boolean(state.checked[task.id]);
-      item.className = `task-item${checked ? ' checked' : ''}`;
-      const action = task.action ? `<a class="task-action" href="${resolveSuiteUrl(task.action.url)}" target="_blank" rel="noopener">${task.action.label}<svg viewBox="0 0 24 24"><path d="M14 5h5v5M10 14 19 5"/><path d="M19 13v6H5V5h6"/></svg></a>` : '';
-      item.innerHTML = `<button class="task-check" type="button" aria-label="${checked ? 'Mark incomplete' : 'Mark complete'}: ${task.title}"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><div class="task-copy"><strong>${task.title}</strong>${task.detail ? `<p>${task.detail}</p>` : ''}${taskInlineControl(task)}${action}</div>`;
-      bindTaskInlineControl(item, task);
-      item.querySelector('button.task-check').addEventListener('click', () => {
-        state.checked[task.id] = !checked;
-        persistState();
-        renderStep();
+    WORKFLOW.forEach((step, sIdx) => {
+      const groupHeading = document.createElement('div');
+      groupHeading.className = 'task-workflow-group-header';
+      groupHeading.innerHTML = `<h3>${sIdx + 1}. ${step.title}</h3><small>${step.duration}</small>`;
+      list.appendChild(groupHeading);
+
+      step.tasks.forEach(task => {
+        if (task.group && task.group !== currentGroup) {
+          currentGroup = task.group;
+          const subHeading = document.createElement('p');
+          subHeading.className = 'task-group-heading';
+          subHeading.textContent = task.group;
+          list.appendChild(subHeading);
+        }
+        const item = document.createElement('div');
+        const checked = Boolean(state.checked[task.id]);
+        item.className = `task-item${checked ? ' checked' : ''}`;
+        const action = task.action ? `<a class="task-action" href="${resolveSuiteUrl(task.action.url)}" target="_blank" rel="noopener">${task.action.label}<svg viewBox="0 0 24 24"><path d="M14 5h5v5M10 14 19 5"/><path d="M19 13v6H5V5h6"/></svg></a>` : '';
+        item.innerHTML = `<button class="task-check" type="button" aria-label="${checked ? 'Mark incomplete' : 'Mark complete'}: ${task.title}"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><div class="task-copy"><strong>${task.title}</strong>${task.detail ? `<p>${task.detail}</p>` : ''}${taskInlineControl(task)}${action}</div>`;
+        bindTaskInlineControl(item, task);
+        item.querySelector('button.task-check').addEventListener('click', () => {
+          state.checked[task.id] = !checked;
+          persistState();
+          renderStep();
+        });
+        list.appendChild(item);
       });
-      list.appendChild(item);
     });
   }
 
-  const done = step.tasks.filter(task => state.checked[task.id]).length;
+  const done = completedTasks();
+  const total = totalTasks();
   const countBadge = $('#step-task-count');
-  if (countBadge) countBadge.textContent = `${done}/${step.tasks.length} complete`;
+  if (countBadge) countBadge.textContent = `${done}/${total} complete`;
 
   const civitasCard = $('#civitas-card');
   if (civitasCard) {
-    civitasCard.hidden = stepIdx !== WORKFLOW.length - 1;
+    civitasCard.hidden = false;
     const confirmCb = $('#civitas-confirm-checkbox');
     if (confirmCb) confirmCb.checked = Boolean(state.civitasRecorded);
     const delBtn = $('#btn-complete-delete-record');
@@ -1307,6 +1310,13 @@ function configureTopLinks() {
 }
 
 function showView(viewName) {
+  if (viewName === 'prepare') {
+    state.currentTask = 'prepare';
+    persistState();
+  } else if (viewName === 'appointment') {
+    state.currentTask = 'appointment';
+    persistState();
+  }
   $$('.view').forEach(view => view.classList.toggle('active', view.id === `${viewName}-view`));
   $$('.top-nav-button').forEach(button => {
     const isActive = button.dataset.view === viewName;
@@ -1314,6 +1324,11 @@ function showView(viewName) {
     if (isActive) button.setAttribute('aria-current', 'page');
     else button.removeAttribute('aria-current');
   });
+  if (viewName === 'resources') {
+    renderResources();
+  } else {
+    renderStep();
+  }
   scrollToTop();
 }
 
@@ -1740,29 +1755,28 @@ function bindEvents() {
     state.currentTask = 'appointment';
     state.currentStep = 0;
     persistState();
-    renderStep();
-    scrollToTop();
-    showToast('Task 2: Begin Appointment started!');
+    showView('appointment');
+    showToast('Screen 2: Appointment started!');
+  });
+
+  $('#btn-back-to-prep')?.addEventListener('click', () => {
+    state.currentTask = 'prepare';
+    persistState();
+    showView('prepare');
   });
 
   $('#previous-step')?.addEventListener('click', () => {
-    if (state.currentStep > 0) {
-      state.currentStep--;
-      persistState();
-      renderStep();
-      scrollToTop();
-    }
+    state.currentTask = 'prepare';
+    persistState();
+    showView('prepare');
   });
 
   $('#next-step')?.addEventListener('click', () => {
-    if (state.currentStep < WORKFLOW.length - 1) {
-      state.currentStep++;
-      persistState();
-      renderStep();
-      scrollToTop();
-    } else {
-      showToast(completedTasks() === totalTasks() ? 'Appointment workflow complete' : 'Review unfinished tasks before logging Civitas');
+    const civitas = $('#civitas-card');
+    if (civitas) {
+      civitas.scrollIntoView({ behavior: 'smooth' });
     }
+    showToast(completedTasks() === totalTasks() ? 'All tasks checked! Confirm Civitas below.' : 'Review remaining tasks and record in Civitas below');
   });
 
   $('#btn-copy-civitas')?.addEventListener('click', () => {

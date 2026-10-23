@@ -36,7 +36,8 @@
           <span class="brand-copy"><strong>ENS 101 Guide</strong><span class="ens101-version" aria-label="Version 1.0">v1.0</span></span>
         </a>
         <nav class="top-nav" aria-label="Main navigation">
-          <button class="top-nav-button active" data-view="appointment" type="button" aria-current="page">Tasks</button>
+          <button class="top-nav-button active" data-view="prepare" type="button" aria-current="page">1. Prepare</button>
+          <button class="top-nav-button" data-view="appointment" type="button">2. Appointment</button>
           <button class="top-nav-button" data-view="resources" type="button">Resources</button>
         </nav>
         <div class="active-student-bar">
@@ -87,10 +88,15 @@
         </aside>
 
         <main class="main-area">
-          <section id="appointment-view" class="view active" aria-label="Appointment workspace">
+          <!-- SCREEN 1: PREPARE SCREEN -->
+          <section id="prepare-view" class="view active" aria-label="Prepare workspace">
             <div class="page-heading">
-              <div><p id="step-eyebrow" class="eyebrow appointment-label">TASK 1: PREPARE · STEP 1 OF 3</p><h1 id="step-title">Determine Career Explorer Assessment Completion</h1><p id="step-description" class="page-description"></p></div>
-              <span id="step-duration" class="duration-chip"></span>
+              <div>
+                <p class="eyebrow appointment-label">SCREEN 1: PREPARE</p>
+                <h1 id="prep-heading-title">Prepare for Appointment</h1>
+                <p class="page-description">Look up your student before the appointment to review their Career Explorer assessment results, Ensign Connect profile, and AI summary.</p>
+              </div>
+              <span class="duration-chip">Suggested time · 3–5 min</span>
             </div>
 
             <!-- TASK 1: PREPARE WORKSPACE. One step: email in, executive summary out. -->
@@ -137,6 +143,10 @@
 
                   <!-- Executive summary arrives here automatically after the lookup; follow-up questions use the same feed. -->
                   <div class="prep-chat-section" id="prep-chat-section">
+                    <div class="prep-chat-header">
+                      <h3>Executive Summary &amp; AI Prep</h3>
+                      <p class="prep-chat-subtitle">Review key assessment insights and ask follow-up questions to prepare for the appointment.</p>
+                    </div>
                     <div class="prep-chat-messages" id="prep-chat-messages"></div>
 
                     <form id="prep-chat-form" class="prep-chat-composer">
@@ -152,39 +162,41 @@
 
                   <div class="step-actions step-actions-end">
                     <button id="btn-start-task2" class="button primary start-appt-btn" type="button" disabled title="Enter a valid student @ensign.edu email to continue">
-                      <span>Begin Task 2: Appointment →</span>
+                      <span>Begin Screen 2: Appointment →</span>
                     </button>
                   </div>
                 </div>
               </section>
             </div>
+          </section>
+
+          <!-- SCREEN 2: APPOINTMENT SCREEN -->
+          <section id="appointment-view" class="view" aria-label="Appointment workspace">
+            <div class="page-heading">
+              <div class="heading-content-with-action">
+                <div>
+                  <p id="step-eyebrow" class="eyebrow appointment-label">SCREEN 2: APPOINTMENT</p>
+                  <h1 id="step-title">Student Appointment Workspace</h1>
+                  <p id="step-description" class="page-description">Welcome the student, confirm major and career direction, discuss internship requirements, and record session notes.</p>
+                </div>
+                <button id="btn-back-to-prep" class="button secondary view-prep-btn" type="button">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                  <span>Review Prepare Summary</span>
+                </button>
+              </div>
+              <span id="step-duration" class="duration-chip">Suggested time · 15–20 min</span>
+            </div>
 
             <!-- TASK 2: APPOINTMENT WORKSPACE -->
-            <div id="task2-appointment-workspace" class="task-workspace" hidden>
+            <div id="task2-appointment-workspace" class="task-workspace">
               <section id="session-details-card" class="student-card card" aria-labelledby="student-heading">
                 <div class="section-heading compact">
                   <div><p class="eyebrow">Session details</p><h2 id="student-heading">Who are you meeting?</h2></div>
                   <span class="optional-label">Non-sensitive details only</span>
                 </div>
-                <div class="student-fields">
-                  <label for="student-email"><span>Student email</span><input id="student-email" type="email" readonly placeholder="Filled in from Prepare" /></label>
-                  <label for="student-name"><span>Preferred name</span><input id="student-name" type="text" autocomplete="off" placeholder="e.g., Student" maxlength="60" /></label>
-                  <label for="student-program"><span>Major or program</span><input id="student-program" type="text" autocomplete="off" placeholder="e.g., Software Engineering" maxlength="100" /></label>
-                  <label for="career-direction"><span>Career direction</span><input id="career-direction" type="text" autocomplete="off" placeholder="e.g., UX designer" maxlength="100" /></label>
-                  <div class="confidence-field">
-                    <label for="career-confidence"><span>Career confidence 1/10 <small class="confidence-hint">(1=Low, 10=Very Confident)</small>: <output id="confidence-output" for="career-confidence">Not set</output></span><input id="career-confidence" type="range" min="1" max="10" value="5" /></label>
-                    <a
-                      id="career-explorer-direct-link"
-                      class="confidence-career-link"
-                      href="https://ensign.pathwayu.com/login?next=%2Fresults"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >Open Career Explorer <span aria-hidden="true">↗</span></a>
-                  </div>
-                  <label for="roadmap-status"><span>Career Explorer roadmap</span><select id="roadmap-status"><option value="">Choose status</option><option>Not started</option><option>In progress</option><option>Completed</option><option>Not sure</option></select></label>
-                </div>
-                <!-- Status Badges Row (Career Explorer & Ensign Connect) -->
-                <div class="status-badges-row" id="session-status-badges">
+
+                <!-- Status Badges Row (Career Explorer & Ensign Connect) MOVED TO THE TOP -->
+                <div class="status-badges-row top-status-badges" id="session-status-badges">
                   <div class="status-badge-item">
                     <span class="badge-label">Career Explorer:</span>
                     <span id="badge-career-explorer" class="status-pill gray">Not checked</span>
@@ -193,58 +205,95 @@
                     <span class="badge-label">Ensign Connect:</span>
                     <span id="badge-ensign-connect" class="status-pill yellow">Not checked</span>
                   </div>
+                  <div class="status-badge-links">
+                    <a
+                      id="career-explorer-direct-link"
+                      class="confidence-career-link"
+                      href="https://ensign.pathwayu.com/login?next=%2Fresults"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >Open Career Explorer <span aria-hidden="true">↗</span></a>
+                    <button id="btn-download-student-report" class="task-action download-report-btn" type="button" hidden>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      <span id="label-download-student-report">Download Report (.PDF)</span>
+                    </button>
+                  </div>
                 </div>
+
+                <!-- Suggested Action Recommendation Banner -->
                 <div id="followup-recommendation" class="recommendation" aria-live="polite"></div>
+
+                <div class="student-fields">
+                  <label for="student-email"><span>Student email</span><input id="student-email" type="email" readonly placeholder="Filled in from Prepare" /></label>
+                  <label for="student-name"><span>Preferred name</span><input id="student-name" type="text" autocomplete="off" placeholder="e.g., Student" maxlength="60" /></label>
+                  <label for="student-program"><span>Major or program</span><input id="student-program" type="text" autocomplete="off" placeholder="e.g., Software Engineering" maxlength="100" /></label>
+                  <label for="career-direction"><span>Career direction</span><input id="career-direction" type="text" autocomplete="off" placeholder="e.g., UX designer" maxlength="100" /></label>
+                  <div class="confidence-field">
+                    <label for="career-confidence"><span>Career confidence 1/10 <small class="confidence-hint">(1=Low, 10=Very Confident)</small>: <output id="confidence-output" for="career-confidence">Not set</output></span><input id="career-confidence" type="range" min="1" max="10" value="5" /></label>
+                  </div>
+                  <label for="roadmap-status"><span>Career Explorer roadmap</span><select id="roadmap-status"><option value="">Choose status</option><option>Not started</option><option>In progress</option><option>Completed</option><option>Not sure</option></select></label>
+                </div>
               </section>
 
+              <!-- Two-Column Appointment Grid -->
               <div class="appointment-grid">
-                <section class="task-card card" aria-labelledby="task-heading">
-                  <div class="section-heading">
-                    <div><p id="step-kicker" class="eyebrow"></p><h2 id="task-heading">Appointment tasks</h2></div>
-                    <span id="step-task-count" class="count-badge"></span>
-                  </div>
-                  <div id="task-list" class="task-list"></div>
-                  <div class="step-actions"><button id="previous-step" class="button secondary" type="button">Previous</button><button id="next-step" class="button primary" type="button">Continue</button></div>
-                </section>
-              </div>
-
-              <section class="notes-card card" aria-labelledby="notes-heading">
-                <div class="section-heading">
-                    <div><p class="eyebrow">Appointment record</p><h2 id="notes-heading">Notes &amp; agreed next steps</h2></div>
-                  <div class="notes-actions"><button id="copy-summary" class="button secondary small" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Copy summary</button></div>
-                </div>
-                <div class="notes-grid">
-                  <label for="session-notes"><span>Conversation notes</span><textarea id="session-notes" rows="5" placeholder="Capture useful, non-sensitive themes from the conversation."></textarea></label>
-                  <label for="student-next-step"><span>Student’s next step</span><textarea id="student-next-step" rows="5" placeholder="What will the student do, and by when?"></textarea></label>
-                </div>
-              </section>
-
-              <!-- Step 5 Civitas Recording & Deletion Card -->
-              <section id="civitas-card" class="civitas-card card" hidden>
-                <div class="civitas-header">
-                  <div class="civitas-title-group">
-                    <span class="civitas-badge">CIVITAS</span>
-                    <div>
-                      <h2>Log Appointment &amp; Complete Session</h2>
-                      <p>Copy the formatted appointment record into Civitas. Once recorded, confirm below to delete the student's personal information from this machine.</p>
+                <!-- Column 1: Checklist & Civitas -->
+                <div class="appointment-col-tasks">
+                  <section class="task-card card" aria-labelledby="task-heading">
+                    <div class="section-heading">
+                      <div><p id="step-kicker" class="eyebrow">Appointment Checklist</p><h2 id="task-heading">Appointment tasks</h2></div>
+                      <span id="step-task-count" class="count-badge"></span>
                     </div>
-                  </div>
-                  <button id="btn-copy-civitas" class="button secondary small" type="button">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
-                    <span>Copy Civitas Note</span>
-                  </button>
+                    <div id="task-list" class="task-list"></div>
+                    <div class="step-actions">
+                      <button id="previous-step" class="button secondary" type="button">← Back to Prepare</button>
+                      <button id="next-step" class="button primary" type="button">Log Civitas &amp; Complete</button>
+                    </div>
+                  </section>
+
+                  <!-- Civitas Recording & Deletion Card -->
+                  <section id="civitas-card" class="civitas-card card">
+                    <div class="civitas-header">
+                      <div class="civitas-title-group">
+                        <span class="civitas-badge">CIVITAS</span>
+                        <div>
+                          <h2>Log Appointment &amp; Complete Session</h2>
+                          <p>Copy the formatted appointment record into Civitas. Once recorded, confirm below to delete the student's personal information from this machine.</p>
+                        </div>
+                      </div>
+                      <button id="btn-copy-civitas" class="button secondary small" type="button">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+                        <span>Copy Civitas Note</span>
+                      </button>
+                    </div>
+                    <div class="civitas-confirmation-box">
+                      <label class="civitas-checkbox-label" for="civitas-confirm-checkbox">
+                        <input type="checkbox" id="civitas-confirm-checkbox" />
+                        <span><strong>I confirm this appointment has been recorded in Civitas</strong> — The student's information and session notes can now be safely deleted from this workstation.</span>
+                      </label>
+                      <button id="btn-complete-delete-record" class="button danger" type="button" disabled>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        <span>Complete &amp; Delete Student Record</span>
+                      </button>
+                    </div>
+                  </section>
                 </div>
-                <div class="civitas-confirmation-box">
-                  <label class="civitas-checkbox-label" for="civitas-confirm-checkbox">
-                    <input type="checkbox" id="civitas-confirm-checkbox" />
-                    <span><strong>I confirm this appointment has been recorded in Civitas</strong> — The student's information and session notes can now be safely deleted from this workstation.</span>
-                  </label>
-                  <button id="btn-complete-delete-record" class="button danger" type="button" disabled>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    <span>Complete &amp; Delete Student Record</span>
-                  </button>
+
+                <!-- Column 2: Appointment Record & Notes -->
+                <div class="appointment-col-notes">
+                  <section class="notes-card card" aria-labelledby="notes-heading">
+                    <div class="section-heading">
+                      <div><p class="eyebrow">Appointment record</p><h2 id="notes-heading">Notes &amp; agreed next steps</h2></div>
+                      <div class="notes-actions"><button id="copy-summary" class="button secondary small" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Copy summary</button></div>
+                    </div>
+                    <div class="notes-grid">
+                      <label for="session-notes"><span>Conversation notes</span><textarea id="session-notes" rows="6" placeholder="Capture useful, non-sensitive themes from the conversation."></textarea></label>
+                      <label for="student-next-step"><span>Student’s next step</span><textarea id="student-next-step" rows="5" placeholder="What will the student do, and by when?"></textarea></label>
+                    </div>
+                    <p class="notes-autosave-hint">Notes save automatically to your local browser record.</p>
+                  </section>
                 </div>
-              </section>
+              </div>
             </div>
           </section>
 
