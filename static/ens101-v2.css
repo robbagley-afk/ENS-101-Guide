@@ -153,3 +153,14 @@ div.ecc-task { cursor: default; }
 @media (max-width: 640px) {
   .stepper-row { flex-direction: column; align-items: stretch; }
 }
+
+/* Status chips live in the Task 1 heading row instead of their own strip, so the student summary starts higher (Rob 2026-10-23) */
+.status-badges-row.heading-status-badges { margin: 0; padding: 0; background: none; border: 0; border-radius: 0; justify-content: flex-end; gap: 16px; flex: 1 1 320px; min-width: 0; }
+.heading-status-badges .status-badge-links { margin-left: 0; }
+@media (max-width: 760px) { .status-badges-row.heading-status-badges { justify-content: flex-start; flex-basis: auto; } }
+/* The summary wrapper was a box around a box around the summary (106px above its heading). Without its header bar it only groups the feed and composer, so it draws nothing (ECC: no card on a card). */
+#prep-step-1 .prep-chat-section { margin-top: var(--space-4); padding: 0; border: 0; background: none; box-shadow: none; }
+#prep-step-1 .prep-chat-msg.assistant > div > :first-child { margin-top: 0; }
+/* Phones: the pill drops under its label instead of squeezing both onto one line */
+.heading-status-badges .status-badge-item { flex-wrap: wrap; gap: 4px 10px; min-width: 0; }
+.heading-status-badges .status-pill { white-space: nowrap; }

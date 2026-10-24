@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="ecc-components.base.css" />
     <link rel="stylesheet" href="ecc-app.css" />
     <link rel="stylesheet" href="styles.css?v=20261024" />
-    <link rel="stylesheet" href="ens101-v2.css?v=20261024" />
+    <link rel="stylesheet" href="ens101-v2.css?v=20261024b" />
     <!-- Vercel Web Analytics -->
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -86,6 +86,23 @@
                       <p class="eyebrow">Task 1: Prepare</p>
                       <h2>Look up your student</h2>
                     </div>
+                    <!-- Career Explorer and Ensign Connect status, in the heading row so the summary starts higher (Rob 2026-10-23) -->
+                    <div class="status-badges-row heading-status-badges" id="session-status-badges">
+                      <div class="status-badge-item">
+                        <span class="badge-label">Career Explorer:</span>
+                        <span id="badge-career-explorer" class="status-pill gray">Not checked</span>
+                      </div>
+                      <div class="status-badge-item">
+                        <span class="badge-label">Ensign Connect:</span>
+                        <span id="badge-ensign-connect" class="status-pill yellow">Not checked</span>
+                      </div>
+                      <div class="status-badge-links">
+                        <button id="btn-download-student-report" class="task-action download-report-btn" type="button" hidden>
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                          <span id="label-download-student-report">Download Report (.PDF)</span>
+                        </button>
+                      </div>
+                    </div>
                     <!-- Hidden container to retain elements for legacy helpers if queried -->
                     <div id="connect-status-bar" style="display:none;" aria-hidden="true">
                       <span id="connect-status-pill"><span class="status-icon"></span><span id="connect-status-text"></span></span>
@@ -108,33 +125,11 @@
                     </button>
                   </div>
 
-                  <!-- Status Badges Row (Career Explorer & Ensign Connect) represented only on Prepare step -->
-                  <div class="status-badges-row top-status-badges" id="session-status-badges">
-                    <div class="status-badge-item">
-                      <span class="badge-label">Career Explorer:</span>
-                      <span id="badge-career-explorer" class="status-pill gray">Not checked</span>
-                    </div>
-                    <div class="status-badge-item">
-                      <span class="badge-label">Ensign Connect:</span>
-                      <span id="badge-ensign-connect" class="status-pill yellow">Not checked</span>
-                    </div>
-                    <div class="status-badge-links">
-                      <button id="btn-download-student-report" class="task-action download-report-btn" type="button" hidden>
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        <span id="label-download-student-report">Download Report (.PDF)</span>
-                      </button>
-                    </div>
-                  </div>
-
                   <div id="prep-lookup-feedback" class="lookup-feedback-banner" role="status" hidden></div>
                   <p id="readiness-freshness" class="readiness-freshness" hidden></p>
 
                   <!-- Executive summary arrives here automatically after the lookup; follow-up questions use the same feed. -->
-                  <div class="prep-chat-section" id="prep-chat-section">
-                    <div class="prep-chat-header">
-                      <h3>Executive Summary &amp; AI Prep</h3>
-                      <p class="prep-chat-subtitle">Review key assessment insights and ask follow-up questions to prepare for the appointment.</p>
-                    </div>
+                  <div class="prep-chat-section" id="prep-chat-section" role="region" aria-label="Student summary and follow-up questions">
                     <div class="prep-chat-messages" id="prep-chat-messages"></div>
 
                     <form id="prep-chat-form" class="prep-chat-composer">
