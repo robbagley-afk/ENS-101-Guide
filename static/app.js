@@ -698,6 +698,10 @@ function initialsFor(name) {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 }
 
+// Confidence bands match the suggestion thresholds: 1-5 low (red), 6-7 medium (yellow), 8-10 high (green).
+function confidenceBand(n) { return n <= 5 ? 'low' : n <= 7 ? 'mid' : 'high'; }
+const BAND_WORD = { low: 'low', mid: 'medium', high: 'high' };
+
 function renderMeetingWith() {
   const s = state.student;
   const set = (sel, text) => { const el = $(sel); if (el) el.textContent = text; };
@@ -706,7 +710,9 @@ function renderMeetingWith() {
   set('#mw-program', s.program || 'Not entered');
   set('#mw-career', s.career || 'Not entered');
   const engaged = Boolean(s.confidenceEngaged && s.confidence !== '');
-  set('#mw-confidence', engaged ? `${s.confidence} out of 10` : 'Not set');
+  set('#mw-confidence', engaged ? `${s.confidence} out of 10 (${BAND_WORD[confidenceBand(Number(s.confidence))]})` : 'Not set');
+  const mw = $('#mw-confidence');
+  if (mw) { mw.classList.toggle('conf-chip', engaged); mw.dataset.band = engaged ? confidenceBand(Number(s.confidence)) : ''; }
 }
 
 function renderAppointmentWorkspace() {
@@ -783,6 +789,8 @@ function renderCivitasParts() {
   const noteMade = Boolean($('#civitas-note-text')?.value.trim());
   const recorded = Boolean(state.civitasRecorded);
   const parts = [noteMade, recorded, recorded, false];
+  // Open Civitas lights up once the note is prepared or copied, since pasting it is the next move
+  $('#btn-open-civitas')?.classList.toggle('is-ready', noteMade && !recorded);
   let nowGiven = false;
   parts.forEach((done, i) => {
     const el = $(`#civ-n${i + 1}`);
@@ -826,7 +834,7 @@ function fillNumpicks() {
     for (let n = 1; n <= 10; n++) {
       const key = document.createElement('button');
       key.type = 'button';
-      key.className = 'ecc-numpick__key';
+      key.className = `ecc-numpick__key conf-key conf-${confidenceBand(n)}`;
       key.dataset.value = String(n);
       key.setAttribute('aria-pressed', 'false');
       key.textContent = String(n);
@@ -862,7 +870,8 @@ function updateRecommendation() {
   fillNumpicks();
   const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
   const confidence = Number(state.student.confidence !== '' ? state.student.confidence : 0);
-  const tone = !engaged ? 'info' : confidence <= 5 ? 'info' : confidence <= 7 ? 'caution' : 'success';
+  // low = red, medium = yellow, high = green, the same colors as the number keys
+  const tone = !engaged ? 'info' : confidence <= 5 ? 'danger' : confidence <= 7 ? 'caution' : 'success';
 
   $$('.task-suggestion').forEach(el => {
     el.innerHTML = `<span>${confidenceSuggestion()}</span>`;
@@ -871,7 +880,8 @@ function updateRecommendation() {
   $$('.ecc-numpick__key').forEach(key => {
     key.setAttribute('aria-pressed', String(engaged && key.dataset.value === String(confidence)));
   });
-  const shown = engaged ? `Now ${confidence} out of 10.` : 'Not set';
+  const shown = engaged ? `Now ${confidence} out of 10 (${BAND_WORD[confidenceBand(confidence)]}).` : 'Not set';
+  $$('.task-confidence-output, #confidence-output').forEach(o => { o.dataset.band = engaged ? confidenceBand(confidence) : ''; });
   const topOut = $('#confidence-output');
   if (topOut) topOut.textContent = shown;
   $$('.task-confidence-output').forEach(output => { output.textContent = shown; });

@@ -4,7 +4,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-APP_NAME = "ENS 101 Guide v1.0"
+APP_NAME = "ENS 101 Guide v1.5"
 
 
 class PageTextParser(HTMLParser):
@@ -57,7 +57,7 @@ class BrandingTests(unittest.TestCase):
 
         self.assertIn(
             '<strong>ENS 101 Guide</strong>'
-            '<span class="ens101-version" aria-label="Version 1.0">v1.0</span>',
+            '<span class="ens101-version" aria-label="Version 1.5">v1.5</span>',
             page_source,
         )
         self.assertNotIn("ENS 101 App", page_source)

@@ -164,3 +164,45 @@ div.ecc-task { cursor: default; }
 /* Phones: the pill drops under its label instead of squeezing both onto one line */
 .heading-status-badges .status-badge-item { flex-wrap: wrap; gap: 4px 10px; min-width: 0; }
 .heading-status-badges .status-pill { white-space: nowrap; }
+
+/* ---------- Confidence colors (Rob, 2026-10-23): 1-5 low red, 6-7 medium yellow, 8-10 high green ---------- */
+/* Same bands as the suggestion. Each key is tinted by band; the picked key fills solid. The readouts add the word
+   (low, medium, high), so the level never rests on color alone. */
+.ecc-numpick__key.conf-low  { background: var(--danger-bg);  border-color: var(--danger); }
+.ecc-numpick__key.conf-mid  { background: #FFF6D1;           border-color: #B26B00; }
+.ecc-numpick__key.conf-high { background: var(--brand-tint); border-color: var(--brand); }
+.ecc-numpick__key.conf-low:hover  { background: #F9D5D1; border-color: var(--danger); }
+.ecc-numpick__key.conf-mid:hover  { background: #FDE9A6; border-color: #B26B00; }
+.ecc-numpick__key.conf-high:hover { background: var(--brand-tint-strong); border-color: var(--brand); }
+.ecc-numpick__key.conf-low[aria-pressed="true"]  { background: var(--danger); border-color: var(--danger); color: #fff; }
+.ecc-numpick__key.conf-mid[aria-pressed="true"]  { background: #F5B800; border-color: #8A5300; color: var(--ink); } /* yellow fill, ink text 9.6:1 */
+.ecc-numpick__key.conf-high[aria-pressed="true"] { background: var(--brand); border-color: var(--brand-deep); color: #fff; }
+.ecc-numpick__key.conf-key[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--ink); } /* picked = filled + ring, not color alone */
+[data-band="low"].task-confidence-output, #confidence-output[data-band="low"] { color: var(--danger); }
+[data-band="mid"].task-confidence-output, #confidence-output[data-band="mid"] { color: #7A4A00; }
+[data-band="high"].task-confidence-output, #confidence-output[data-band="high"] { color: var(--brand-hover); }
+.conf-chip { display: inline-flex; padding: 2px 12px; border-radius: var(--radius-pill); border: 2px solid; font-weight: 700; }
+.conf-chip[data-band="low"]  { background: var(--danger-bg);  border-color: var(--danger); color: var(--danger); }
+.conf-chip[data-band="mid"]  { background: #FFF6D1;           border-color: #B26B00;       color: #6B3E00; }
+.conf-chip[data-band="high"] { background: var(--brand-tint); border-color: var(--brand);  color: var(--brand-hover); }
+
+/* ---------- Open Civitas: outlined until the note is ready, then solid info blue with a ring ---------- */
+.civ-open { text-decoration: none; }
+.civ-open svg { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.civ-open.is-ready { background: var(--info); border-color: var(--info); color: #fff; box-shadow: 0 0 0 5px var(--info-tint); }
+.civ-open.is-ready:hover { background: #1e3a8a; border-color: #1e3a8a; color: #fff; }
+@media (prefers-reduced-motion: no-preference) {
+  .civ-open.is-ready { animation: civ-ready 1.2s ease-out 1; }
+  @keyframes civ-ready { 0% { box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.55); } 100% { box-shadow: 0 0 0 5px var(--info-tint); } }
+}
+@media (forced-colors: active) {
+  .ecc-numpick__key.conf-key[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .civ-open.is-ready { outline: 3px solid Highlight; }
+}
+
+/* ---------- v2 audit fixes (runtime audit --v2, design system ad39d14) ---------- */
+/* Header band: styles.css puts an !important brand ring on every control, which is 1.87:1 on brand-deep. Gold is the band's ring. */
+.ecc-hdr-band a:focus-visible, .ecc-hdr-band button:focus-visible, .ecc-hdr-band select:focus-visible { outline: 3px solid var(--accent-gold) !important; outline-offset: 3px !important; }
+/* v2 controls are 56px */
+#prep-student-email, #prep-chat-send-btn { box-sizing: border-box; min-height: var(--control-height); }
+@media (forced-colors: active) { .ecc-hdr-band a:focus-visible, .ecc-hdr-band button:focus-visible, .ecc-hdr-band select:focus-visible { outline-color: Highlight !important; } }

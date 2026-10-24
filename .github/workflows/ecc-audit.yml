@@ -4,7 +4,7 @@ permissions:
   contents: read
 jobs:
   ecc-audit:
-    uses: robbagley-afk/ensign-design-system/.github/workflows/ecc-audit-reusable.yml@4fd44fe479a911c928740000f6f0efa9f1d97f02
+    uses: robbagley-afk/ensign-design-system/.github/workflows/ecc-audit-reusable.yml@ad39d14638afe6a707ef7c7b4a3af6e2becee060
     with:
       audit-path: .
-      design-system-ref: 4fd44fe479a911c928740000f6f0efa9f1d97f02
+      design-system-ref: ad39d14638afe6a707ef7c7b4a3af6e2becee060
