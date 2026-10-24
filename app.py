@@ -1356,7 +1356,7 @@ def is_lm_studio_online() -> bool:
 
 def get_active_engine() -> str:
     if is_lm_studio_online():
-        return "Qwen Local"
+        return "Local LLM"
     if GEMINI_API_KEY:
         return "Google Gemini"
     return "Offline Guidance"
@@ -1434,7 +1434,7 @@ class CoachHandler(SimpleHTTPRequestHandler):
                 "service": "ENS 101 Mentor Desk v1.0",
                 "active_engine": active_eng,
                 "ai_configured": bool(LM_STUDIO_URL or GEMINI_API_KEY),
-                "primary_engine": "LM Studio Qwen" if LM_STUDIO_URL else "Not configured",
+                "primary_engine": "Local LLM" if LM_STUDIO_URL else "Not configured",
                 "primary_model": QWEN_MODEL,
                 "primary_configured": bool(LM_STUDIO_URL),
                 "fallback_engine": "Google Gemini" if GEMINI_API_KEY else "Static Fallback",

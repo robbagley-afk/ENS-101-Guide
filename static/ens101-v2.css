@@ -1,0 +1,155 @@
+/* ENS 101 Guide: ECC v2 app layer (2026-10-23).
+   Loads after styles.css. Builds the desktop step screens from the ECC v2 classes in ecc-app.css;
+   only ENS 101 specifics live here. Design: Claude Design canvas RzcqxdeUvTmWLbU5r17hiL. */
+
+body { background: var(--surface-sunken); font-size: var(--text-body); }
+
+/* ---------- Header band ---------- */
+.topbar-v2 { position: static; } /* not sticky: the bottom action bar carries the actions */
+.topbar-v2 .ecc-hdr-band__inner { flex-wrap: wrap; gap: var(--space-4) 24px; }
+.stepper-row { display: flex; align-items: center; gap: var(--space-5); }
+.stepper-row ol { flex: 1; }
+.stepper-ext-link { display: inline-flex; align-items: center; gap: 6px; min-height: var(--target-min); font-size: 19px; font-weight: 700; white-space: nowrap; }
+.stepper-ext-link svg { width: 18px; height: 18px; stroke-width: 2.5; }
+@media (max-width: 1180px) { .stepper-row { flex-wrap: wrap; } }
+.brand-v2 { display: flex; align-items: center; gap: 14px; color: #fff; text-decoration: none; min-height: var(--target-min); }
+.brand-v2__mark { width: 48px; height: 48px; border-radius: 12px; display: grid; place-content: center; background: var(--accent-gold); color: var(--brand-deep); font-size: 26px; font-weight: 800; }
+.brand-v2__name { display: flex; align-items: center; gap: 10px; font-size: 23px; font-weight: 800; line-height: 1.2; }
+.brand-v2 .ens101-version { padding: 1px 10px; border-radius: var(--radius-pill); background: var(--brand-hover); color: var(--brand-tint); font-size: 17px; font-weight: 700; }
+.brand-v2 .ecc-hdr-band__sub { display: block; }
+.top-nav-v2 { display: flex; gap: 28px; }
+.top-nav-v2 { flex-wrap: wrap; }
+/* styles.css still styles .top-nav-button for the old white bar; reset it for the green band. */
+.top-nav-v2 .top-nav-button,
+.top-nav-v2 .top-nav-button.active { min-height: var(--target-min); padding: var(--space-2) var(--space-1); background: transparent; color: var(--brand-tint); border-radius: 0; border-top: 0; border-left: 0; border-right: 0; box-shadow: none; font: inherit; font-size: var(--text-button); font-weight: 700; cursor: pointer; }
+.top-nav-v2 .top-nav-button:hover { background: transparent; color: #fff; }
+.top-nav-v2 .top-nav-button[aria-current="page"] { color: #fff; }
+.student-select-v2 { display: flex; align-items: center; gap: 10px; color: var(--brand-tint); font-size: 18px; font-weight: 700; white-space: nowrap; }
+.nav-ext-link { gap: 6px; white-space: nowrap; }
+.nav-ext-link svg { width: 18px; height: 18px; stroke-width: 2.5; }
+.student-select-v2 .student-select { min-height: 52px; max-width: 280px; padding: 8px 14px; border-radius: var(--radius-md); border: 2px solid var(--brand-tint-strong); background: #fff; color: var(--ink); font-size: 18px; font-weight: 600; }
+.hdr-spacer { flex: 1 1 24px; }
+.save-pill { display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px; border-radius: var(--radius-pill); background: var(--brand-hover); border: 2px solid #2e7a58; color: var(--brand-tint); font-size: 17px; font-weight: 700; white-space: nowrap; }
+.save-pill svg { width: 18px; height: 18px; stroke-width: 2.6; }
+.hdr-btn { min-height: 52px; padding: 8px 20px; font-size: 19px; text-decoration: none; white-space: nowrap; }
+.hdr-btn svg { width: 22px; height: 22px; stroke-width: 2.2; }
+.hdr-btn--ghost { background: transparent; color: #fff; border-color: #b8d9c6; }
+.hdr-btn--ghost:hover { background: rgba(255,255,255,0.12); color: #fff; border-color: #fff; }
+
+/* ---------- Stepper buttons ---------- */
+.ecc-stepper .stepper-btn { display: flex; align-items: center; gap: var(--space-3); padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; min-height: var(--target-min); }
+.ecc-stepper .stepper-btn:focus-visible { outline: 3px solid var(--brand); outline-offset: 4px; border-radius: var(--radius-pill); }
+.ecc-stepper__badge svg { width: 22px; height: 22px; stroke-width: 3; }
+
+/* ---------- Page shell: the old 260px sidebar grid is gone ---------- */
+.workspace-v2 { display: block; min-height: 0; }
+.main-v2 { padding: 0; }
+#prepare-view.active, #resources-view.active { padding: var(--space-6) var(--gutter) 28px; }
+.prep-heading-v2 { margin-bottom: var(--space-5); }
+.step-lead { margin: 6px 0 0; font-size: var(--text-body); color: var(--ink-muted); }
+
+/* ---------- Cards ---------- */
+.card-v2 { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 22px var(--space-6); min-width: 0; }
+.card-v2__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
+.card-v2__title { margin: 0 0 var(--space-3); font-size: 22px; font-weight: 800; }
+.card-v2__head .card-v2__title { margin: 0; }
+.work-v2 { padding: 26px 30px; }
+.rail-v2, .record-v2 { display: flex; flex-direction: column; gap: var(--space-5); }
+.small-v2 { min-height: var(--target-min); padding: 6px 14px; font-size: 18px; }
+.small-v2 svg { width: 20px; height: 20px; }
+
+/* ---------- Meeting with ---------- */
+.mw-person { display: flex; align-items: center; gap: 14px; }
+.mw-avatar { flex: none; width: 56px; height: 56px; border-radius: 50%; display: grid; place-content: center; background: var(--brand-tint-strong); color: var(--brand-deep); font-size: 23px; font-weight: 800; }
+.mw-name { font-size: 22px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+.mw-sub { color: var(--ink-muted); font-size: 17px; overflow-wrap: anywhere; }
+.mw-facts { margin: 18px 0 0; display: grid; gap: 10px; }
+.mw-facts dt { font-size: 17px; font-weight: 700; color: var(--ink-muted); }
+.mw-facts dd { margin: 0; font-size: 19px; font-weight: 600; overflow-wrap: anywhere; }
+.mw-btn { width: 100%; margin-top: 18px; font-size: 18px; white-space: normal; }
+.ai-panel__lead { margin: 6px 0 14px; font-size: 18px; }
+.ai-panel__prompts { display: flex; flex-direction: column; gap: 10px; }
+.ai-engine-line { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 17px; color: var(--ink-muted); }
+.ai-engine-line .engine-indicator-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); }
+.ai-engine-line.engine-offline .engine-indicator-dot { background: var(--ink-muted); }
+
+/* ---------- Session details (Begin) ---------- */
+.session-v2 { margin: 22px 0 var(--space-5); padding-bottom: var(--space-5); border-bottom: 2px solid #e2e8f0; }
+.session-v2__hint { margin: 2px 0 12px; color: var(--ink-muted); font-size: 18px; }
+.session-v2__fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 18px; }
+.session-v2__fields label { display: grid; gap: 6px; font-size: 18px; font-weight: 700; min-width: 0; }
+.confidence-v2 { margin-top: var(--space-5); }
+.confidence-v2__q { display: block; margin: 0 0 10px; font-size: var(--text-item); font-weight: 700; line-height: 1.35; }
+.confidence-v2__q output, .task-confidence-output { margin-left: 8px; font-size: 19px; font-weight: 700; color: var(--brand-hover); }
+.numpick-ends { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: 17px; font-weight: 600; color: var(--ink-muted); }
+
+/* ---------- Checklist ---------- */
+.task-list-v2 { display: flex; flex-direction: column; gap: var(--space-3); margin-top: 22px; }
+.task-v2__body { flex: 1; min-width: 0; display: block; }
+.task-v2__head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3); }
+.task-action-v2 { font-weight: 700; white-space: nowrap; }
+.task-followup-v2 { display: flex; flex-direction: column; gap: 10px; margin-top: var(--space-3); }
+.task-followup-v2 .confidence-v2__q { margin: 0; font-size: 19px; }
+div.ecc-task { cursor: default; }
+
+/* ---------- Civitas step ---------- */
+.civitas-v2 { margin-top: 18px; }
+.civ-sub { display: flex; gap: 20px; align-items: flex-start; padding: 20px 0; border-top: 2px solid #e2e8f0; }
+.civ-sub:first-child { border-top: 0; padding-top: 4px; }
+.civ-num { flex: none; width: 48px; height: 48px; border-radius: 50%; display: grid; place-content: center; font-size: 21px; font-weight: 800; background: #fff; color: var(--ink-muted); border: 3px solid var(--border-strong); }
+.civ-num.is-done { background: var(--brand); border-color: var(--brand); color: #fff; }
+.civ-num.is-now { background: var(--brand-deep); border-color: var(--brand-deep); color: #fff; box-shadow: 0 0 0 4px var(--accent-gold); }
+.civ-body { flex: 1; min-width: 0; }
+.civ-body h2 { margin: 4px 0 6px; font-size: 24px; font-weight: 800; line-height: 1.25; }
+.civ-body p { margin: 0 0 12px; color: var(--ink-muted); }
+.civ-confirm { display: flex; gap: 16px; align-items: center; padding: 14px 18px; border: 2px solid var(--border-strong); border-radius: 12px; background: #fff; font-size: 21px; font-weight: 700; cursor: pointer; }
+.civ-confirm:hover { border-color: var(--brand); background: var(--brand-tint-soft); }
+.civ-confirm:has(input:checked) { border-color: var(--brand); background: var(--brand-tint); }
+.civ-wait { margin: 10px 0 0; font-size: 19px; font-weight: 600; }
+.civ-copy-btn { min-height: 48px; padding: 6px 18px; background: #fff; color: var(--info); border: 2px solid #fff; font-size: 19px; font-weight: 700; }
+.civ-copy-btn:hover { background: var(--info-tint); }
+.civ-copy-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; } /* white ring on the blue card head */
+.civ-copy-btn svg { width: 20px; height: 20px; }
+.civitas-note-textarea { min-height: 360px; font-family: var(--font-sans); white-space: pre-wrap; }
+
+/* ---------- Next step and notes ---------- */
+.ecc-feature-card__head svg { width: 30px; height: 30px; stroke-width: 2.2; flex: none; }
+.ns-pill { margin-left: auto; padding: 3px 14px; border-radius: var(--radius-pill); background: #fff; color: var(--brand-deep); font-size: 17px; font-weight: 700; white-space: nowrap; }
+.field-label-v2 { display: block; font-size: 21px; font-weight: 700; }
+.field-help-v2 { margin: 0 0 8px; color: var(--ink-muted); font-size: 18px; }
+.notes-v2 { margin-top: var(--space-3); min-height: 170px; }
+.due-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.due-chips__label { font-size: 18px; font-weight: 700; margin-right: 4px; }
+.chip-v2 { min-height: var(--target-min); padding: 6px 16px; border-radius: var(--radius-pill); border: 2px solid var(--border-strong); background: #fff; color: var(--ink); font: inherit; font-size: 18px; font-weight: 600; cursor: pointer; }
+.chip-v2:hover { border-color: var(--brand); background: var(--brand-tint); }
+.chip-v2:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+
+/* ---------- Action bar ---------- */
+.ecc-actionbar[hidden], .ecc-actionbar__progress[hidden], .ecc-stepper[hidden] { display: none; }
+.ecc-actionbar .ecc-btn[hidden] { display: none; }
+
+@media (max-width: 1180px) {
+  .rail-v2 { display: grid !important; }
+}
+@media (max-width: 640px) {
+  .student-select-v2 { flex-wrap: wrap; }
+  .student-select-v2 .student-select { max-width: 100%; }
+  .ns-pill { margin-left: 0; }
+  .ecc-feature-card__head { flex-wrap: wrap; }
+}
+@media (forced-colors: active) {
+  .civ-num, .civ-confirm, .chip-v2 { border-color: ButtonText; }
+  .chip-v2:focus-visible, .stepper-btn:focus-visible { outline-color: Highlight; }
+}
+.top-nav-v2 .top-nav-button::after { display: none; } /* old gold underline; ecc-nav-link draws its own */
+/* styles.css label rules mute text inside labels; checklist titles stay full ink. */
+.ecc-task .ecc-task__title { color: var(--ink); }
+.ecc-task .ecc-task__detail { color: var(--ink-muted); font-weight: 400; }
+.student-select-v2 label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.stepper-ext-link { color: var(--brand-hover); }
+.stepper-ext-link:hover { color: var(--brand-deep); }
+.stepper-ext-link:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+.civ-confirm span { color: var(--ink); }
+@media (max-width: 640px) {
+  .stepper-row { flex-direction: column; align-items: stretch; }
+}

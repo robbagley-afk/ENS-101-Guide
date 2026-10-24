@@ -28,15 +28,15 @@ class ConversationNoteTagTests(unittest.TestCase):
     def test_empty_note_contains_required_tag(self):
         self.assertEqual("#SSTEAM", normalize_note(""))
 
-    def test_existing_note_is_preserved_below_required_tag(self):
+    def test_existing_note_has_required_tag_at_end(self):
         self.assertEqual(
-            "#SSTEAM\nDiscussed internship timing.",
+            "Discussed internship timing.\n\n#SSTEAM",
             normalize_note("Discussed internship timing."),
         )
 
     def test_required_tag_is_not_duplicated(self):
         self.assertEqual(
-            "#SSTEAM\nDiscussed internship timing.",
+            "Discussed internship timing.\n\n#SSTEAM",
             normalize_note("#SSTEAM\nDiscussed internship timing.\n#SSTEAM"),
         )
 
@@ -45,17 +45,45 @@ class ConversationNoteTagTests(unittest.TestCase):
         index_html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
 
         self.assertIn('src="note-utils.js"', index_html)
-        self.assertIn("ensurePermanentConversationTag", app_js)
-        self.assertIn("sessionNotes: ensurePermanentConversationTag('')", app_js)
-        self.assertIn("session_notes: ensurePermanentConversationTag(state.sessionNotes)", app_js)
+        self.assertIn("appendConversationTag", app_js)
+        self.assertIn("buildCivitasNote", app_js)
+        self.assertIn("Prepare Civitas Note", index_html)
+        self.assertIn("Civitas Note Entered. Close this Appointment", index_html)
 
-    def test_new_appointment_renders_required_tag_immediately(self):
+    def test_new_appointment_allows_free_typing_and_appends_tag_in_civitas_note(self):
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
             page = browser.new_page()
             page.goto((ROOT / "static" / "index.html").as_uri(), wait_until="domcontentloaded")
 
-            self.assertEqual("#SSTEAM", page.locator("#session-notes").input_value())
+            # Open the appointment at step 2 (Begin) from the stepper; notes are on Begin and Plan.
+            page.click('#workflow-nav li:nth-of-type(3) button')
+
+            # Field does not force tag so mentor can type freely
+            self.assertEqual("", page.locator("#session-notes").input_value())
+            page.locator("#session-notes").fill("Discussed internship timing and career goals.")
+            self.assertEqual("Discussed internship timing and career goals.", page.locator("#session-notes").input_value())
+
+            # Generated Civitas note includes #SSTEAM at the end of the conversation notes block
+            civitas_note = page.evaluate("buildCivitasNote()")
+            self.assertIn("Discussed internship timing and career goals.\n\n#SSTEAM", civitas_note)
+
+            # The Civitas buttons live on step 4 (Log in Civitas): Begin -> Plan -> Civitas.
+            page.click("#next-step")
+            page.click("#next-step")
+
+            # Button labels match requirement
+            self.assertIn("Prepare Civitas Note", page.locator("#btn-copy-civitas").inner_text())
+            self.assertIn("Civitas Note Entered. Close this Appointment", page.locator("#btn-complete-delete-record").inner_text())
+
+            # Clicking "Prepare Civitas Note" displays the generated note and announces copy to clipboard
+            self.assertEqual("", page.locator("#civitas-note-text").input_value())
+            page.click("#btn-copy-civitas")
+            self.assertIn("Discussed internship timing and career goals.\n\n#SSTEAM", page.locator("#civitas-note-text").input_value())
+            page.wait_for_selector("#toast.show")
+            self.assertEqual("Note copied to the clipboard", page.locator("#toast").inner_text())
+            self.assertTrue(page.locator("#civitas-copied-badge").is_visible())
+
             browser.close()
 
 
