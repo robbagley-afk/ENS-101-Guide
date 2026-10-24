@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#006645" />
     <meta name="description" content="A guided workspace for Ensign College ENS 101 mentor appointments." />
-    <title>ENS 101 Guide v1.0</title>
+    <title>ENS 101 Guide v1.5</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="ces-tokens.css?v=1.1" />
     <link rel="stylesheet" href="ces-components.css?v=1.1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" />
-    <link rel="stylesheet" href="ecc-tokens.css" />
-    <link rel="stylesheet" href="ecc-ces-compat.css" />
-    <link rel="stylesheet" href="ecc-components.base.css" />
-    <link rel="stylesheet" href="ecc-app.css" />
+    <link rel="stylesheet" href="ecc-tokens.css?v=ad39d14" />
+    <link rel="stylesheet" href="ecc-ces-compat.css?v=ad39d14" />
+    <link rel="stylesheet" href="ecc-components.base.css?v=ad39d14" />
+    <link rel="stylesheet" href="ecc-app.css?v=ad39d14" />
     <link rel="stylesheet" href="styles.css?v=20261024" />
-    <link rel="stylesheet" href="ens101-v2.css?v=20261024b" />
+    <link rel="stylesheet" href="ens101-v2.css?v=20261024d" />
     <!-- Vercel Web Analytics -->
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -33,9 +33,9 @@
     <div class="app-shell">
       <header class="topbar-v2 ecc-hdr-band">
         <div class="ecc-hdr-band__inner">
-          <a class="brand-v2" href="#" aria-label="ENS 101 Guide v1.0 home">
+          <a class="brand-v2" href="#" aria-label="ENS 101 Guide v1.5 home">
             <span class="brand-v2__mark" aria-hidden="true">E</span>
-            <span><span class="brand-v2__name"><strong>ENS 101 Guide</strong><span class="ens101-version" aria-label="Version 1.0">v1.0</span></span><span class="ecc-hdr-band__sub">Ensign College Career Services</span></span>
+            <span><span class="brand-v2__name"><strong>ENS 101 Guide</strong><span class="ens101-version" aria-label="Version 1.5">v1.5</span></span><span class="ecc-hdr-band__sub">Ensign College Career Services</span></span>
           </a>
           <nav class="top-nav-v2" aria-label="Main navigation">
             <button class="top-nav-button ecc-nav-link active" data-view="appointment" type="button" aria-current="page">Appointment</button>
@@ -218,6 +218,10 @@
                     <div class="civ-body">
                       <h2>Paste it into Civitas</h2>
                       <p>Open Civitas in another tab. Find the student, add a note, then paste.</p>
+                      <a id="btn-open-civitas" class="ecc-btn ecc-btn--lg ecc-btn-secondary civ-open" href="https://ensign.inspire.civitaslearning.com/login" target="_blank" rel="noopener noreferrer">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+                        <span>Open Civitas</span><span class="sr-only"> (opens in a new tab)</span>
+                      </a>
                     </div>
                   </div>
                   <div class="civ-sub">
@@ -362,7 +366,7 @@
               <div class="dialog-icon suggestion-bulb-icon" aria-hidden="true"><svg class="ecc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></div>
               <div>
                 <h2 id="suggestion-dialog-title">Suggest an Improvement</h2>
-                <p class="dialog-subtitle">Share ideas, bug reports, or content updates to improve ENS 101 Guide v1.0.</p>
+                <p class="dialog-subtitle">Share ideas, bug reports, or content updates to improve ENS 101 Guide v1.5.</p>
               </div>
             </div>
             <button id="close-suggestion-dialog" class="icon-button" type="button" aria-label="Close suggestion modal">×</button>
@@ -405,6 +409,6 @@
     </div>
     <script src="ces-motion.js"></script>
     <script src="note-utils.js"></script>
-    <script src="app.js?v=23"></script>
+    <script src="app.js?v=25"></script>
   </body>
 </html>
