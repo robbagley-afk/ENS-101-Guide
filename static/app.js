@@ -174,7 +174,7 @@ async function loadAppointmentById(appId) {
         currentTask: a.current_task || 'prepare',
         currentStep: Math.min(
           typeof a.current_step === 'number' ? a.current_step : 0,
-          ((a.current_task || 'prepare') === 'prepare' ? PREPARE_STEPS.length : WORKFLOW.length) - 1
+          ((a.current_task || 'prepare') === 'prepare' ? PREPARE_STEPS.length : APPT_STEPS.length) - 1
         ),
         student: {
           name: a.student_name || '',
@@ -529,63 +529,97 @@ function validatePrepStep1(showError = false) {
   return isValid;
 }
 
+// ECC v2 (2026-10-23): the Appointment view is three steps. currentStep 0 = Begin, 1 = Plan and wrap up
+// (both from WORKFLOW), 2 = Log in Civitas. The stepper shows Prepare plus those three.
+const CIVITAS_STEP = {
+  id: 'civitas', label: 'Log in Civitas', duration: 'About 3 minutes',
+  title: 'Log the appointment in Civitas',
+  description: 'Four short parts. Each number turns green when it is done.',
+  copilot: ['Draft a follow-up message', 'What goes in a Civitas note?']
+};
+const APPT_STEPS = [...WORKFLOW, CIVITAS_STEP];
+const CHECK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+
+function apptStepIndex() {
+  return Math.max(0, Math.min(Number(state.currentStep) || 0, APPT_STEPS.length - 1));
+}
+
+function prepareDone() {
+  return Boolean(state.student.email && (state.assessmentData?.completed_count > 0 || state.assessmentData?.status === 'complete'));
+}
+
+function apptStepDone(idx) {
+  const step = APPT_STEPS[idx];
+  if (step.id === 'civitas') return Boolean(state.civitasRecorded);
+  return step.tasks.length > 0 && step.tasks.every(task => state.checked[task.id]);
+}
+
+function goToStep(task, stepIdx = 0) {
+  state.currentTask = task;
+  if (task === 'appointment') state.currentStep = stepIdx;
+  persistState();
+  showView(task);
+}
+
 function renderWorkflow() {
   const nav = $('#workflow-nav');
   if (!nav) return;
   nav.innerHTML = '';
 
-  const task1Header = document.createElement('div');
-  task1Header.className = 'sidebar-task-title';
-  task1Header.innerHTML = '<span>1. PREPARE</span>';
-  nav.appendChild(task1Header);
+  const onPrepare = state.currentTask === 'prepare';
+  const current = onPrepare ? 0 : apptStepIndex() + 1;
+  const items = [
+    { name: 'Look up the student', done: prepareDone(), go: () => goToStep('prepare') },
+    ...APPT_STEPS.map((step, idx) => ({
+      name: idx === 0 ? 'Begin the appointment' : step.label,
+      done: apptStepDone(idx),
+      go: () => goToStep('appointment', idx)
+    }))
+  ];
 
-  PREPARE_STEPS.forEach((step, idx) => {
-    const btn = document.createElement('button');
-    const isActive = state.currentTask === 'prepare';
-    const isDone = Boolean(state.student.email && (state.assessmentData?.completed_count > 0 || state.assessmentData?.status === 'complete'));
-
-    btn.type = 'button';
-    btn.className = `workflow-button${isActive ? ' active' : ''}${isDone ? ' complete' : ''}`;
-    if (isActive) btn.setAttribute('aria-current', 'step');
-    btn.innerHTML = `<span class="workflow-num">${isDone ? '✓' : '1'}</span><span class="workflow-label"><strong>${step.label}</strong><small>${step.short}</small></span>${isDone ? '<span class="workflow-check">✓</span>' : ''}`;
-    btn.addEventListener('click', () => {
-      showView('prepare');
-    });
-    nav.appendChild(btn);
+  items.forEach((item, idx) => {
+    if (idx > 0) {
+      const line = document.createElement('li');
+      line.className = 'ecc-stepper__line';
+      line.setAttribute('aria-hidden', 'true');
+      nav.appendChild(line);
+    }
+    const isCurrent = idx === current;
+    const li = document.createElement('li');
+    li.className = `ecc-stepper__step${isCurrent ? '' : item.done ? ' is-done' : ' is-next'}`;
+    if (isCurrent) li.setAttribute('aria-current', 'step');
+    const stateText = isCurrent ? 'You are here' : item.done ? 'Done' : idx === current + 1 ? 'Up next' : '';
+    const badge = item.done && !isCurrent ? CHECK_SVG : String(idx + 1);
+    li.innerHTML = `<button type="button" class="stepper-btn"><span class="ecc-stepper__badge" aria-hidden="true">${badge}</span><span><span class="ecc-stepper__name">${idx + 1}. ${item.name}</span><span class="ecc-stepper__state">${stateText}</span></span></button>`;
+    li.querySelector('button').addEventListener('click', item.go);
+    nav.appendChild(li);
   });
-
-  const task2Header = document.createElement('div');
-  task2Header.className = 'sidebar-task-title';
-  task2Header.innerHTML = '<span>2: APPOINTMENT</span>';
-  nav.appendChild(task2Header);
-
-  const btn = document.createElement('button');
-  const isActive = state.currentTask === 'appointment';
-  const isDone = completedTasks() === totalTasks() && totalTasks() > 0;
-  const confidence = Number(state.student.confidence || 5);
-  const confidenceTone = confidence <= 5 ? 'confidence-low' : confidence <= 7 ? 'confidence-medium' : 'confidence-high';
-
-  btn.type = 'button';
-  btn.className = `workflow-button${isActive ? ' active' : ''}${isDone ? ' complete' : ''} ${confidenceTone}`;
-  if (isActive) btn.setAttribute('aria-current', 'step');
-  btn.innerHTML = `<span class="workflow-num">${isDone ? '✓' : '2'}</span><span class="workflow-label"><strong>Appointment</strong><small>${completedTasks()} of ${totalTasks()} complete</small></span>${isDone ? '<span class="workflow-check">✓</span>' : ''}`;
-  btn.addEventListener('click', () => {
-    showView('appointment');
-  });
-  nav.appendChild(btn);
 
   renderProgress();
 }
 
 function renderProgress() {
-  const complete = completedTasks();
-  const total = totalTasks();
-  const percentage = total > 0 ? Math.round((complete / total) * 100) : 0;
   const label = $('#progress-label');
-  const count = $('#progress-count');
   const bar = $('#progress-bar');
-  if (label) label.textContent = `${percentage}% complete`;
-  if (count) count.textContent = `${complete} of ${total}`;
+  const wrap = $('.ecc-actionbar__progress');
+  if (state.currentTask === 'prepare') {
+    if (wrap) wrap.hidden = true;
+    return;
+  }
+  if (wrap) wrap.hidden = false;
+  const step = APPT_STEPS[apptStepIndex()];
+  let done;
+  let total;
+  if (step.id === 'civitas') {
+    const noteMade = Boolean($('#civitas-note-text')?.value.trim());
+    done = (noteMade ? 1 : 0) + (state.civitasRecorded ? 1 : 0);
+    total = 2;
+  } else {
+    done = step.tasks.filter(task => state.checked[task.id]).length;
+    total = step.tasks.length;
+  }
+  const percentage = total > 0 ? Math.round((done / total) * 100) : 0;
+  if (label) label.textContent = `${done} of ${total} done`;
   if (bar) bar.style.width = `${percentage}%`;
 }
 
@@ -595,27 +629,61 @@ function renderStep() {
   const apptView = $('#appointment-view');
   const prepWorkspace = $('#task1-prepare-workspace');
   const apptWorkspace = $('#task2-appointment-workspace');
+  const onResources = Boolean($('#resources-view')?.classList.contains('active'));
 
-  if (prepView) prepView.classList.toggle('active', isPrepare);
-  if (apptView) apptView.classList.toggle('active', !isPrepare);
+  if (!onResources) {
+    if (prepView) prepView.classList.toggle('active', isPrepare);
+    if (apptView) apptView.classList.toggle('active', !isPrepare);
+  }
   if (prepWorkspace) prepWorkspace.hidden = !isPrepare;
   if (apptWorkspace) apptWorkspace.hidden = isPrepare;
 
   $$('.top-nav-button').forEach(btn => {
-    const isCurrent = (isPrepare && btn.dataset.view === 'prepare') || (!isPrepare && btn.dataset.view === 'appointment');
+    const isCurrent = onResources ? btn.dataset.view === 'resources' : btn.dataset.view === 'appointment';
     btn.classList.toggle('active', isCurrent);
     if (isCurrent) btn.setAttribute('aria-current', 'page');
     else btn.removeAttribute('aria-current');
   });
+
+  const stepper = $('#appointment-stepper');
+  if (stepper) stepper.hidden = onResources;
+  const actionbar = $('#step-actionbar');
+  if (actionbar) actionbar.hidden = onResources;
 
   if (isPrepare) {
     renderPrepareWorkspace();
   } else {
     renderAppointmentWorkspace();
   }
-
+  renderActionBar();
   renderCopilotSuggestions();
   renderWorkflow();
+}
+
+function renderActionBar() {
+  const prevBtn = $('#previous-step');
+  const nextBtn = $('#next-step');
+  const startBtn = $('#btn-start-task2');
+  if (state.currentTask === 'prepare') {
+    if (prevBtn) prevBtn.hidden = true;
+    if (startBtn) startBtn.hidden = false;
+    if (nextBtn) nextBtn.hidden = true;
+    return;
+  }
+  const idx = apptStepIndex();
+  if (startBtn) startBtn.hidden = true;
+  if (prevBtn) {
+    prevBtn.hidden = false;
+    prevBtn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg><span>Back to step ${idx + 1}</span>`;
+  }
+  if (nextBtn) {
+    const next = APPT_STEPS[idx + 1];
+    nextBtn.hidden = !next;
+    if (next) {
+      const label = next.id === 'civitas' ? 'Write the Civitas note' : next.title;
+      nextBtn.innerHTML = `<span>Next: ${label}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+    }
+  }
 }
 
 function renderPrepareWorkspace() {
@@ -624,195 +692,190 @@ function renderPrepareWorkspace() {
   renderStatusBadges();
 }
 
+function initialsFor(name) {
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+}
+
+function renderMeetingWith() {
+  const s = state.student;
+  const set = (sel, text) => { const el = $(sel); if (el) el.textContent = text; };
+  set('#mw-initials', initialsFor(s.name));
+  set('#mw-name', s.name || 'New student');
+  set('#mw-program', s.program || 'Not entered');
+  set('#mw-career', s.career || 'Not entered');
+  const engaged = Boolean(s.confidenceEngaged && s.confidence !== '');
+  set('#mw-confidence', engaged ? `${s.confidence} out of 10` : 'Not set');
+}
+
 function renderAppointmentWorkspace() {
   if ($('#student-email')) $('#student-email').value = state.student.email || '';
+  const idx = apptStepIndex();
+  const step = APPT_STEPS[idx];
+  const isCivitas = step.id === 'civitas';
 
   const sessionCard = $('#session-details-card');
-  if (sessionCard) sessionCard.hidden = false;
+  if (sessionCard) sessionCard.hidden = idx !== 0;
   renderStatusBadges();
+  renderMeetingWith();
 
   const eyebrow = $('#step-eyebrow');
-  if (eyebrow) eyebrow.textContent = '2: APPOINTMENT';
+  if (eyebrow) eyebrow.textContent = `Step ${idx + 2} of ${APPT_STEPS.length + 1} · ${step.duration.startsWith('About') ? step.duration : `About ${step.duration.replace(' min', '').replace('–', ' to ')} minutes`}`;
   const title = $('#step-title');
-  if (title) title.textContent = 'Student Appointment Workspace';
+  if (title) title.textContent = step.title;
   const desc = $('#step-description');
-  if (desc) desc.textContent = 'Welcome the student, confirm major and career direction, discuss internship requirements, and record session notes.';
-  const dur = $('#step-duration');
-  if (dur) dur.textContent = 'Suggested time · 15–20 min';
-  const kicker = $('#step-kicker');
-  if (kicker) kicker.textContent = 'Appointment Checklist';
-
-  const prevBtn = $('#previous-step');
-  if (prevBtn) {
-    prevBtn.disabled = false;
-    prevBtn.style.visibility = 'visible';
-    prevBtn.textContent = '← Back to Prepare';
-  }
-  const copyCivitasBtn = $('#btn-copy-civitas');
-  if (copyCivitasBtn) {
-    copyCivitasBtn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Prepare Civitas Note</span>`;
-  }
-  const completeBtn = $('#btn-complete-delete-record') || $('#next-step');
-  if (completeBtn) {
-    completeBtn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Civitas Note Entered. Close this Appointment</span>`;
-    completeBtn.disabled = !state.civitasRecorded;
-    completeBtn.title = state.civitasRecorded ? 'Close appointment and complete session' : 'Confirm Civitas recording above before closing';
-  }
+  if (desc) desc.textContent = isCivitas ? step.description : 'Talk through each item with the student. Click an item to check it off.';
 
   const list = $('#task-list');
   if (list) {
     list.innerHTML = '';
-    WORKFLOW.forEach((step, sIdx) => {
-      const groupHeading = document.createElement('div');
-      groupHeading.className = 'task-workflow-group-header';
-      groupHeading.innerHTML = `<h3>${sIdx + 1}. ${step.title}</h3><small>${step.duration}</small>`;
-      list.appendChild(groupHeading);
-
-      step.tasks.forEach(task => {
-        const item = document.createElement('div');
-        const checked = Boolean(state.checked[task.id]);
-        item.className = `task-item${checked ? ' checked' : ''}`;
-        const action = task.action ? `<a class="task-action" href="${resolveSuiteUrl(task.action.url)}" target="_blank" rel="noopener">${task.action.label}<svg viewBox="0 0 24 24"><path d="M14 5h5v5M10 14 19 5"/><path d="M19 13v6H5V5h6"/></svg></a>` : '';
-        item.innerHTML = `<button class="task-check" type="button" aria-label="${checked ? 'Mark incomplete' : 'Mark complete'}: ${task.title}"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><div class="task-copy"><strong>${task.title}</strong>${task.detail ? `<p>${task.detail}</p>` : ''}${taskInlineControl(task)}${action}</div>`;
-        bindTaskInlineControl(item, task);
-        item.querySelector('button.task-check').addEventListener('click', () => {
-          state.checked[task.id] = !checked;
-          persistState();
-          renderStep();
-        });
-        list.appendChild(item);
+    list.hidden = isCivitas;
+    (step.tasks || []).forEach(task => {
+      const checked = Boolean(state.checked[task.id]);
+      const inline = taskInlineControl(task);
+      const item = document.createElement(inline ? 'div' : 'label');
+      item.className = `ecc-task${checked ? ' is-done' : ''}`;
+      const titleId = `task-title-${task.id}`;
+      const action = task.action ? ` <a class="task-action-v2" href="${resolveSuiteUrl(task.action.url)}" target="_blank" rel="noopener">${task.action.label}</a>` : '';
+      const detail = task.detail || action ? `<span class="ecc-task__detail">${task.detail || ''}${action}</span>` : '';
+      const pill = checked ? '<span class="ecc-pill-done">Done</span>' : '<span class="ecc-pill-todo">To do</span>';
+      item.innerHTML = `<input class="ecc-task__check" type="checkbox"${checked ? ' checked' : ''}${inline ? ` aria-labelledby="${titleId}"` : ''}>` +
+        `<span class="task-v2__body"><span class="task-v2__head"><span id="${titleId}" class="ecc-task__title">${task.title}</span>${pill}</span>${detail}${inline}</span>`;
+      item.querySelector('.ecc-task__check').addEventListener('change', (e) => {
+        state.checked[task.id] = e.target.checked;
+        persistState();
+        renderStep();
       });
+      bindTaskInlineControl(item, task);
+      list.appendChild(item);
     });
   }
 
-  const done = completedTasks();
-  const total = totalTasks();
+  const done = (step.tasks || []).filter(task => state.checked[task.id]).length;
   const countBadge = $('#step-task-count');
-  if (countBadge) countBadge.textContent = `${done}/${total} complete`;
+  if (countBadge) countBadge.textContent = `${done}/${(step.tasks || []).length} complete`;
 
   const civitasCard = $('#civitas-card');
-  if (civitasCard) {
-    civitasCard.hidden = false;
-    const confirmCb = $('#civitas-confirm-checkbox');
-    if (confirmCb) confirmCb.checked = Boolean(state.civitasRecorded);
-    const delBtn = $('#btn-complete-delete-record');
-    if (delBtn) delBtn.disabled = !state.civitasRecorded;
+  if (civitasCard) civitasCard.hidden = !isCivitas;
+  const noteCard = $('#civitas-note-card');
+  if (noteCard) noteCard.hidden = !isCivitas;
+  const nextStepCard = $('#next-step-card');
+  if (nextStepCard) nextStepCard.hidden = step.id !== 'plan';
+  const notesCard = $('#notes-card');
+  if (notesCard) notesCard.hidden = isCivitas;
+
+  const confirmCb = $('#civitas-confirm-checkbox');
+  if (confirmCb) confirmCb.checked = Boolean(state.civitasRecorded);
+  const delBtn = $('#btn-complete-delete-record');
+  if (delBtn) {
+    delBtn.disabled = !state.civitasRecorded;
+    delBtn.title = state.civitasRecorded ? 'Close appointment and complete session' : 'Confirm Civitas recording before closing';
   }
+  const wait = $('#finish-wait');
+  if (wait) wait.hidden = Boolean(state.civitasRecorded);
+  renderCivitasParts();
 
   updateRecommendation();
 }
 
-// Inline controls for tasks on the merged Plan and wrap up step.
-function taskInlineControl(task) {
-  if (task.inline === 'confidence' || task.inline === 'suggestion' || task.id === 'career-followup') {
-    const value = state.student.confidence !== '' ? state.student.confidence : '5';
-    const shown = state.student.confidenceEngaged && state.student.confidence !== '' ? `${state.student.confidence}/10` : 'Not set';
-    const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
-    const c = Number(value);
-    const tone = !engaged ? 'unengaged' : c <= 5 ? 'low' : c <= 7 ? 'medium' : 'high';
+function renderCivitasParts() {
+  const noteMade = Boolean($('#civitas-note-text')?.value.trim());
+  const recorded = Boolean(state.civitasRecorded);
+  const parts = [noteMade, recorded, recorded, false];
+  let nowGiven = false;
+  parts.forEach((done, i) => {
+    const el = $(`#civ-n${i + 1}`);
+    if (!el) return;
+    const isNow = !done && !nowGiven;
+    if (isNow) nowGiven = true;
+    el.className = `civ-num${done ? ' is-done' : isNow ? ' is-now' : ''}`;
+  });
+}
 
-    return `<div class="task-followup-container">
-      <div class="task-confidence-block confidence-${tone}">
-        <label class="task-confidence">
-          <span>Career confidence 1/10 <small class="confidence-hint">(1=Low, 10=Very Confident)</small>: <output class="task-confidence-output" for="career-confidence-inline">${shown}</output></span>
-          <input class="task-confidence-input" id="career-confidence-inline" type="range" min="1" max="10" step="1" value="${value}" aria-label="Career confidence from 1 to 10" style="--confidence-val: ${value}">
-        </label>
-      </div>
-      <p class="task-suggestion suggestion-${tone}" aria-live="polite">${confidenceSuggestion()}</p>
-    </div>`;
-  }
-  return '';
+// The next-appointment task carries the 1 to 10 number keys, the suggestion and the choice buttons.
+function taskInlineControl(task) {
+  if (task.inline !== 'confidence' && task.inline !== 'suggestion' && task.id !== 'career-followup') return '';
+  const followup = state.student.followup || '';
+  const choice = (value, label) => `<button type="button" role="radio" class="ecc-choice" data-followup="${value}" aria-checked="${followup === value}">${label}</button>`;
+  return `<span class="task-followup-v2">
+      <span id="inline-confidence-label" class="confidence-v2__q">Ask again: how sure is the student? <output class="task-confidence-output">Not set</output></span>
+      <span class="ecc-numpick" role="group" aria-labelledby="inline-confidence-label" data-numpick="inline"></span>
+      <span class="numpick-ends"><span>1 = Not sure at all</span><span>10 = Very sure</span></span>
+      <span class="task-suggestion ecc-callout" aria-live="polite"></span>
+      <span class="ecc-choice-row" role="radiogroup" aria-label="Next appointment">${choice('Career Explorer', 'Career Explorer appointment')}${choice('Create Resume', 'Create Resume appointment')}</span>
+    </span>`;
 }
 
 function bindTaskInlineControl(item, task) {
   if (task.inline !== 'confidence' && task.inline !== 'suggestion' && task.id !== 'career-followup') return;
-  const input = item.querySelector('.task-confidence-input');
-  if (!input) return;
-  const syncInlineSlider = () => {
-    state.student.confidence = input.value;
-    state.student.confidenceEngaged = true;
-    const sessionSlider = $('#career-confidence');
-    if (sessionSlider && sessionSlider.value !== input.value) {
-      sessionSlider.value = input.value;
+  item.querySelectorAll('.ecc-choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.student.followup = btn.dataset.followup;
+      state.checked[task.id] = true;
+      persistState();
+      renderStep();
+    });
+  });
+}
+
+function fillNumpicks() {
+  $$('.ecc-numpick[data-numpick]').forEach(group => {
+    if (group.childElementCount === 10) return;
+    group.innerHTML = '';
+    for (let n = 1; n <= 10; n++) {
+      const key = document.createElement('button');
+      key.type = 'button';
+      key.className = 'ecc-numpick__key';
+      key.dataset.value = String(n);
+      key.setAttribute('aria-pressed', 'false');
+      key.textContent = String(n);
+      key.addEventListener('click', () => pickConfidence(String(n), group.dataset.numpick));
+      group.appendChild(key);
     }
-    updateRecommendation();
-    persistState();
-  };
-  input.addEventListener('input', syncInlineSlider);
-  input.addEventListener('change', syncInlineSlider);
+  });
+}
+
+function pickConfidence(value, source) {
+  state.student.confidence = value;
+  state.student.confidenceEngaged = true;
+  // The session question on Begin is also a checklist item, so picking a number checks it.
+  if (source === 'session') state.checked['career-confidence'] = true;
+  persistState();
+  renderStep();
+  $(`.ecc-numpick[data-numpick="${source}"] .ecc-numpick__key[data-value="${value}"]`)?.focus();
 }
 
 function confidenceSuggestion() {
   const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
-  if (!engaged) return 'Set career confidence (1–10) using either slider to see recommendation. You and the student decide.';
+  if (!engaged) return '<span class="ecc-callout__lead">No suggestion yet.</span> Pick a number to see one. You and the student decide.';
   const c = Number(state.student.confidence);
   if (c <= 5) {
-    return `<strong>Suggested Next Appointment: Career Explorer</strong> (Confidence ${c}/10 — Still exploring). You and the student decide.`;
+    return '<span class="ecc-callout__lead">Suggested: Career Explorer.</span> The student is still exploring. You and the student decide.';
   } else if (c <= 7) {
-    return `<strong>Suggested Next Appointment: Discuss both options</strong> (Confidence ${c}/10 — Clarify direction, then choose Career Explorer or Create Resume). You and the student decide.`;
-  } else {
-    return `<strong>Suggested Next Appointment: Create Resume</strong> (Confidence ${c}/10 — Confident, show Roadmap 2 Steps 1–5). You and the student decide.`;
+    return '<span class="ecc-callout__lead">Suggested: talk about both.</span> Clarify the career direction, then choose Career Explorer or Create Resume together.';
   }
+  return '<span class="ecc-callout__lead">Suggested: Create Resume.</span> The student feels sure. Show Roadmap 2, Steps 1 to 5.';
 }
 
 function updateRecommendation() {
+  fillNumpicks();
   const engaged = Boolean(state.student.confidenceEngaged && state.student.confidence !== '');
-  const confidence = Number(state.student.confidence !== '' ? state.student.confidence : 5);
-  const tone = !engaged ? 'unengaged' : confidence <= 5 ? 'low' : confidence <= 7 ? 'medium' : 'high';
+  const confidence = Number(state.student.confidence !== '' ? state.student.confidence : 0);
+  const tone = !engaged ? 'info' : confidence <= 5 ? 'info' : confidence <= 7 ? 'caution' : 'success';
 
-  // 1. Update suggestion text and synchronized styling
   $$('.task-suggestion').forEach(el => {
-    el.innerHTML = confidenceSuggestion();
-    el.className = `task-suggestion suggestion-${tone}`;
+    el.innerHTML = `<span>${confidenceSuggestion()}</span>`;
+    el.className = `task-suggestion ecc-callout ecc-callout--${tone}`;
   });
-
-  // 2. Synchronize top slider output, style, and value
+  $$('.ecc-numpick__key').forEach(key => {
+    key.setAttribute('aria-pressed', String(engaged && key.dataset.value === String(confidence)));
+  });
+  const shown = engaged ? `Now ${confidence} out of 10.` : 'Not set';
   const topOut = $('#confidence-output');
-  if (topOut) topOut.textContent = engaged ? `${confidence}/10` : 'Not set';
-
-  const confField = $('.confidence-field');
-  if (confField) {
-    confField.classList.remove('confidence-unengaged', 'confidence-low', 'confidence-medium', 'confidence-high');
-    confField.classList.add(`confidence-${tone}`);
-  }
-  const topSlider = $('#career-confidence');
-  if (topSlider) {
-    if (topSlider.value !== String(confidence)) topSlider.value = String(confidence);
-    topSlider.style.setProperty('--confidence-val', String(confidence));
-  }
-
-  // 3. Synchronize mirrored inline slider output, style, and value
-  $$('.task-confidence-block').forEach(block => {
-    block.classList.remove('confidence-unengaged', 'confidence-low', 'confidence-medium', 'confidence-high');
-    block.classList.add(`confidence-${tone}`);
-  });
-  $$('.task-confidence-output').forEach(output => {
-    output.textContent = engaged ? `${confidence}/10` : 'Not set';
-  });
-  const inlineSlider = $('#career-confidence-inline');
-  if (inlineSlider) {
-    if (inlineSlider.value !== String(confidence)) inlineSlider.value = String(confidence);
-    inlineSlider.style.setProperty('--confidence-val', String(confidence));
-  }
-
-  // 4. Update top recommendation banner if present
-  const recommendationElement = $('#followup-recommendation');
-  if (recommendationElement) {
-    if (!engaged) {
-      recommendationElement.className = 'recommendation recommendation-unengaged';
-      recommendationElement.innerHTML = `<div class="recommendation-label">Suggested Action:</div><div class="recommendation-content"><div class="recommendation-guidance">Assess the student’s career confidence (1–10) using either slider to determine the recommended action.</div><span class="recommendation-note">The mentor makes the final decision with the student.</span></div>`;
-      return;
-    }
-
-    const recommendation = confidence <= 5
-      ? '<strong>Career Explorer:</strong> Help the student explore career options and complete their Career Explorer assessments.'
-      : confidence <= 7
-        ? '<strong>Discuss both options:</strong> Clarify the student’s career direction, then choose Career Explorer or Create Resume together.'
-        : '<strong>Create Resume:</strong> If the student remains confident after discussion, plan a Create Resume appointment.';
-
-    recommendationElement.className = `recommendation recommendation-${tone}`;
-    recommendationElement.innerHTML = `<div class="recommendation-label">Suggested Action:</div><div class="recommendation-content"><div class="recommendation-guidance">${recommendation}</div><span class="recommendation-note">The mentor makes the final decision with the student.</span></div>`;
-  }
+  if (topOut) topOut.textContent = shown;
+  $$('.task-confidence-output').forEach(output => { output.textContent = shown; });
+  renderMeetingWith();
 }
 
 function syncInputsFromState() {
@@ -826,7 +889,6 @@ function syncInputsFromState() {
   if ($('#career-student-email')) $('#career-student-email').value = state.student.email;
   if ($('#student-program')) $('#student-program').value = state.student.program;
   if ($('#career-direction')) $('#career-direction').value = state.student.career;
-  if ($('#career-confidence')) $('#career-confidence').value = state.student.confidence;
   if ($('#roadmap-status')) $('#roadmap-status').value = state.student.roadmap;
   if ($('#followup-track')) $('#followup-track').value = state.student.followup;
   if ($('#session-notes')) $('#session-notes').value = state.sessionNotes || '';
@@ -857,26 +919,11 @@ function bindSessionFields() {
           const otherEl = $(otherSel);
           if (otherEl && otherEl !== el) otherEl.value = el.value;
         });
+        renderMeetingWith();
         persistState();
       });
     });
   });
-
-  const confSlider = $('#career-confidence');
-  if (confSlider) {
-    const handleSlider = () => {
-      state.student.confidence = confSlider.value;
-      state.student.confidenceEngaged = true;
-      const inlineSlider = $('#career-confidence-inline');
-      if (inlineSlider && inlineSlider.value !== confSlider.value) {
-        inlineSlider.value = confSlider.value;
-      }
-      updateRecommendation();
-      persistState();
-    };
-    confSlider.addEventListener('input', handleSlider);
-    confSlider.addEventListener('change', handleSlider);
-  }
 
   const roadmapSel = $('#roadmap-status');
   if (roadmapSel) {
@@ -1231,6 +1278,26 @@ function prepareAndShowCivitasNote() {
   }
   showCivitasCopiedBadge();
   copyText(note, 'Note copied to the clipboard');
+  renderCivitasParts();
+  renderProgress();
+}
+
+// Quick due dates add one closing sentence to the next step, so the Civitas note carries it with no new field.
+function addDueDate(kind) {
+  const box = $('#student-next-step');
+  if (!box) return;
+  let phrase = 'Before the next appointment.';
+  if (kind === 'friday' || kind === 'two-weeks') {
+    const d = new Date();
+    if (kind === 'friday') d.setDate(d.getDate() + ((5 - d.getDay() + 7) % 7 || 7));
+    else d.setDate(d.getDate() + 14);
+    phrase = `By ${d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}.`;
+  }
+  const base = box.value.replace(/\s*(By [A-Z][a-z]+day, [A-Z][a-z]+ \d{1,2}\.|Before the next appointment\.)\s*$/, '').trimEnd();
+  box.value = base ? `${base} ${phrase}` : phrase;
+  state.studentNext = box.value;
+  persistState();
+  box.focus();
 }
 
 function buildSummary() {
@@ -1261,13 +1328,7 @@ Privacy reminder: Keep this summary only in an approved location and follow appl
 
 async function handleCivitasConfirmation(checked) {
   state.civitasRecorded = checked;
-  const delBtn = $('#btn-complete-delete-record');
-  if (delBtn) delBtn.disabled = !checked;
-  const nextBtn = $('#next-step');
-  if (nextBtn) {
-    nextBtn.disabled = !checked;
-    nextBtn.title = checked ? 'Complete appointment and delete local student record' : 'Confirm Civitas recording below before completing';
-  }
+  renderStep();
 
   if (state.appointmentId) {
     if (checked) {
@@ -1403,12 +1464,17 @@ function showView(viewName) {
   }
   $$('.view').forEach(view => view.classList.toggle('active', view.id === `${viewName}-view`));
   $$('.top-nav-button').forEach(button => {
-    const isActive = button.dataset.view === viewName;
+    const isActive = button.dataset.view === (viewName === 'prepare' ? 'appointment' : viewName);
     button.classList.toggle('active', isActive);
     if (isActive) button.setAttribute('aria-current', 'page');
     else button.removeAttribute('aria-current');
   });
   if (viewName === 'resources') {
+    // Resources has no steps, so the step strip and action bar step aside.
+    const stepper = $('#appointment-stepper');
+    if (stepper) stepper.hidden = true;
+    const actionbar = $('#step-actionbar');
+    if (actionbar) actionbar.hidden = true;
     renderResources();
   } else {
     renderStep();
@@ -1620,7 +1686,7 @@ function renderCopilotSuggestions() {
   suggestions.innerHTML = '';
   const prompts = state.currentTask === 'prepare'
     ? (PREPARE_STEPS[state.currentStep]?.copilot || ['Help me prepare for this appointment', 'Explain Career Explorer'])
-    : (WORKFLOW[state.currentStep]?.copilot || ['Suggest a question', 'Recommend next steps']);
+    : (APPT_STEPS[apptStepIndex()]?.copilot || ['Suggest a question', 'Recommend next steps']);
 
   prompts.forEach(p => {
     const btn = document.createElement('button');
@@ -1629,6 +1695,19 @@ function renderCopilotSuggestions() {
     btn.addEventListener('click', () => openCopilot(p));
     suggestions.appendChild(btn);
   });
+
+  const railPrompts = $('#step-ai-prompts');
+  if (railPrompts) {
+    railPrompts.innerHTML = '';
+    prompts.forEach(p => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ecc-ai-ask';
+      btn.textContent = p;
+      btn.addEventListener('click', () => openCopilot(p));
+      railPrompts.appendChild(btn);
+    });
+  }
 }
 
 async function submitCopilot(message) {
@@ -1655,7 +1734,7 @@ async function submitCopilot(message) {
         message: context ? `${message}
 
 Appointment context: ${context}` : message,
-        mode: state.currentTask === 'prepare' ? 'step1' : WORKFLOW[state.currentStep].id,
+        mode: state.currentTask === 'prepare' ? 'step1' : (WORKFLOW[state.currentStep] || WORKFLOW[WORKFLOW.length - 1]).id,
         history: state.chatHistory.slice(0, -1).slice(-8)
       })
     });
@@ -1708,7 +1787,13 @@ async function handleSuggestionSubmit(e) {
 }
 
 function bindEvents() {
-  $$('.top-nav-button').forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.view)));
+  // The Appointment tab returns to the step the mentor was on (Prepare or an appointment step).
+  $$('.top-nav-button').forEach(btn => btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    showView(view === 'appointment' ? (state.currentTask === 'prepare' ? 'prepare' : 'appointment') : view);
+  }));
+  $('#btn-ask-ai')?.addEventListener('click', () => openCopilot());
+  $$('.chip-v2[data-due]').forEach(btn => btn.addEventListener('click', () => addDueDate(btn.dataset.due)));
   $$('[data-view-jump]').forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.viewJump)));
   $('#resource-search')?.addEventListener('input', renderResources);
 
@@ -1840,31 +1925,20 @@ function bindEvents() {
     state.currentStep = 0;
     persistState();
     showView('appointment');
-    showToast('Screen 2: Appointment started!');
+    showToast('Appointment started.');
   });
 
-  $('#btn-back-to-prep')?.addEventListener('click', () => {
-    state.currentTask = 'prepare';
-    persistState();
-    showView('prepare');
-  });
+  $('#btn-back-to-prep')?.addEventListener('click', () => goToStep('prepare'));
 
   $('#previous-step')?.addEventListener('click', () => {
-    state.currentTask = 'prepare';
-    persistState();
-    showView('prepare');
+    const idx = apptStepIndex();
+    if (idx === 0) goToStep('prepare');
+    else goToStep('appointment', idx - 1);
   });
 
   $('#next-step')?.addEventListener('click', () => {
-    if (!state.civitasRecorded) {
-      const civitas = $('#civitas-card');
-      if (civitas) {
-        civitas.scrollIntoView({ behavior: 'smooth' });
-      }
-      showToast('Please check "I confirm this appointment has been recorded in Civitas" first.');
-      return;
-    }
-    handleDeleteRecordAfterCivitas();
+    const idx = apptStepIndex();
+    if (idx < APPT_STEPS.length - 1) goToStep('appointment', idx + 1);
   });
 
   $('#btn-copy-civitas')?.addEventListener('click', () => {
@@ -1880,6 +1954,7 @@ function bindEvents() {
     }
     showCivitasCopiedBadge();
     copyText(note, 'Note copied to the clipboard');
+    renderCivitasParts();
   });
 
   $('#civitas-confirm-checkbox')?.addEventListener('change', (e) => {
@@ -1936,7 +2011,7 @@ async function loadServiceStatus() {
     if (badge) {
       const isGemini = active.toLowerCase().includes('gemini');
       const isOffline = active.toLowerCase().includes('offline') || active.toLowerCase().includes('not configured');
-      badge.className = `engine-indicator-pill ${isOffline ? 'engine-offline' : (isGemini ? 'engine-gemini' : 'engine-qwen')}`;
+      badge.className = `ai-engine-line ${isOffline ? 'engine-offline' : (isGemini ? 'engine-gemini' : 'engine-qwen')}`;
     }
   } catch {
   }

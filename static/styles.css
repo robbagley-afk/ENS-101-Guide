@@ -534,8 +534,8 @@ input.required-incomplete {
 }
 .civitas-note-textarea {
   width: 100%;
-  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
-  font-size: 13px;
+  font-family: var(--font-sans); /* ECC: Montserrat only, never mono */
+  font-size: var(--text-field);
   line-height: 1.5;
   color: var(--ink);
   background: var(--input-fill);
@@ -555,8 +555,8 @@ input.required-incomplete {
   outline-offset: var(--focus-offset);
 }
 .civitas-note-textarea.freshly-generated {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(212, 167, 44, 0.25);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(0, 102, 69, 0.25);
 }
 .notes-autosave-hint { margin: 12px 0 0; font-size: var(--text-caption); color: var(--ink-muted); line-height: 1.4; }
 .task-workflow-group-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 4px 6px; border-bottom: 2px solid var(--border); margin-top: 12px; margin-bottom: 6px; }

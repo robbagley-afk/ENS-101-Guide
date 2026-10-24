@@ -56,8 +56,8 @@ class ConversationNoteTagTests(unittest.TestCase):
             page = browser.new_page()
             page.goto((ROOT / "static" / "index.html").as_uri(), wait_until="domcontentloaded")
 
-            # Navigate to 2: APPOINTMENT screen
-            page.click('button[data-view="appointment"]')
+            # Open the appointment at step 2 (Begin) from the stepper; notes are on Begin and Plan.
+            page.click('#workflow-nav li:nth-of-type(3) button')
 
             # Field does not force tag so mentor can type freely
             self.assertEqual("", page.locator("#session-notes").input_value())
@@ -67,6 +67,10 @@ class ConversationNoteTagTests(unittest.TestCase):
             # Generated Civitas note includes #SSTEAM at the end of the conversation notes block
             civitas_note = page.evaluate("buildCivitasNote()")
             self.assertIn("Discussed internship timing and career goals.\n\n#SSTEAM", civitas_note)
+
+            # The Civitas buttons live on step 4 (Log in Civitas): Begin -> Plan -> Civitas.
+            page.click("#next-step")
+            page.click("#next-step")
 
             # Button labels match requirement
             self.assertIn("Prepare Civitas Note", page.locator("#btn-copy-civitas").inner_text())
