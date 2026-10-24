@@ -202,7 +202,7 @@ div.ecc-task { cursor: default; }
 
 /* ---------- v2 audit fixes (runtime audit --v2, design system ad39d14) ---------- */
 /* Header band: styles.css puts an !important brand ring on every control, which is 1.87:1 on brand-deep. Gold is the band's ring. */
-.ecc-hdr-band a:focus-visible, .ecc-hdr-band button:focus-visible, .ecc-hdr-band select:focus-visible { outline: 3px solid var(--accent-gold) !important; outline-offset: 3px !important; }
+.ecc-hdr-band *:focus-visible { outline: 3px solid var(--accent-gold) !important; outline-offset: 3px !important; } /* (0,2,0) beats styles.css element rules (0,1,1) */
 /* v2 controls are 56px */
 #prep-student-email, #prep-chat-send-btn { box-sizing: border-box; min-height: var(--control-height); }
-@media (forced-colors: active) { .ecc-hdr-band a:focus-visible, .ecc-hdr-band button:focus-visible, .ecc-hdr-band select:focus-visible { outline-color: Highlight !important; } }
+@media (forced-colors: active) { .ecc-hdr-band *:focus-visible { outline-color: Highlight !important; } }
