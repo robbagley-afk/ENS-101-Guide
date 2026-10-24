@@ -196,7 +196,7 @@ div.ecc-task { cursor: default; }
   @keyframes civ-ready { 0% { box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.55); } 100% { box-shadow: 0 0 0 5px var(--info-tint); } }
 }
 @media (forced-colors: active) {
-  .ecc-numpick__key.conf-key[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .ecc-numpick__key.conf-key[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; border-color: Highlight; color: HighlightText; }
   .civ-open.is-ready { outline: 3px solid Highlight; }
 }
 
@@ -206,3 +206,9 @@ div.ecc-task { cursor: default; }
 /* v2 controls are 56px */
 #prep-student-email, #prep-chat-send-btn { box-sizing: border-box; min-height: var(--control-height); }
 @media (forced-colors: active) { .ecc-hdr-band *:focus-visible { outline-color: Highlight !important; } }
+/* The legacy .task-suggestion rule in styles.css paints every tone green. Restore the callout colors so the
+   suggestion matches the key colors: low red, medium yellow, high green. (Codex review, PR 26) */
+.task-suggestion.ecc-callout--danger  { background: var(--danger-bg);   border: 2px solid var(--danger);         color: var(--ink); }
+.task-suggestion.ecc-callout--caution { background: var(--caution-bg);  border: 2px solid var(--caution-border); color: var(--ink); }
+.task-suggestion.ecc-callout--success { background: var(--brand-tint);  border: 2px solid var(--brand);          color: var(--ink); }
+.task-suggestion.ecc-callout--info    { background: var(--info-tint);   border: 2px solid var(--info);           color: var(--ink); }

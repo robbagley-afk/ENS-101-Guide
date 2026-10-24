@@ -1967,6 +1967,9 @@ function bindEvents() {
     renderCivitasParts();
   });
 
+  // A hand-edited or cleared note changes whether Open Civitas is the next move
+  $('#civitas-note-text')?.addEventListener('input', () => renderCivitasParts());
+
   $('#civitas-confirm-checkbox')?.addEventListener('change', (e) => {
     handleCivitasConfirmation(e.target.checked);
   });
