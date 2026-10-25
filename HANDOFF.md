@@ -136,9 +136,8 @@ Then restart ENS. The Hub needs no rollback; its `/api/v1/lookup` and
 3. **Report download privacy.** `/api/career-explorer/download-report` falls back
    to the most recent PDF of *any* student when no match is found. The UI no
    longer calls it without a stored link, but the server fallback should be removed.
-4. **Old cached emails.** The ENS `feedback.db` table `ensign_connect_cache` still
-   holds emails and results from the old lookups and is no longer read. Delete once
-   approved.
+4. **Old cached emails.** The ENS `feedback.db` table `ensign_connect_cache` was
+   cleared on Rob's approval on 2026-10-24.
 5. **"Local only" behind the proxy.** ENS and Hub loopback checks pass every
    request that arrives through a reverse proxy on the same Mac, so they
    effectively allow anyone on the tailnet.
