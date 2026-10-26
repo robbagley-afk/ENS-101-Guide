@@ -1940,8 +1940,6 @@ function bindEvents() {
     showToast('Appointment started.');
   });
 
-  $('#btn-back-to-prep')?.addEventListener('click', () => goToStep('prepare'));
-
   $('#previous-step')?.addEventListener('click', () => {
     const idx = apptStepIndex();
     if (idx === 0) goToStep('prepare');
