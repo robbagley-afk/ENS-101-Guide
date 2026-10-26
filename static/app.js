@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'ens101-mentor-desk-appointment-1a-v4';
-const { ensurePermanentConversationTag, appendConversationTag = ensurePermanentConversationTag } = window.NoteUtils;
+const { ensurePermanentConversationTag, appendConversationTag = ensurePermanentConversationTag, stripConversationTag, CONVERSATION_NOTE_TAG = '#SSTEAM' } = window.NoteUtils;
 const ACTIVE_APPT_ID_KEY = 'ens101_active_appt_id';
 
 // Prepare is one step: the mentor enters the email and reads the executive summary.
@@ -1251,7 +1251,7 @@ ${state.prepNotes || 'None recorded.'}
 
 ` +
     `SESSION CONVERSATION NOTES:
-${ensurePermanentConversationTag(state.sessionNotes)}
+${(stripConversationTag ? stripConversationTag(state.sessionNotes) : state.sessionNotes) || 'None recorded.'}
 
 ` +
     `AGREED STUDENT NEXT STEPS:
@@ -1264,6 +1264,8 @@ ${state.mentorFollow}
 ` : '') +
     `COMPLETED WORKFLOW TASKS:
 ${tasksDone || 'None marked complete.'}
+
+${CONVERSATION_NOTE_TAG}
 `;
 }
 

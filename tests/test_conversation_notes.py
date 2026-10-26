@@ -64,9 +64,10 @@ class ConversationNoteTagTests(unittest.TestCase):
             page.locator("#session-notes").fill("Discussed internship timing and career goals.")
             self.assertEqual("Discussed internship timing and career goals.", page.locator("#session-notes").input_value())
 
-            # Generated Civitas note includes #SSTEAM at the end of the conversation notes block
+            # Generated Civitas note includes #SSTEAM as the last item of the note
             civitas_note = page.evaluate("buildCivitasNote()")
-            self.assertIn("Discussed internship timing and career goals.\n\n#SSTEAM", civitas_note)
+            self.assertTrue(civitas_note.strip().endswith("#SSTEAM"))
+            self.assertIn("Discussed internship timing and career goals.", civitas_note)
 
             # The Civitas buttons live on step 4 (Log in Civitas): Begin -> Plan -> Civitas.
             page.click("#next-step")
@@ -79,7 +80,8 @@ class ConversationNoteTagTests(unittest.TestCase):
             # Clicking "Prepare Civitas Note" displays the generated note and announces copy to clipboard
             self.assertEqual("", page.locator("#civitas-note-text").input_value())
             page.click("#btn-copy-civitas")
-            self.assertIn("Discussed internship timing and career goals.\n\n#SSTEAM", page.locator("#civitas-note-text").input_value())
+            self.assertTrue(page.locator("#civitas-note-text").input_value().strip().endswith("#SSTEAM"))
+            self.assertIn("Discussed internship timing and career goals.", page.locator("#civitas-note-text").input_value())
             page.wait_for_selector("#toast.show")
             self.assertEqual("Note copied to the clipboard", page.locator("#toast").inner_text())
             self.assertTrue(page.locator("#civitas-copied-badge").is_visible())
