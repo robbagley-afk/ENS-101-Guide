@@ -621,6 +621,8 @@ function renderProgress() {
   const percentage = total > 0 ? Math.round((done / total) * 100) : 0;
   if (label) label.textContent = `${done} of ${total} done`;
   if (bar) bar.style.width = `${percentage}%`;
+  // Next turns orange once every item on the step is checked (Rob, 2026-10-25). Visual cue only, never a block.
+  $('#next-step')?.classList.toggle('is-ready', step.id !== 'civitas' && total > 0 && done === total);
 }
 
 function renderStep() {
