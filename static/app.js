@@ -865,7 +865,7 @@ function confidenceSuggestion() {
   } else if (c <= 7) {
     return '<span class="ecc-callout__lead">Suggested: talk about both.</span> Clarify the career direction, then choose Career Explorer or Create Resume together.';
   }
-  return '<span class="ecc-callout__lead">Suggested: Create Resume.</span> The student feels sure. Show Roadmap 2, Steps 1 to 5.';
+  return '<span class="ecc-callout__lead">Suggested: Roadmap 1 — Networking Job Search.</span> The student feels sure.';
 }
 
 function updateRecommendation() {
