@@ -213,20 +213,10 @@ div.ecc-task { cursor: default; }
 .task-suggestion.ecc-callout--success { background: var(--brand-tint);  border: 2px solid var(--brand);          color: var(--ink); }
 .task-suggestion.ecc-callout--info    { background: var(--info-tint);   border: 2px solid var(--info);           color: var(--ink); }
 
-/* ---------- Next: orange with a slow pulse once every checklist item on the step is checked ---------- */
-#next-step.is-ready {
-  /* Orange is Rob's explicit request (2026-10-25), outside the ECC hue set. #C2410C on white text is 5.2:1 */
-  background: #C2410C; border-color: #C2410C; color: #fff;
-  box-shadow: 0 0 0 5px rgba(194, 65, 12, 0.22);
-}
-#next-step.is-ready:hover { background: #9A3412; border-color: #9A3412; color: #fff; }
-@media (prefers-reduced-motion: no-preference) {
-  #next-step.is-ready { animation: next-ready-pulse 2.4s ease-in-out infinite; }
-  @keyframes next-ready-pulse {
-    0%, 100% { box-shadow: 0 0 0 4px rgba(194, 65, 12, 0.18); }
-    50%      { box-shadow: 0 0 0 10px rgba(194, 65, 12, 0.32); }
-  }
-}
+/* ---------- Next: Amazon orange once every checklist item on the step is checked ---------- */
+/* Same treatment as Career Explorer (student PR 27, mentor PR 28). #0F1111 on #FF9900 is 9.6:1. */
+#next-step.is-ready { background: #FF9900; border-color: #FF9900; color: #0F1111; box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.35); }
+#next-step.is-ready:hover { background: #FA8900; border-color: #FA8900; color: #0F1111; }
 @media (forced-colors: active) {
   #next-step.is-ready { outline: 3px solid Highlight; }
 }
