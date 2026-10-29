@@ -220,3 +220,9 @@ div.ecc-task { cursor: default; }
 @media (forced-colors: active) {
   #next-step.is-ready { outline: 3px solid Highlight; }
 }
+
+/* Begin step has no right column: the work column takes its width (desktop only, the vendored 1180px rule handles narrower screens) */
+@media (min-width: 1181px) {
+  .ecc-step-layout.no-record { grid-template-columns: minmax(270px, 320px) minmax(0, 1fr); }
+  .ecc-step-layout.no-record > .record-v2 { display: none; }
+}
