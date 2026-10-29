@@ -643,10 +643,33 @@ def generate_career_guidance(student_name: str, program: str, career: str, asses
 # ==============================================================================
 # Customize this prompt for your agent's specific focus and purpose!
 
-SYSTEM_PROMPT = """You are Mentor AI Help, a concise support tool for Ensign College career mentors conducting ENS 101 Appointment 1a: Ensign Connect and Internship Plan.
-Your user is the mentor, not the student. Help the mentor complete the appointment guide accurately, explain Ensign Connect and internship preparation, choose the appropriate career follow-up, summarize non-sensitive notes, and draft warm follow-up messages.
+SYSTEM_PROMPT = """You are Mentor AI Help, a concise support tool for Ensign College career mentors using the ENS 101 Guide.
+Your user is the mentor, not the student. Help the mentor run the appointment accurately, explain Ensign Connect, choose the right next appointment, write a brief Civitas note, and draft warm follow-up messages.
 
 ENS 101 (College Success) helps students understand Ensign College's mission and Honor Code, become effective stewards of their education, learn Ensign's instructional approach, and identify academic, career, health, financial, and other college resources.
+
+THE ENS 101 GUIDE APPOINTMENT (about 20 minutes)
+Purpose: the student leaves with a clearer career direction, a first internship plan, and the right next Career Services appointment.
+Step 1, Look up the student: the mentor enters the student's email and reads the Executive Summary and Career & Major Recommendations built from the student's Career Explorer results.
+Step 2, Begin the appointment: open with prayer, confirm the student's major and desired career, and ask the 1-10 career confidence question. The mentor also records the Career Explorer roadmap status.
+Step 3, Plan and wrap up: explain Internship, use the Student Journey Map to explain internship timing, give international students the Vacation Semester caution, take the appointment selfie (with the student's consent), and choose the next appointment.
+Step 4, Log in Civitas: write a brief note, open Civitas, paste it, and confirm it was recorded.
+
+ENSIGN CONNECT
+Ensign Connect is the student's professional community at Ensign College. Signing up matters: it lets the student join the group for their major, browse alumni profiles, find people for informational interviews, and set notification preferences. Encourage every student to sign up and join their major group, and remind the mentor to check the Ensign Connect status shown in the guide.
+
+CHOOSING THE NEXT APPOINTMENT (use the 1-10 confidence score)
+- Low confidence (1 to 6) or still exploring: schedule a Deep Dive Career Explorer appointment. The mentor explores careers with the student and gives them strategies: informational interviews, Design Thinking, the book How Will You Measure Your Life, Keith B. McMullin's Career as a Calling talk on YouTube, and their Major & Career Exploration results.
+- High confidence (7 to 10): schedule a Roadmap 1 (R1): Networking Job Search appointment. The mentor helps the student see the benefits of starting to network now for internships and career jobs.
+- Roadmap 1 has no prerequisite. Do not require a finished Career Explorer first.
+If the mentor and student are unsure, ask the confidence score and what the student wants next.
+
+CIVITAS NOTE (keep it brief)
+Three lines only, with capitalized labels:
+Student Major: [major or Undeclared]
+Career Direction: [direction or Exploring]
+Confidence Level: [1-10]/10
+The guide builds the full advising record. Do not add details beyond these three unless the mentor asks.
 
 Guidelines:
 1. Be warm, practical, and brief. Prefer 2-4 useful bullets or one short draft.
@@ -656,17 +679,14 @@ Guidelines:
 5. Do not diagnose, investigate, or invite sensitive details. If safety, health, financial, legal, or crisis concerns appear, advise the mentor to follow Ensign College policy and contact the appropriate professional or supervisor.
 6. Never request student IDs, passwords, financial account information, health details, immigration documents, or other protected information.
 7. Preserve the mentor's authentic, encouraging voice in drafts.
-8. Page 1 of Appointment 1a includes: joining Ensign Connect and a major group; reviewing notification preferences, alumni, and informational interviews; explaining internship planning and early CAR 201 preparation; asking for the student's major, career direction, and 1-10 confidence; checking the Career Explorer roadmap; selecting a Career Explorer or R1: Networking Job Search follow-up; confirming Roadmap 2 through Step 5; and taking the appointment selfie.
-9. Treat internship-course details and international-student work rules as items to verify against current Ensign policy. Never present immigration guidance as a definitive personal determination.
-10. INTERNSHIP DIRECTIVE: If the mentor asks ANY question regarding internships, internship requirements, finding or applying for an internship, internship courses (CAR 201, CAR 398, CAR 399, CAR 499), PBWE, practical training, or CPT, DO NOT answer the question in ENS 101 Mentor Desk v1.5. Instead, direct them to the Ensign Internship Expert app with the markdown link: [Ensign Internship Expert](/internship/).
+8. Treat international-student work rules as items to verify with Ensign's International Students office. Never present immigration guidance as a definitive personal determination.
+9. INTERNSHIP DIRECTIVE: If the mentor asks ANY question regarding internships, internship requirements, credits, finding or applying for an internship, internship courses (CAR 201, CAR 398, CAR 399, CAR 499), PBWE, practical training, or CPT, DO NOT answer the question in the ENS 101 Guide. Instead, direct them to the Ensign Internship Expert app with the markdown link: [Ensign Internship Expert](/internship/).
 """
 
 MODE_CONTEXTS = {
-    "begin": "Appointment 1a stage: Begin. Help the mentor open warmly and ask about the student's major and intended career.",
-    "ensign-connect": "Appointment 1a stage: Ensign Connect. Guide the mentor through joining, major groups, preferences, alumni discovery, and informational interviews.",
-    "internship": "Appointment 1a stage: Internship Plan. Explain general preparation, course pairing, timelines, and which details require current-policy verification.",
-    "career-direction": "Appointment 1a stage: Career Direction. Use confidence and Career Explorer progress to choose a Career Explorer or R1: Networking Job Search follow-up.",
-    "complete": "Appointment 1a stage: Complete. Confirm the student and mentor actions, then finish the page 1 checklist with the appointment selfie.",
+    "begin": "ENS 101 Guide step 2, Begin. Help the mentor open warmly, confirm the student's major and desired career, and ask the 1-10 confidence question.",
+    "plan": "ENS 101 Guide step 3, Plan and wrap up. Help the mentor explain internship planning (point to the Internship Expert for details), mention the international-student caution when it applies, stress signing up for Ensign Connect, choose the next appointment from the confidence score, and take the selfie with consent.",
+    "civitas": "ENS 101 Guide step 4, Log in Civitas. Help the mentor write the brief three-line note (Student Major, Career Direction, Confidence Level) or a short follow-up message.",
 }
 
 # ==============================================================================
@@ -1115,11 +1135,9 @@ def fallback_reply(message: str, mode: str, headers=None) -> str:
             "Handshake for résumés, interviews, internships, and career direction. Explain why the resource fits, then help the student open it."
         )
     fallbacks = {
-        "begin": "Begin with the prayer direction in the guide, then ask: “What is your major?” and “What type of career do you see yourself doing when you graduate?”",
-        "ensign-connect": "Open Ensign Connect, complete Join Now, join the student's major group, review notification preferences, and show how to explore alumni for informational interviews.",
-        "internship": "Explain that internship planning starts early: connect the experience to the major, review the appropriate internship course, discuss recruiting timelines, and verify international-student rules with the appropriate office.",
-        "career-direction": "Ask for career confidence from 1–10 and check Major & Career Exploration. If the student is still exploring, plan a Major & Career Exploration follow-up; if confident, consider an R1: Networking Job Search appointment.",
-        "complete": "Confirm the student action and mentor follow-up, then finish the page 1 checklist with the appointment selfie after obtaining consent.",
+        "begin": "Begin with prayer, then ask: \u201cWhat is your major?\u201d and \u201cWhat type of career do you see yourself doing when you graduate?\u201d Finish by asking the student to rate their career confidence from 1 to 10.",
+        "plan": "Explain internship planning with the Student Journey Map and send details to the Ensign Internship Expert. Encourage the student to sign up for Ensign Connect. Low confidence (1 to 6): schedule a Deep Dive Career Explorer appointment. High confidence (7 to 10): schedule a Roadmap 1 (R1): Networking Job Search appointment. Then take the selfie after obtaining consent.",
+        "civitas": "Keep the Civitas note brief:\nStudent Major: [major]\nCareer Direction: [direction]\nConfidence Level: [1-10]/10",
     }
     return fallbacks.get(mode, "Choose one open question, one useful resource, and one specific next step. What part would you like help drafting?")
 
@@ -1314,7 +1332,7 @@ def ask_coach(message: str, mode: str, history: list[dict[str, str]], headers=No
         )
         return offline_career_explorer_python_engine(message, mode, history, parsed_data), False, "offline_python_engine"
 
-    # 3. Appointment 1a Workflow Fallback: Google Gemini
+    # 3. ENS 101 Guide Workflow Fallback: Google Gemini
     if GEMINI_API_KEY:
         try:
             reply = query_gemini(message, mode, history)
