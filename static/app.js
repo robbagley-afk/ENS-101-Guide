@@ -35,7 +35,7 @@ const WORKFLOW = [
     title: 'Plan and wrap up',
     description: 'Build the internship plan, choose the next appointment, and close the appointment.',
     tasks: [
-      { id: 'internship-requirement', title: 'Explain Internship (Any job related to Major, etc.)', detail: '' },
+      { id: 'internship-requirement', title: 'Explain Internship (24 Ensign credits; job related to major; take Internship Class; plan ahead)', detail: '' },
       { id: 'internship-timeline', title: 'Use Student Journey Map - Explain Internship Timing', detail: '' },
       { id: 'internship-international', title: 'International Students: Save your Vacation Semester for your Internship so you can apply to fulltime jobs', detail: '' },
       { id: 'close-selfie', title: 'Take the appointment selfie', detail: '' },
@@ -813,7 +813,7 @@ function taskInlineControl(task) {
       <span class="ecc-numpick" role="group" aria-labelledby="inline-confidence-label" data-numpick="inline"></span>
       <span class="numpick-ends"><span>1 = Not sure at all</span><span>10 = Very sure</span></span>
       <span class="task-suggestion ecc-callout" aria-live="polite"></span>
-      <span class="ecc-choice-row" role="radiogroup" aria-label="Next appointment">${choice('Career Explorer', 'Career Explorer appointment')}${choice('Create Resume', 'Create Resume appointment')}</span>
+      <span class="ecc-choice-row" role="radiogroup" aria-label="Next appointment">${choice('Career Explorer', 'Career Explorer appointment')}${choice('R1: Networking Job Search', 'R1: Networking Job Search')}</span>
     </span>`;
 }
 
@@ -863,7 +863,7 @@ function confidenceSuggestion() {
   if (c <= 5) {
     return '<span class="ecc-callout__lead">Suggested: Career Explorer.</span> The student is still exploring. You and the student decide.';
   } else if (c <= 7) {
-    return '<span class="ecc-callout__lead">Suggested: talk about both.</span> Clarify the career direction, then choose Career Explorer or Create Resume together.';
+    return '<span class="ecc-callout__lead">Suggested: talk about both.</span> Clarify the career direction, then choose Career Explorer or R1: Networking Job Search together.';
   }
   return '<span class="ecc-callout__lead">Suggested: Roadmap 1 — Networking Job Search.</span> The student feels sure.';
 }
@@ -1243,7 +1243,7 @@ function buildCivitasNote() {
 ` +
     `Ensign Connect Status: ${state.connectStatus?.checked ? (state.connectStatus.found ? 'Account Active' : 'No Account Found') : 'Not checked'}
 ` +
-    `Next Planned Appointment: ${state.student.followup || 'Career Explorer / Create Resume'}
+    `Next Planned Appointment: ${state.student.followup || 'Career Explorer / R1: Networking Job Search'}
 
 ` +
     `PREPARATION NOTES:
