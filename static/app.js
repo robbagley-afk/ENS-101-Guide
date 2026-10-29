@@ -35,7 +35,7 @@ const WORKFLOW = [
     title: 'Plan and wrap up',
     description: 'Build the internship plan, choose the next appointment, and close the appointment.',
     tasks: [
-      { id: 'internship-requirement', title: 'Explain Internship (Any job related to Major, etc.)', detail: '' },
+      { id: 'internship-requirement', title: 'Explain Internship (24 Ensign credits; job related to major; take Internship Class; plan ahead)', detail: '' },
       { id: 'internship-timeline', title: 'Use Student Journey Map - Explain Internship Timing', detail: '' },
       { id: 'internship-international', title: 'International Students: Save your Vacation Semester for your Internship so you can apply to fulltime jobs', detail: '' },
       { id: 'close-selfie', title: 'Take the appointment selfie', detail: '' },
