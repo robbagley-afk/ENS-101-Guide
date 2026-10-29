@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="ecc-components.base.css?v=ad39d14" />
     <link rel="stylesheet" href="ecc-app.css?v=ad39d14" />
     <link rel="stylesheet" href="styles.css?v=20261024" />
-    <link rel="stylesheet" href="ens101-v2.css?v=20261027-amazon" />
+    <link rel="stylesheet" href="ens101-v2.css?v=20261029-nopanels" />
     <!-- Vercel Web Analytics -->
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -152,19 +152,6 @@
             <div id="task2-appointment-workspace" class="task-workspace ecc-step-layout">
 
               <aside class="ecc-step-rail rail-v2" aria-label="About this appointment">
-                <section class="card-v2" aria-labelledby="mw-heading">
-                  <h2 id="mw-heading" class="card-v2__title">Meeting with</h2>
-                  <div class="mw-person">
-                    <span id="mw-initials" class="mw-avatar" aria-hidden="true">?</span>
-                    <div id="mw-name" class="mw-name">New student</div>
-                  </div>
-                  <dl class="mw-facts">
-                    <div><dt>Major</dt><dd id="mw-program">Not entered</dd></div>
-                    <div><dt>Career direction</dt><dd id="mw-career">Not entered</dd></div>
-                    <div><dt>Career confidence</dt><dd id="mw-confidence">Not set</dd></div>
-                  </dl>
-                </section>
-
                 <section class="ecc-ai-panel" aria-labelledby="ai-panel-heading">
                   <h2 id="ai-panel-heading">Need help with this step?</h2>
                   <p class="ai-panel__lead">Ask Mentor AI for a question or a rule.</p>
@@ -268,20 +255,6 @@
                       <button type="button" class="chip-v2" data-due="next-appt">Before the next appointment</button>
                     </div>
                   </div>
-                </section>
-
-                <section id="notes-card" class="card-v2" aria-labelledby="notes-heading">
-                  <div class="card-v2__head">
-                    <h2 id="notes-heading" class="card-v2__title">Conversation notes</h2>
-                    <button id="copy-summary" class="ecc-btn ecc-btn-secondary small-v2" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Copy summary</span></button>
-                  </div>
-                  <div class="ecc-callout ecc-callout--caution" role="note">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                    <span><span class="ecc-callout__lead">Keep notes appropriate.</span> No student IDs, passwords, money or health details.</span>
-                  </div>
-                  <label for="session-notes" class="sr-only">Conversation notes</label>
-                  <textarea id="session-notes" class="ecc-field ecc-field--lg notes-v2" rows="6" placeholder="Short themes from the talk. For example: Interested in project work."></textarea>
-                  <p class="field-help-v2">Notes save automatically to this appointment’s record.</p>
                 </section>
 
                 <section class="ecc-feature-card ecc-feature-card--info" id="civitas-note-card" aria-labelledby="civitas-note-heading" hidden>
@@ -408,6 +381,6 @@
     </div>
     <script src="ces-motion.js"></script>
     <script src="note-utils.js"></script>
-    <script src="app.js?v=28"></script>
+    <script src="app.js?v=29"></script>
   </body>
 </html>

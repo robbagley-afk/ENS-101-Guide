@@ -770,8 +770,8 @@ function renderAppointmentWorkspace() {
   if (noteCard) noteCard.hidden = !isCivitas;
   const nextStepCard = $('#next-step-card');
   if (nextStepCard) nextStepCard.hidden = step.id !== 'plan';
-  const notesCard = $('#notes-card');
-  if (notesCard) notesCard.hidden = isCivitas;
+  // Right column only holds the next-appointment card (Plan) and the Civitas note (Civitas). Begin has neither, so the work column takes the space.
+  $('#task2-appointment-workspace')?.classList.toggle('no-record', !(step.id === 'plan' || isCivitas));
 
   const confirmCb = $('#civitas-confirm-checkbox');
   if (confirmCb) confirmCb.checked = Boolean(state.civitasRecorded);

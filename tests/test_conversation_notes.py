@@ -59,10 +59,10 @@ class ConversationNoteTagTests(unittest.TestCase):
             # Open the appointment at step 2 (Begin) from the stepper; notes are on Begin and Plan.
             page.click('#workflow-nav li:nth-of-type(3) button')
 
-            # Field does not force tag so mentor can type freely
-            self.assertEqual("", page.locator("#session-notes").input_value())
-            page.locator("#session-notes").fill("Discussed internship timing and career goals.")
-            self.assertEqual("Discussed internship timing and career goals.", page.locator("#session-notes").input_value())
+            # The Conversation notes panel was removed from Begin and Plan (Rob, 2026-10-29)
+            self.assertEqual(0, page.locator("#session-notes").count())
+            self.assertEqual(0, page.locator("#notes-card").count())
+            page.evaluate("state.sessionNotes = 'Discussed internship timing and career goals.'")
 
             # Generated Civitas note includes #SSTEAM as the last item of the note
             civitas_note = page.evaluate("buildCivitasNote()")
