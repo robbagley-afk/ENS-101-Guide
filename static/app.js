@@ -19,14 +19,14 @@ const WORKFLOW = [
   {
     id: 'begin', label: 'Begin', short: 'Welcome and set direction', duration: '3–5 min',
     title: 'Begin the appointment',
-    description: 'Open warmly, follow the prayer direction in the Appointment 1a guide, learn the student\'s major and career direction, and check confidence.',
+    description: 'Open warmly, follow the prayer direction in the ENS 101 Guide, learn the student\'s major and career direction, and check confidence.',
     tasks: [
       // Begin is three plain checkboxes with no detail line (Rob, 2026-10-22). begin-major now covers the career question too.
       { id: 'begin-prayer', title: 'Open with prayer', detail: '' },
       { id: 'begin-major', title: 'Confirm the student\'s major and desired career', detail: '' },
       { id: 'career-confidence', title: 'Ask the 1–10 confidence question', detail: '' }
     ],
-    copilot: ['Give me a warm opening', 'Explain Appointment 1a', 'Suggest a career question']
+    copilot: ['Give me a warm opening', 'Explain this appointment', 'Suggest a career question']
   },
   {
     // Internship planning and wrap-up share one screen. Task ids are reused where the meaning is the same,
@@ -46,12 +46,12 @@ const WORKFLOW = [
 ];
 
 const RESOURCES = [
-  { id: 'connect', name: 'Ensign Connect', initials: 'EC', category: 'Appointment 1a', url: 'https://ces.peoplegrove.com/hub/ces/organizations/ensign-connect', description: 'Join Ensign Connect and access the student’s professional community.' },
-  { id: 'groups', name: 'Ensign Major Groups', initials: 'G', category: 'Appointment 1a', url: 'https://ces.peoplegrove.com/hub/ces/groups?organization=19963', description: 'Find and join the Ensign College group for the student’s major.' },
-  { id: 'preferences', name: 'Connect Preferences', initials: 'N', category: 'Appointment 1a', url: 'https://ces.peoplegrove.com/preferences/notifications', description: 'Review Ensign Connect email and SMS notification choices.' },
-  { id: 'community', name: 'Explore the Community', initials: 'A', category: 'Appointment 1a', url: 'https://ces.peoplegrove.com/hub/ces/person', description: 'Browse alumni profiles and identify people for informational interviews.' },
-  { id: 'internship-expert', name: 'Ensign Internship Expert', initials: 'IE', category: 'Appointment 1a', url: '/internship/', description: 'Official source-grounded answers for Ensign College internships, course pairing, and CPT.' },
-  { id: 'informational-interview', name: 'Informational Interview Handout', initials: 'II', category: 'Appointment 1a', url: '/resources/informational-interview-handout.pdf', description: 'Review the informational interview guidance and the questions on the back.' },
+  { id: 'connect', name: 'Ensign Connect', initials: 'EC', category: 'ENS 101 Guide', url: 'https://ces.peoplegrove.com/hub/ces/organizations/ensign-connect', description: 'Join Ensign Connect and access the student’s professional community.' },
+  { id: 'groups', name: 'Ensign Major Groups', initials: 'G', category: 'ENS 101 Guide', url: 'https://ces.peoplegrove.com/hub/ces/groups?organization=19963', description: 'Find and join the Ensign College group for the student’s major.' },
+  { id: 'preferences', name: 'Connect Preferences', initials: 'N', category: 'ENS 101 Guide', url: 'https://ces.peoplegrove.com/preferences/notifications', description: 'Review Ensign Connect email and SMS notification choices.' },
+  { id: 'community', name: 'Explore the Community', initials: 'A', category: 'ENS 101 Guide', url: 'https://ces.peoplegrove.com/hub/ces/person', description: 'Browse alumni profiles and identify people for informational interviews.' },
+  { id: 'internship-expert', name: 'Ensign Internship Expert', initials: 'IE', category: 'ENS 101 Guide', url: '/internship/', description: 'Official source-grounded answers for Ensign College internships, course pairing, and CPT.' },
+  { id: 'informational-interview', name: 'Informational Interview Handout', initials: 'II', category: 'ENS 101 Guide', url: '/resources/informational-interview-handout.pdf', description: 'Review the informational interview guidance and the questions on the back.' },
   { id: 'pathwayu', name: 'Major & Career Exploration', initials: 'CE', category: 'Career Planning', url: 'https://ensign.pathwayu.com/login?next=%2Fresults', description: 'Open the Major & Career Exploration results.' },
   { id: 'international', name: 'International Students', initials: 'IS', category: 'Support', url: 'https://www.ensign.edu/international-students', description: 'Official help for work authorization and international-student questions.' },
   { id: 'office', name: 'Major & Career Exploration AI', initials: 'AI', category: 'Career Planning', url: 'https://portal.office.com/', description: 'Open Microsoft 365 to access the Major & Career Exploration AI assistant.' },
@@ -1522,7 +1522,7 @@ function renderResources() {
     grid.innerHTML = filtered.length ? filtered.map(r => `
       <a class="resource-card card" href="${resolveSuiteUrl(r.url)}" target="_blank" rel="noopener">
         <div class="resource-top"><span class="resource-icon">${r.initials}</span><svg class="resource-external" viewBox="0 0 24 24"><path d="M14 5h5v5M10 14 19 5"/><path d="M19 13v6H5V5h6"/></svg></div>
-        <h2>${r.name}</h2><p>${r.description}</p><span class="resource-category${r.category === 'Appointment 1a' ? ' appointment-label' : ''}">${r.category}</span>
+        <h2>${r.name}</h2><p>${r.description}</p><span class="resource-category${r.category === 'ENS 101 Guide' ? ' appointment-label' : ''}">${r.category}</span>
       </a>`).join('') : '<div class="resource-empty card"><strong>No matching resources</strong><p>Try a different search or category.</p></div>';
   }
 }
@@ -1748,7 +1748,7 @@ async function submitCopilot(message) {
         message: context ? `${message}
 
 Appointment context: ${context}` : message,
-        mode: state.currentTask === 'prepare' ? 'step1' : (WORKFLOW[state.currentStep] || WORKFLOW[WORKFLOW.length - 1]).id,
+        mode: state.currentTask === 'prepare' ? 'step1' : (APPT_STEPS[state.currentStep] || WORKFLOW[WORKFLOW.length - 1]).id,
         history: state.chatHistory.slice(0, -1).slice(-8)
       })
     });
