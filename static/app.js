@@ -803,17 +803,14 @@ function renderCivitasParts() {
   });
 }
 
-// The next-appointment task carries the 1 to 10 number keys, the suggestion and the choice buttons.
+// The next-appointment task carries the choice buttons for the next appointment.
 function taskInlineControl(task) {
   if (task.inline !== 'confidence' && task.inline !== 'suggestion' && task.id !== 'career-followup') return '';
   const followup = state.student.followup || '';
-  const choice = (value, label) => `<button type="button" role="radio" class="ecc-choice" data-followup="${value}" aria-checked="${followup === value}">${label}</button>`;
+  const choice = (value, label, url) => `<button type="button" role="radio" class="ecc-choice" data-followup="${value}" data-roadmap-url="${url}" title="Opens roadmap in a new tab" aria-checked="${followup === value}">${label}</button>`;
   return `<span class="task-followup-v2">
-      <span id="inline-confidence-label" class="confidence-v2__q">Ask again: how sure is the student? <output class="task-confidence-output">Not set</output></span>
-      <span class="ecc-numpick" role="group" aria-labelledby="inline-confidence-label" data-numpick="inline"></span>
-      <span class="numpick-ends"><span>1 = Not sure at all</span><span>10 = Very sure</span></span>
-      <span class="task-suggestion ecc-callout" aria-live="polite"></span>
-      <span class="ecc-choice-row" role="radiogroup" aria-label="Next appointment">${choice('Career Explorer', 'Career Explorer appointment')}${choice('R1: Networking Job Search', 'R1: Networking Job Search')}</span>
+      <span class="ecc-callout">Choose the next appointment together. The roadmap opens in a new tab.</span>
+      <span class="ecc-choice-row" role="radiogroup" aria-label="Next appointment">${choice('Career Explorer', 'Career Explorer appointment', 'https://connect.byu.edu/hub/ces/pathways/module-1-know-your-career-interests-and-options-beta-version-copy-ZWDJnjQ1Dm/steps/0')}${choice('R1: Networking Job Search', 'R1: Networking Job Search', 'https://ces.peoplegrove.com/hub/ces/pathways/roadmap-5-networking-job-search-r5-copy-kO5LvQ4GdV/steps/0')}</span>
     </span>`;
 }
 
@@ -825,6 +822,8 @@ function bindTaskInlineControl(item, task) {
       state.checked[task.id] = true;
       persistState();
       renderStep();
+      const url = btn.dataset.roadmapUrl;
+      if (url) window.open(url, '_blank', 'noopener,noreferrer');
     });
   });
 }
