@@ -807,10 +807,18 @@ function renderCivitasParts() {
 function taskInlineControl(task) {
   if (task.inline !== 'confidence' && task.inline !== 'suggestion' && task.id !== 'career-followup') return '';
   const followup = state.student.followup || '';
-  const choice = (value, label, url) => `<button type="button" role="radio" class="ecc-choice" data-followup="${value}" data-roadmap-url="${url}" title="Opens roadmap in a new tab" aria-checked="${followup === value}">${label}</button>`;
+  const choice = (value, label) =>
+    `<button type="button" role="radio" class="ecc-choice" data-followup="${value}" aria-checked="${followup === value}">${label}</button>`;
+  const roadmapAnchor = (href, label) =>
+    `<a href="${href}" class="ecc-btn ecc-btn--lg ecc-btn-secondary" target="_blank" rel="noopener noreferrer">${label}</a>`;
   return `<span class="task-followup-v2">
-      <span class="ecc-callout">Choose the next appointment together. The roadmap opens in a new tab.</span>
-      <span class="ecc-choice-row" role="radiogroup" aria-label="Next appointment">${choice('Career Explorer', 'Career Explorer appointment', 'https://connect.byu.edu/hub/ces/pathways/module-1-know-your-career-interests-and-options-beta-version-copy-ZWDJnjQ1Dm/steps/0')}${choice('R1: Networking Job Search', 'R1: Networking Job Search', 'https://ces.peoplegrove.com/hub/ces/pathways/roadmap-5-networking-job-search-r5-copy-kO5LvQ4GdV/steps/0')}</span>
+      <span class="ecc-callout">Choose the next appointment together.</span>
+      <span class="ecc-choice-row" role="radiogroup" aria-label="Next appointment">${choice('Career Explorer', 'Career Explorer appointment')}${choice('R1: Networking Job Search', 'R1: Networking Job Search')}</span>
+      <span class="task-followup-roadmaps" role="group" aria-labelledby="followup-roadmaps-label" style="display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-top:12px;">
+        <span id="followup-roadmaps-label" class="task-followup-roadmaps__label">Open roadmap in a new tab:</span>
+        ${roadmapAnchor('https://connect.byu.edu/hub/ces/pathways/module-1-know-your-career-interests-and-options-beta-version-copy-ZWDJnjQ1Dm/steps/0', 'Career Explorer roadmap')}
+        ${roadmapAnchor('https://ces.peoplegrove.com/hub/ces/pathways/roadmap-5-networking-job-search-r5-copy-kO5LvQ4GdV/steps/0', 'R1: Networking Job Search roadmap')}
+      </span>
     </span>`;
 }
 
@@ -822,8 +830,6 @@ function bindTaskInlineControl(item, task) {
       state.checked[task.id] = true;
       persistState();
       renderStep();
-      const url = btn.dataset.roadmapUrl;
-      if (url) window.open(url, '_blank', 'noopener,noreferrer');
     });
   });
 }
